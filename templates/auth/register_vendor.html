@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Daftar Sebagai Vendor Terkurasi - Vendorama{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 4rem 0;">
+  <div class="card container-narrow" style="max-width: 600px; margin: 0 auto; padding: 2.5rem;">
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <span class="badge badge-emerald" style="margin-bottom: 0.5rem;">Mitra Terverifikasi</span>
+      <h2 style="font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em;">Pendaftaran Vendor Mitra</h2>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem;">
+        Dapatkan akses ke ribuan calon klien dengan sistem pembayaran terjamin melalui Rekening Escrow resmi.
+      </p>
+    </div>
+
+    <div style="background: var(--primary-light); border: 1px solid var(--primary-border); border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 1.75rem; display: flex; gap: 0.75rem;">
+      <i data-lucide="info" style="color: var(--primary); min-width: 20px;"></i>
+      <p style="font-size: 0.85rem; color: #1e40af; line-height: 1.5;">
+        <strong>Kebijakan Kurasi Ketat:</strong> Setelah mendaftar, akun Anda akan berstatus <em>Pending Review</em> sampai tim kami menyelesaikan verifikasi identitas dan portofolio.
+      </p>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="form-group">
+          <label class="form-label">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}
+            <small style="color: var(--text-muted); font-size: 0.775rem;">{{ field.help_text }}</small>
+          {% endif %}
+          {% for error in field.errors %}
+            <div style="color: var(--crimson); font-size: 0.8rem; margin-top: 0.25rem;">{{ error }}</div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+
+      <button type="submit" class="btn btn-emerald" style="width: 100%; margin-top: 0.5rem;">
+        <i data-lucide="send"></i>
+        <span>Kirim Pendaftaran Vendor</span>
+      </button>
+    </form>
+
+    <div style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-secondary);">
+      Sudah terdaftar? <a href="{% url 'login' %}" style="font-weight: 600;">Masuk ke Portal Vendor</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

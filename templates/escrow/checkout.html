@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout Escrow Bergaransi - Vendorama{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 3.5rem 0;">
+  
+  <div class="container-narrow" style="max-width: 780px;">
+    
+    <div style="text-align: center; margin-bottom: 2.5rem;">
+      <span class="badge badge-emerald" style="margin-bottom: 0.5rem;">
+        <i data-lucide="shield-check"></i>
+        <span>Transaksi Dilindungi Escrow 100%</span>
+      </span>
+      <h1 style="font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em;">
+        Konfirmasi Pemesanan & Penampungan Dana
+      </h1>
+      <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.35rem;">
+        Dana Anda tidak langsung ditransfer ke vendor, melainkan ditampung aman di rekening bersama resmi Vendorama.
+      </p>
+    </div>
+
+    <!-- Order Summary Card -->
+    <div class="card" style="margin-bottom: 2rem;">
+      <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 1.25rem;">
+        <div>
+          <span class="badge badge-primary">{{ package.vendor.category.name }}</span>
+          <h2 style="font-size: 1.4rem; font-weight: 800; margin-top: 0.25rem;">{{ package.name }}</h2>
+          <div style="color: var(--text-secondary); font-size: 0.9rem;">
+            Vendor: <strong>{{ package.vendor.business_name }}</strong> (PIC: {{ package.vendor.pic_name }})
+          </div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">
+            Rp {{ total_price|floatformat:0 }}
+          </div>
+          <span class="badge badge-slate">{{ package.pax_capacity }} Pax</span>
+        </div>
+      </div>
+
+      <!-- 3-Tier Milestone Explanation -->
+      <div style="margin: 1.5rem 0;">
+        <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="split" style="color: var(--emerald);"></i>
+          <span>Skema Pencairan Bertahap ke Vendor (3 Termin)</span>
+        </h4>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+          <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-md); border-left: 3px solid var(--primary);">
+            <div style="font-size: 0.775rem; font-weight: 700; color: var(--primary); text-transform: uppercase;">Termin 1 (30% DP)</div>
+            <div style="font-size: 1.15rem; font-weight: 800; margin: 0.25rem 0;">Rp {{ dp_amount|floatformat:0 }}</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">Dicairkan untuk persiapan modal & reservasi jadwal vendor.</p>
+          </div>
+
+          <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-md); border-left: 3px solid var(--amber);">
+            <div style="font-size: 0.775rem; font-weight: 700; color: var(--amber); text-transform: uppercase;">Termin 2 (40% H-3)</div>
+            <div style="font-size: 1.15rem; font-weight: 800; margin: 0.25rem 0;">Rp {{ mid_amount|floatformat:0 }}</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">Dicairkan H-3 sebelum acara setelah vendor membuktikan kesiapan.</p>
+          </div>
+
+          <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-md); border-left: 3px solid var(--emerald);">
+            <div style="font-size: 0.775rem; font-weight: 700; color: var(--emerald); text-transform: uppercase;">Termin 3 (30% Pelunasan)</div>
+            <div style="font-size: 1.15rem; font-weight: 800; margin: 0.25rem 0;">Rp {{ final_amount|floatformat:0 }}</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">Dicairkan H+1 pasca-event setelah konfirmasi tanpa komplain.</p>
+          </div>
+        </div>
+      </div>
+
+      {% if vault and vault.current_amount > 0 %}
+        <div style="background: var(--emerald-light); border: 1px solid var(--emerald-border); border-radius: var(--radius-md); padding: 1rem; margin-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <i data-lucide="piggy-bank" style="color: var(--emerald);"></i>
+            <div>
+              <div style="font-weight: 700; font-size: 0.9rem; color: #065f46;">Saldo Tabungan Event Tersedia</div>
+              <div style="font-size: 0.825rem; color: var(--text-secondary);">
+                Dari: {{ vault.title }} (Rp {{ vault.current_amount|floatformat:0 }})
+              </div>
+            </div>
+          </div>
+          <span class="badge badge-emerald">Siap Digunakan</span>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Booking Form -->
+    <div class="card">
+      <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 1.25rem;">
+        Konfirmasi Detail Acara
+      </h3>
+
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="package_id" value="{{ package.id }}">
+        {% if plan %}
+          <input type="hidden" name="plan_id" value="{{ plan.id }}">
+        {% endif %}
+
+        <div class="form-group">
+          <label class="form-label">Tanggal Pelaksanaan Acara</label>
+          <input type="date" name="event_date" class="form-control" value="{% if plan %}{{ plan.event_date|date:'Y-m-d' }}{% endif %}" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Catatan Khusus untuk Vendor & Tim Escrow</label>
+          <textarea name="notes" class="form-control" rows="3" placeholder="Sebutkan lokasi spesifik gedung, tema warna, atau permintaan khusus..."></textarea>
+        </div>
+
+        <div style="background: var(--bg-surface-elevated); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1.5rem; font-size: 0.85rem; color: var(--text-secondary);">
+          <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.35rem;">
+            <i data-lucide="lock" style="width: 16px; height: 16px; color: var(--emerald);"></i>
+            <span>Jaminan Uang Kembali 100% (Financial Guarantee)</span>
+          </div>
+          Dengan menekan tombol di bawah, Anda menyetujui penempatan dana sebesar Rp {{ total_price|floatformat:0 }} ke Rekening Bersama Escrow Vendorama. Jika vendor wanprestasi, dana dapat di-refund sepenuhnya.
+        </div>
+
+        <button type="submit" class="btn btn-emerald btn-lg" style="width: 100%;">
+          <i data-lucide="shield-check"></i>
+          <span>Setor Dana ke Rekening Bersama Escrow</span>
+        </button>
+      </form>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

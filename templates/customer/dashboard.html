@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Customer - Vendorama{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 3.5rem 0;">
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <span class="badge badge-primary" style="margin-bottom: 0.5rem;">Customer Portal</span>
+      <h1 style="font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em;">Dashboard Acara Saya</h1>
+      <p style="color: var(--text-secondary); font-size: 0.95rem;">
+        Kelola rencana event, status akses Free vs Paid Planner, tabungan, dan pesanan bergaransi Escrow.
+      </p>
+    </div>
+
+    <a href="{% url 'planner_wizard' %}" class="btn btn-primary">
+      <i data-lucide="plus"></i>
+      <span>Buat Rencana Event Baru</span>
+    </a>
+  </div>
+
+  <!-- Savings Vault Highlights -->
+  {% if vaults %}
+    <div class="card" style="margin-bottom: 2.5rem; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <span class="badge badge-emerald" style="margin-bottom: 0.35rem;">Tabungan Event Aktif</span>
+          <h3 style="font-size: 1.35rem; font-weight: 800; color: white;">
+            {{ vaults.first.title }}
+          </h3>
+        </div>
+        <a href="{% url 'savings_detail' vault_id=vaults.first.id %}" class="btn btn-secondary btn-sm" style="background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.2);">
+          <i data-lucide="arrow-right"></i>
+          <span>Buka Vault</span>
+        </a>
+      </div>
+
+      <div style="margin: 0.75rem 0;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.95rem; font-weight: 700; margin-bottom: 0.35rem;">
+          <span style="color: #38bdf8;">Terkumpul: Rp {{ vaults.first.current_amount|floatformat:0 }}</span>
+          <span style="color: #cbd5e1;">Target: Rp {{ vaults.first.target_amount|floatformat:0 }}</span>
+        </div>
+        <div class="progress-container">
+          <div class="progress-bar" style="width: {{ vaults.first.progress_percentage }}%;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #94a3b8;">
+          <span>Progress: {{ vaults.first.progress_percentage }}%</span>
+          <span>Target Hari-H: {{ vaults.first.target_date|date:"d M Y" }}</span>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Active Escrow Orders -->
+  <div class="card" style="margin-bottom: 2.5rem;">
+    <div class="card-header">
+      <div>
+        <h2 style="font-size: 1.35rem; font-weight: 800;">Pesanan Bergaransi Escrow ({{ orders|length }})</h2>
+        <p style="font-size: 0.85rem; color: var(--text-secondary);">
+          Seluruh dana disimpan di Rekening Bersama resmi dan dicairkan bertahap sesuai milestone.
+        </p>
+      </div>
+    </div>
+
+    {% if orders %}
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+          <thead>
+            <tr style="border-bottom: 2px solid var(--border-color); text-align: left; color: var(--text-secondary);">
+              <th style="padding: 0.75rem 0.5rem;">Kode Order</th>
+              <th style="padding: 0.75rem 0.5rem;">Vendor & Paket</th>
+              <th style="padding: 0.75rem 0.5rem;">Tanggal Acara</th>
+              <th style="padding: 0.75rem 0.5rem;">Total Nilai</th>
+              <th style="padding: 0.75rem 0.5rem;">Status Escrow</th>
+              <th style="padding: 0.75rem 0.5rem;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for o in orders %}
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 0.85rem 0.5rem; font-weight: 700; color: var(--primary);">
+                  {{ o.order_code }}
+                </td>
+                <td style="padding: 0.85rem 0.5rem;">
+                  <div style="font-weight: 700;">{{ o.vendor.business_name }}</div>
+                  <small style="color: var(--text-secondary);">{{ o.package.name }}</small>
+                </td>
+                <td style="padding: 0.85rem 0.5rem; color: var(--text-secondary);">
+                  {{ o.event_date|date:"d M Y" }}
+                </td>
+                <td style="padding: 0.85rem 0.5rem; font-weight: 700;">
+                  Rp {{ o.total_price|floatformat:0 }}
+                </td>
+                <td style="padding: 0.85rem 0.5rem;">
+                  <span class="badge {% if o.escrow_status == 'COMPLETED' %}badge-emerald{% elif o.escrow_status == 'FROZEN' %}badge-crimson{% elif o.escrow_status == 'REFUNDED' %}badge-slate{% else %}badge-amber{% endif %}">
+                    {{ o.get_escrow_status_display }}
+                  </span>
+                </td>
+                <td style="padding: 0.85rem 0.5rem;">
+                  <a href="{% url 'order_detail' order_id=o.id %}" class="btn btn-secondary btn-sm">
+                    <i data-lucide="eye"></i>
+                    <span>Kelola Escrow</span>
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+        Belum ada transaksi pemesanan escrow aktif.
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Event Plans List (Free vs Paid Planner) -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2 style="font-size: 1.35rem; font-weight: 800;">Rencana Event Saya ({{ plans|length }})</h2>
+        <p style="font-size: 0.85rem; color: var(--text-secondary);">
+          Lihat kembali rekomendasi vendor hasil pencocokan wizard.
+        </p>
+      </div>
+    </div>
+
+    {% if plans %}
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem;">
+        {% for plan in plans %}
+          <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                <span class="badge badge-primary">{{ plan.event_category.name }}</span>
+                {% if plan.access_unlocks.first.is_unlocked %}
+                  <span class="badge badge-emerald">Paid Planner Aktif</span>
+                {% else %}
+                  <span class="badge badge-slate">Mode Free Planner</span>
+                {% endif %}
+              </div>
+
+              <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;">
+                {{ plan.title }}
+              </h3>
+
+              <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem;">
+                Tanggal: {{ plan.event_date|date:"d F Y" }} &bull; {{ plan.city }}<br>
+                Estimasi: {{ plan.estimated_pax }} Pax &bull; Budget: Rp {{ plan.budget_max|floatformat:0 }}
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem;">
+              <a href="{% url 'planner_results' plan_id=plan.id %}" class="btn btn-primary btn-sm" style="width: 100%;">
+                <i data-lucide="compass"></i>
+                <span>Lihat Vendor</span>
+              </a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+        Belum ada rencana event. Buat rencana pertama Anda lewat Wizard.
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+
+{% block title %}Portal Vendor - {{ vendor.business_name }} - Vendorama{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 3.5rem 0;">
+  
+  <!-- Vendor Profile Header -->
+  <div class="card" style="margin-bottom: 2.5rem; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+          {% if vendor.is_vetted %}
+            <span class="badge badge-emerald">
+              <i data-lucide="badge-check"></i>
+              <span>Vetted Partner Resmi</span>
+            </span>
+          {% else %}
+            <span class="badge badge-amber">
+              <i data-lucide="clock"></i>
+              <span>{{ vendor.get_verification_status_display }}</span>
+            </span>
+          {% endif %}
+          <span class="badge badge-slate" style="color: white; border-color: rgba(255,255,255,0.2);">{{ vendor.anonymized_code }}</span>
+          <span class="badge badge-primary">{{ vendor.category.name }}</span>
+        </div>
+
+        <h1 style="font-size: 2.2rem; font-weight: 800; color: white;">
+          {{ vendor.business_name }}
+        </h1>
+        <div style="color: #cbd5e1; font-size: 0.925rem; margin-top: 0.35rem; display: flex; gap: 1.5rem; flex-wrap: wrap;">
+          <span>PIC: {{ vendor.pic_name }}</span>
+          <span>Kota: {{ vendor.city }}</span>
+          <span>Kontak: {{ vendor.contact_phone }}</span>
+        </div>
+      </div>
+
+      <div style="text-align: right;">
+        <div style="font-size: 1.75rem; font-weight: 800; color: white; display: flex; align-items: center; justify-content: flex-end; gap: 0.35rem;">
+          <i data-lucide="star" style="width: 22px; height: 22px; fill: #f59e0b; color: #f59e0b;"></i>
+          <span>{{ vendor.rating }}</span>
+        </div>
+        <div style="color: #94a3b8; font-size: 0.85rem; margin-top: 0.2rem;">
+          {{ vendor.total_completed_events }} Event Berhasil
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+    
+    <!-- Left Column: Incoming Orders & Milestones -->
+    <div>
+      <div class="card" style="margin-bottom: 2.5rem;">
+        <div class="card-header">
+          <div>
+            <h2 style="font-size: 1.35rem; font-weight: 800;">Pesanan Masuk & Termin Escrow ({{ orders|length }})</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">
+              Dana ditampung aman di Escrow platform. Ajukan pencairan sesuai termin kesiapan.
+            </p>
+          </div>
+        </div>
+
+        {% if orders %}
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            {% for o in orders %}
+              <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                  <div>
+                    <span class="badge badge-primary">{{ o.order_code }}</span>
+                    <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-top: 0.25rem;">
+                      {{ o.package.name }}
+                    </h3>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                      Klien: {{ o.customer.username }} &bull; Tanggal Acara: {{ o.event_date|date:"d M Y" }}
+                    </div>
+                  </div>
+                  <div style="text-align: right;">
+                    <div style="font-weight: 800; font-size: 1.2rem; color: var(--primary);">
+                      Rp {{ o.total_price|floatformat:0 }}
+                    </div>
+                    <span class="badge {% if o.escrow_status == 'COMPLETED' %}badge-emerald{% elif o.escrow_status == 'FROZEN' %}badge-crimson{% else %}badge-amber{% endif %}">
+                      {{ o.get_escrow_status_display }}
+                    </span>
+                  </div>
+                </div>
+
+                <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                  <div style="font-size: 0.825rem; color: var(--text-muted);">
+                    Termin: DP 30% &bull; Pelaksanaan 40% &bull; Pelunasan 30%
+                  </div>
+                  <a href="{% url 'order_detail' order_id=o.id %}" class="btn btn-secondary btn-sm">
+                    <i data-lucide="eye"></i>
+                    <span>Buka Rincian & Termin Payout</span>
+                  </a>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+            Belum ada pesanan masuk. Pastikan paket layanan Anda telah aktif.
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Packages List -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 style="font-size: 1.35rem; font-weight: 800;">Katalog Paket Layanan ({{ packages|length }})</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">
+              Paket ini akan ditampilkan kepada calon customer yang mencari vendor.
+            </p>
+          </div>
+        </div>
+
+        {% if packages %}
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
+            {% for p in packages %}
+              <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                  <div style="font-weight: 700; font-size: 1rem;">{{ p.name }}</div>
+                  <span class="badge badge-slate">{{ p.pax_capacity }} Pax</span>
+                </div>
+                <div style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 0.5rem;">
+                  Rp {{ p.price|floatformat:0 }}
+                </div>
+                <ul style="font-size: 0.8rem; color: var(--text-secondary); margin-left: 1rem;">
+                  {% for s in p.get_spec_list %}
+                    <li>{{ s }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+            Belum ada paket yang terdaftar. Tambahkan paket pada form di sebelah kanan.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Right Column: Add Package Form -->
+    <div>
+      <div class="card" style="position: sticky; top: 96px;">
+        <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="plus-circle" style="color: var(--primary);"></i>
+          <span>Tambah Paket Layanan</span>
+        </h3>
+
+        <form method="post">
+          {% csrf_token %}
+          <div class="form-group">
+            <label class="form-label">Nama Paket</label>
+            <input type="text" name="name" class="form-control" placeholder="Contoh: Paket All-in Gold" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Harga Paket (IDR)</label>
+            <input type="number" name="price" class="form-control" placeholder="Contoh: 35000000" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Kapasitas Tamu (Pax)</label>
+            <input type="number" name="pax_capacity" class="form-control" value="200" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Spesifikasi Detail (Satu per baris)</label>
+            <textarea name="specifications" class="form-control" rows="4" placeholder="Menu utama 5 macam&#10;Dekorasi pelaminan 8 meter&#10;Dokumentasi 2 fotografer 1 videografer&#10;Sound system 5000 watt" required></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
+            <i data-lucide="save"></i>
+            <span>Simpan Paket</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Tabungan Event Saya - Vendorama{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 3.5rem 0;">
+  
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <span class="badge badge-primary" style="margin-bottom: 0.5rem;">Event Savings Vault</span>
+      <h1 style="font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em;">Tabungan Event Saya</h1>
+      <p style="color: var(--text-secondary); font-size: 0.95rem;">
+        Kumpulkan dana event secara fleksibel kapan saja. Seluruh setoran tersimpan aman di Rekening Penampungan Escrow.
+      </p>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+    
+    <!-- Vaults List -->
+    <div>
+      {% if vaults %}
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+          {% for vault in vaults %}
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--text-primary);">
+                    {{ vault.title }}
+                  </h3>
+                  <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                    Target Hari-H: {{ vault.target_date|date:"d F Y" }}
+                  </div>
+                </div>
+                <span class="badge badge-emerald">
+                  <i data-lucide="shield-check"></i>
+                  <span>Escrow Secured</span>
+                </span>
+              </div>
+
+              <!-- Progress Bar -->
+              <div style="margin: 1rem 0;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: 700; margin-bottom: 0.4rem;">
+                  <span style="color: var(--primary);">Terkumpul: Rp {{ vault.current_amount|floatformat:0 }}</span>
+                  <span style="color: var(--text-secondary);">Target: Rp {{ vault.target_amount|floatformat:0 }}</span>
+                </div>
+                <div class="progress-container">
+                  <div class="progress-bar" style="width: {{ vault.progress_percentage }}%;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);">
+                  <span>Progress: {{ vault.progress_percentage }}%</span>
+                  <span>Sisa: Rp {{ vault.remaining_amount|floatformat:0 }}</span>
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                <a href="{% url 'savings_detail' vault_id=vault.id %}" class="btn btn-primary btn-sm">
+                  <i data-lucide="plus-circle"></i>
+                  <span>Setor Tabungan / Detail</span>
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="card" style="text-align: center; padding: 3rem;">
+          <i data-lucide="piggy-bank" style="width: 48px; height: 48px; color: var(--primary); margin-bottom: 1rem;"></i>
+          <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Belum Ada Tabungan Event</h3>
+          <p style="color: var(--text-secondary); font-size: 0.925rem;">
+            Buat target tabungan event Anda di formulir sebelah kanan untuk memulai setoran fleksibel.
+          </p>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Create Vault Form Sidebar -->
+    <div>
+      <div class="card" style="position: sticky; top: 96px;">
+        <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="folder-plus" style="color: var(--primary);"></i>
+          <span>Buka Tabungan Baru</span>
+        </h3>
+
+        <form method="post">
+          {% csrf_token %}
+          {% for field in form %}
+            <div class="form-group">
+              <label class="form-label">{{ field.label }}</label>
+              {{ field }}
+            </div>
+          {% endfor %}
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
+            <i data-lucide="plus"></i>
+            <span>Buat Target Tabungan</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

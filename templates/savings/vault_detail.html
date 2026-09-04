@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Detail Tabungan: {{ vault.title }} - Vendorama{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 3rem 0;">
+  
+  <div style="margin-bottom: 1.5rem;">
+    <a href="{% url 'savings_list' %}" class="btn btn-secondary btn-sm">
+      <i data-lucide="arrow-left"></i>
+      <span>Kembali ke Daftar Tabungan</span>
+    </a>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+    
+    <!-- Vault Details & Deposits History -->
+    <div>
+      <!-- Vault Summary Card -->
+      <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">
+          <div>
+            <span class="badge badge-emerald" style="margin-bottom: 0.35rem;">Rekening Bersama Escrow Aktif</span>
+            <h1 style="font-size: 2rem; font-weight: 800; color: var(--text-primary);">
+              {{ vault.title }}
+            </h1>
+            <div style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem;">
+              Target Tanggal Acara: <strong>{{ vault.target_date|date:"d F Y" }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin: 1.5rem 0;">
+          <div style="display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 800; margin-bottom: 0.5rem;">
+            <span style="color: var(--primary);">Terkumpul: Rp {{ vault.current_amount|floatformat:0 }}</span>
+            <span style="color: var(--text-secondary);">Target: Rp {{ vault.target_amount|floatformat:0 }}</span>
+          </div>
+          <div class="progress-container" style="height: 16px;">
+            <div class="progress-bar" style="width: {{ vault.progress_percentage }}%;"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem;">
+            <span>Pencapaian: {{ vault.progress_percentage }}%</span>
+            <span>Kekurangan: Rp {{ vault.remaining_amount|floatformat:0 }}</span>
+          </div>
+        </div>
+
+        <div style="background: var(--primary-light); border: 1px solid var(--primary-border); border-radius: var(--radius-md); padding: 1rem; display: flex; align-items: center; gap: 0.75rem;">
+          <i data-lucide="shield-check" style="color: var(--primary); min-width: 20px;"></i>
+          <span style="font-size: 0.85rem; color: #1e40af;">
+            Seluruh saldo dalam tabungan ini dapat dialokasikan langsung untuk membayar uang muka (DP) atau pelunasan booking vendor bergaransi Escrow.
+          </span>
+        </div>
+      </div>
+
+      <!-- Deposit History Card -->
+      <div class="card">
+        <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="history" style="color: var(--text-primary);"></i>
+          <span>Riwayat Setoran Tabungan</span>
+        </h3>
+
+        {% if deposits %}
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.925rem;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border-color); text-align: left; color: var(--text-secondary);">
+                  <th style="padding: 0.75rem 0.5rem;">Waktu</th>
+                  <th style="padding: 0.75rem 0.5rem;">Nominal</th>
+                  <th style="padding: 0.75rem 0.5rem;">Metode</th>
+                  <th style="padding: 0.75rem 0.5rem;">Catatan</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for dep in deposits %}
+                  <tr style="border-bottom: 1px solid var(--border-color);">
+                    <td style="padding: 0.75rem 0.5rem; color: var(--text-muted); font-size: 0.85rem;">
+                      {{ dep.created_at|date:"d M Y H:i" }}
+                    </td>
+                    <td style="padding: 0.75rem 0.5rem; font-weight: 700; color: var(--emerald);">
+                      + Rp {{ dep.amount|floatformat:0 }}
+                    </td>
+                    <td style="padding: 0.75rem 0.5rem; color: var(--text-secondary);">
+                      {{ dep.payment_method }}
+                    </td>
+                    <td style="padding: 0.75rem 0.5rem; color: var(--text-secondary);">
+                      {{ dep.notes|default:"-" }}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+            Belum ada setoran tercatat. Masukkan setoran pertama Anda pada form di sebelah kanan.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Deposit Form Card -->
+    <div>
+      <div class="card" style="position: sticky; top: 96px;">
+        <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="plus-circle" style="color: var(--emerald);"></i>
+          <span>Setor Dana ke Vault</span>
+        </h3>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+          Setoran fleksibel kapan saja tanpa batas minimal kaku. Dana langsung diamankan di Escrow platform.
+        </p>
+
+        <form method="post">
+          {% csrf_token %}
+          <div class="form-group">
+            <label class="form-label">Nominal Setoran (IDR)</label>
+            {{ deposit_form.amount }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Catatan Tambahan (Opsional)</label>
+            {{ deposit_form.notes }}
+          </div>
+
+          <button type="submit" class="btn btn-emerald" style="width: 100%; margin-top: 0.5rem;">
+            <i data-lucide="arrow-down-circle"></i>
+            <span>Setor Sekarang</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Wizard Perencanaan Event - Vendorama{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 3.5rem 0;">
+  <div class="card container-narrow" style="max-width: 720px; margin: 0 auto; padding: 2.5rem;">
+    
+    <!-- Wizard Header -->
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <span class="badge badge-primary" style="margin-bottom: 0.5rem;">AI Event Matching Engine</span>
+      <h2 style="font-size: 2rem; font-weight: 800; letter-spacing: -0.02em;">Susun Kebutuhan Event Anda</h2>
+      <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.35rem;">
+        Masukkan estimasi budget, lokasi, dan kategori layanan untuk mendapatkan kurasi vendor yang presisi.
+      </p>
+    </div>
+
+    <!-- Wizard Steps Indicator -->
+    <div class="wizard-steps">
+      <div class="step-item active">
+        <div class="step-circle">1</div>
+        <div class="step-title">Kategori & Jadwal</div>
+      </div>
+      <div class="step-item active">
+        <div class="step-circle">2</div>
+        <div class="step-title">Kapasitas & Budget</div>
+      </div>
+      <div class="step-item active">
+        <div class="step-circle">3</div>
+        <div class="step-title">Kebutuhan Vendor</div>
+      </div>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+
+      <!-- Section 1 -->
+      <div style="margin-bottom: 2rem;">
+        <h4 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="calendar" style="color: var(--primary);"></i>
+          <span>1. Informasi Acara & Jadwal</span>
+        </h4>
+        
+        <div class="form-group">
+          <label class="form-label">Nama Rencana Acara</label>
+          {{ form.event_title }}
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Kategori Event</label>
+            {{ form.category }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kota / Lokasi Acara</label>
+            {{ form.city }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tanggal Pelaksanaan Acara</label>
+          {{ form.event_date }}
+        </div>
+      </div>
+
+      <!-- Section 2 -->
+      <div style="margin-bottom: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+        <h4 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="wallet" style="color: var(--emerald);"></i>
+          <span>2. Estimasi Tamu & Alokasi Budget</span>
+        </h4>
+
+        <div class="form-group">
+          <label class="form-label">Estimasi Jumlah Tamu (Pax)</label>
+          {{ form.estimated_pax }}
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Budget Minimum (IDR)</label>
+            {{ form.budget_min }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Budget Maksimum (IDR)</label>
+            {{ form.budget_max }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3 -->
+      <div style="margin-bottom: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+        <h4 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="layers" style="color: var(--primary);"></i>
+          <span>3. Kebutuhan Vendor yang Dicari</span>
+        </h4>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
+          <label style="display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); cursor: pointer;">
+            <input type="checkbox" name="services" value="catering" checked>
+            <span style="font-size: 0.9rem; font-weight: 600;">Catering & Menu</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); cursor: pointer;">
+            <input type="checkbox" name="services" value="decoration" checked>
+            <span style="font-size: 0.9rem; font-weight: 600;">Dekorasi & Panggung</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); cursor: pointer;">
+            <input type="checkbox" name="services" value="venue" checked>
+            <span style="font-size: 0.9rem; font-weight: 600;">Gedung / Venue</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); cursor: pointer;">
+            <input type="checkbox" name="services" value="documentation" checked>
+            <span style="font-size: 0.9rem; font-weight: 600;">Foto & Video</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); cursor: pointer;">
+            <input type="checkbox" name="services" value="sound" checked>
+            <span style="font-size: 0.9rem; font-weight: 600;">Sound & Lighting</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); cursor: pointer;">
+            <input type="checkbox" name="services" value="mc" checked>
+            <span style="font-size: 0.9rem; font-weight: 600;">MC & Entertainment</span>
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+        <i data-lucide="search"></i>
+        <span>Temukan Kurasi Vendor yang Cocok</span>
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

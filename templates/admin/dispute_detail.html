@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Arbitrase Sengketa: {{ dispute.ticket_code }} - Vendorama Admin{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 3.5rem 0;">
+  
+  <div style="margin-bottom: 1.5rem;">
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary btn-sm">
+      <i data-lucide="arrow-left"></i>
+      <span>Kembali ke Pusat Kendali Admin</span>
+    </a>
+  </div>
+
+  <div class="container-narrow" style="max-width: 820px;">
+    
+    <!-- Dispute Case Header -->
+    <div class="card" style="border-top: 4px solid var(--crimson); margin-bottom: 2rem;">
+      <div class="card-header">
+        <div>
+          <span class="badge badge-crimson" style="margin-bottom: 0.35rem;">Tiket Sengketa Escrow</span>
+          <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--text-primary);">
+            Tiket #{{ dispute.ticket_code }}
+          </h1>
+          <div style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem;">
+            Diajukan pada: {{ dispute.created_at|date:"d F Y H:i" }} &bull; Status Saat Ini: <strong>{{ dispute.get_status_display }}</strong>
+          </div>
+        </div>
+
+        <div style="text-align: right;">
+          <div style="font-size: 1.6rem; font-weight: 800; color: var(--crimson);">
+            Rp {{ order.total_price|floatformat:0 }}
+          </div>
+          <span class="badge badge-crimson">Dana Dibekukan</span>
+        </div>
+      </div>
+
+      <!-- Parties Involved -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+        <div>
+          <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+            <i data-lucide="user" style="color: var(--primary);"></i>
+            <span>Customer (Pelapor)</span>
+          </h4>
+          <div style="font-size: 0.9rem; line-height: 1.5;">
+            <strong>{{ dispute.complainant.username }}</strong><br>
+            Email: {{ dispute.complainant.email }}<br>
+            Telepon: {{ dispute.complainant.phone_number|default:"-" }}
+          </div>
+        </div>
+
+        <div>
+          <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+            <i data-lucide="store" style="color: var(--amber);"></i>
+            <span>Vendor (Terlapor)</span>
+          </h4>
+          <div style="font-size: 0.9rem; line-height: 1.5;">
+            <strong>{{ order.vendor.business_name }}</strong><br>
+            PIC: {{ order.vendor.pic_name }} ({{ order.vendor.contact_phone }})<br>
+            Status Verifikasi: {{ order.vendor.get_verification_status_display }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Complaint Details -->
+      <div style="margin-top: 1.5rem; padding: 1.25rem; background: var(--bg-surface-elevated); border-radius: var(--radius-md);">
+        <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem;">Kronologi & Alasan Pelaporan:</h4>
+        <p style="font-size: 0.925rem; color: var(--text-primary); line-height: 1.6;">
+          {{ dispute.reason }}
+        </p>
+
+        {% if dispute.evidence_text %}
+          <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-color);">
+            <strong>Tautan Bukti / Saksi:</strong>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">{{ dispute.evidence_text }}</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Escrow Milestones Status -->
+    <div class="card" style="margin-bottom: 2rem;">
+      <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 1rem;">
+        Status Saldo Escrow & Termin
+      </h3>
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        {% for m in milestones %}
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; border-radius: var(--radius-md); background: var(--bg-surface-elevated);">
+            <div>
+              <strong>Tahap {{ m.milestone_index }}: {{ m.title }}</strong>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">Persentase: {{ m.percentage }}%</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-weight: 700;">Rp {{ m.amount|floatformat:0 }}</div>
+              <span class="badge {% if m.status == 'RELEASED' %}badge-emerald{% else %}badge-slate{% endif %}">
+                {{ m.get_status_display }}
+              </span>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Arbitration Actions -->
+    {% if dispute.status == 'OPEN' or dispute.status == 'INVESTIGATING' %}
+      <div class="card" style="border: 2px solid var(--primary);">
+        <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="scale" style="color: var(--primary);"></i>
+          <span>Keputusan Arbitrase & Garansi Finansial</span>
+        </h3>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+          Sebagai pengelola platform, keputusan Anda mengikat. Mengeksekusi refund akan mengembalikan dana sisa ke customer dan memberikan penalti otomatis pada profil vendor.
+        </p>
+
+        <form method="post">
+          {% csrf_token %}
+          <div class="form-group">
+            <label class="form-label">Catatan Keputusan Resmi Arbitrase</label>
+            <textarea name="admin_notes" class="form-control" rows="3" placeholder="Tuliskan pertimbangan investigasi dan dasar keputusan..." required></textarea>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
+            <button type="submit" name="action" value="REFUND" class="btn btn-crimson btn-lg">
+              <i data-lucide="rotate-ccw"></i>
+              <span>Eksekusi 100% Refund ke Customer & Sanksi Vendor</span>
+            </button>
+
+            <button type="submit" name="action" value="REJECT" class="btn btn-secondary btn-lg">
+              <i data-lucide="check-circle-2"></i>
+              <span>Tolak Sengketa & Lanjutkan Payout</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    {% else %}
+      <div class="card" style="background: var(--bg-surface-elevated); text-align: center; padding: 2rem;">
+        <i data-lucide="check-circle-2" style="width: 40px; height: 40px; color: var(--emerald); margin-bottom: 0.5rem;"></i>
+        <h3 style="font-size: 1.2rem; font-weight: 800;">Sengketa Telah Diputuskan</h3>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem;">
+          Hasil: <strong>{{ dispute.get_status_display }}</strong> pada {{ dispute.resolved_at|date:"d M Y H:i" }}
+        </p>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">
+          "{{ dispute.admin_notes }}"
+        </p>
+      </div>
+    {% endif %}
+
+  </div>
+
+</div>
+{% endblock %}

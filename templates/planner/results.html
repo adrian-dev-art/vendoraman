@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+
+{% block title %}Rekomendasi Vendor: {{ plan.title }} - Vendorama{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 3rem 0;">
+  
+  <!-- Event Brief Header -->
+  <div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; border: none;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <span class="badge badge-emerald">
+            <i data-lucide="check-circle-2"></i>
+            <span>Rencana Event Tersimpan</span>
+          </span>
+          <span class="badge {% if is_unlocked %}badge-primary{% else %}badge-slate{% endif %}">
+            {% if is_unlocked %}Akses Paid Planner Aktif{% else %}Mode Free Planner{% endif %}
+          </span>
+        </div>
+        <h1 style="font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.5rem;">
+          {{ plan.title }}
+        </h1>
+        <div style="display: flex; gap: 1.5rem; color: #cbd5e1; font-size: 0.925rem; flex-wrap: wrap;">
+          <span style="display: flex; align-items: center; gap: 0.4rem;">
+            <i data-lucide="calendar" style="width: 16px; height: 16px; color: #38bdf8;"></i>
+            {{ plan.event_date|date:"d F Y" }}
+          </span>
+          <span style="display: flex; align-items: center; gap: 0.4rem;">
+            <i data-lucide="map-pin" style="width: 16px; height: 16px; color: #38bdf8;"></i>
+            {{ plan.city }}
+          </span>
+          <span style="display: flex; align-items: center; gap: 0.4rem;">
+            <i data-lucide="users" style="width: 16px; height: 16px; color: #38bdf8;"></i>
+            {{ plan.estimated_pax }} Tamu
+          </span>
+          <span style="display: flex; align-items: center; gap: 0.4rem;">
+            <i data-lucide="wallet" style="width: 16px; height: 16px; color: #38bdf8;"></i>
+            Budget: Rp {{ plan.budget_min|floatformat:0 }} - Rp {{ plan.budget_max|floatformat:0 }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Action Button or Vault CTA -->
+      <div style="display: flex; gap: 0.75rem; align-items: center;">
+        <a href="{% url 'savings_list' %}" class="btn btn-secondary btn-sm" style="background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.2);">
+          <i data-lucide="piggy-bank"></i>
+          <span>Hubungkan ke Tabungan</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dual Planner Notice & Unlock Banner -->
+  {% if not is_unlocked %}
+    <div class="card" style="border: 2px solid var(--primary); background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%); margin-bottom: 2.5rem; padding: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+        <div style="max-width: 700px;">
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <span class="badge badge-primary">
+              <i data-lucide="lock"></i>
+              <span>Anda Berada di Free Planner</span>
+            </span>
+          </div>
+          <h3 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--text-primary);">
+            Buka Profil Lengkap & Kontak Resmi Seluruh Vendor
+          </h3>
+          <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5;">
+            Pada mode Free Planner, nama dan kontak vendor disamarkan demi menjaga kepatuhan sistem. Aktifkan <strong>Paid Planner</strong> hanya dengan <strong>Rp 150.000 (sekali bayar per event)</strong> untuk membuka seluruh identitas resmi, kontak PIC WhatsApp, serta mendapatkan hak booking dengan <strong>Garansi Finansial Escrow 100%</strong>.
+          </p>
+        </div>
+
+        <div>
+          <form action="{% url 'unlock_planner' plan_id=plan.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary btn-lg" style="box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);">
+              <i data-lucide="unlock"></i>
+              <span>Beli Planner (Rp 150.000)</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="card" style="border: 1px solid var(--emerald-border); background: var(--emerald-light); margin-bottom: 2.5rem; padding: 1.25rem 1.75rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem; color: var(--emerald);">
+        <i data-lucide="shield-check" style="width: 24px; height: 24px;"></i>
+        <div>
+          <div style="font-weight: 700; font-size: 1rem;">Akses Paid Planner Aktif</div>
+          <div style="font-size: 0.875rem; color: #065f46;">
+            Seluruh identitas resmi, nomor WhatsApp PIC, dan tombol pemesanan bergaransi Escrow telah terbuka untuk event ini.
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Budget Allocation Recommendation -->
+  <div class="card" style="margin-bottom: 2.5rem;">
+    <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+      <i data-lucide="pie-chart" style="color: var(--primary);"></i>
+      <span>Rekomendasi Proporsi Alokasi Budget Anda</span>
+    </h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+      {% for name, amount in budget_allocations.items %}
+        <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-md);">
+          <div style="font-size: 0.825rem; color: var(--text-secondary); font-weight: 600;">{{ name }}</div>
+          <div style="font-size: 1.2rem; font-weight: 800; color: var(--text-primary); margin-top: 0.25rem;">
+            Rp {{ amount|floatformat:0 }}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Vendors Matching List -->
+  <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h2 style="font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em;">
+        Vendor Terkurasi yang Sesuai ({{ vendors|length }})
+      </h2>
+      <p style="font-size: 0.9rem; color: var(--text-secondary);">
+        Hanya menampilkan vendor yang telah lolos verifikasi ketat tim Vendorama.
+      </p>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+    {% for vendor in vendors %}
+      <div class="card {% if not is_unlocked %}masked-vendor-card{% endif %}">
+        <div class="card-header">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+              <span class="badge badge-emerald">
+                <i data-lucide="badge-check"></i>
+                <span>Vetted by Vendorama</span>
+              </span>
+              <span class="badge badge-slate">{{ vendor.category.name }}</span>
+              <span class="badge badge-primary">{{ vendor.city }}</span>
+            </div>
+
+            <!-- Business Name: Masked if Free, Full if Paid -->
+            {% if is_unlocked %}
+              <h3 style="font-size: 1.5rem; font-weight: 800; color: var(--text-primary);">
+                {{ vendor.business_name }}
+              </h3>
+              <div style="display: flex; gap: 1rem; font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                <span style="display: flex; align-items: center; gap: 0.35rem;">
+                  <i data-lucide="user" style="width: 14px; height: 14px;"></i>
+                  PIC: {{ vendor.pic_name }}
+                </span>
+                <span style="display: flex; align-items: center; gap: 0.35rem;">
+                  <i data-lucide="phone" style="width: 14px; height: 14px; color: var(--emerald);"></i>
+                  {{ vendor.contact_phone }}
+                </span>
+                <span style="display: flex; align-items: center; gap: 0.35rem;">
+                  <i data-lucide="mail" style="width: 14px; height: 14px;"></i>
+                  {{ vendor.contact_email }}
+                </span>
+              </div>
+            {% else %}
+              <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--text-primary);">
+                Vendor Terverifikasi #{{ vendor.anonymized_code }}
+              </h3>
+              <div style="display: flex; gap: 1rem; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">
+                <span>Kontak: <span class="blurred-field">0812-XXXX-XXXX</span></span>
+                <span>PIC: <span class="blurred-field">Nama PIC Dirahasiakan</span></span>
+                <span>Alamat: <span class="blurred-field">Alamat Lengkap Studio</span></span>
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Rating & Stats -->
+          <div style="text-align: right;">
+            <div style="display: flex; align-items: center; gap: 0.35rem; justify-content: flex-end; font-weight: 800; font-size: 1.15rem; color: var(--text-primary);">
+              <i data-lucide="star" style="width: 18px; height: 18px; fill: #f59e0b; color: #f59e0b;"></i>
+              <span>{{ vendor.rating }}</span>
+              <span style="font-size: 0.85rem; font-weight: 500; color: var(--text-muted);">/ 5.0</span>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">
+              {{ vendor.total_completed_events }} Event Terselesaikan
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <p style="color: var(--text-secondary); font-size: 0.925rem; margin-bottom: 1.25rem; line-height: 1.6;">
+          {{ vendor.description }}
+        </p>
+
+        <!-- Packages List -->
+        <div style="border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+          <div style="font-size: 0.875rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.75rem;">
+            Paket & Spesifikasi yang Tersedia:
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+            {% for pkg in vendor.packages.all %}
+              <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem; background: var(--bg-surface);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                  <div style="font-weight: 700; font-size: 1rem; color: var(--text-primary);">{{ pkg.name }}</div>
+                  <span class="badge badge-slate">{{ pkg.pax_capacity }} Pax</span>
+                </div>
+                <div style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 0.75rem;">
+                  Rp {{ pkg.price|floatformat:0 }}
+                </div>
+                
+                <div style="font-size: 0.825rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 1rem;">
+                  <strong>Spesifikasi:</strong>
+                  <ul style="margin: 0.35rem 0 0 1rem;">
+                    {% for spec in pkg.get_spec_list %}
+                      <li>{{ spec }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+
+                {% if is_unlocked %}
+                  <a href="{% url 'escrow_checkout' %}?package_id={{ pkg.id }}&plan_id={{ plan.id }}" class="btn btn-emerald btn-sm" style="width: 100%;">
+                    <i data-lucide="shield-check"></i>
+                    <span>Booking via Escrow (3 Termin)</span>
+                  </a>
+                {% else %}
+                  <a href="{% url 'vendor_detail' plan_id=plan.id vendor_id=vendor.id %}" class="btn btn-secondary btn-sm" style="width: 100%;">
+                    <i data-lucide="eye"></i>
+                    <span>Lihat Rincian Spesifikasi</span>
+                  </a>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Bottom Actions -->
+        <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px dashed var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--emerald);">
+            <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i>
+            <span>Transaksi Dilindungi Rekening Bersama Escrow Vendorama</span>
+          </div>
+
+          {% if not is_unlocked %}
+            <form action="{% url 'unlock_planner' plan_id=plan.id %}" method="post">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-primary btn-sm">
+                <i data-lucide="unlock"></i>
+                <span>Beli Planner untuk Buka Profil & Kontak</span>
+              </button>
+            </form>
+          {% else %}
+            <a href="{% url 'vendor_detail' plan_id=plan.id vendor_id=vendor.id %}" class="btn btn-secondary btn-sm">
+              <i data-lucide="external-link"></i>
+              <span>Profil Lengkap & Portofolio</span>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <div class="card" style="text-align: center; padding: 3rem;">
+        <i data-lucide="search-x" style="width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 1rem;"></i>
+        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Tidak Ada Vendor yang Cocok</h3>
+        <p style="color: var(--text-secondary); font-size: 0.925rem; margin-bottom: 1.5rem;">
+          Coba sesuaikan rentang budget atau ubah kategori layanan event Anda.
+        </p>
+        <a href="{% url 'planner_wizard' %}" class="btn btn-primary">
+          <i data-lucide="refresh-cw"></i>
+          <span>Ulangi Pencarian Wizard</span>
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
