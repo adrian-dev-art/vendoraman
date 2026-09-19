@@ -669,3 +669,69 @@ class LaunchChecklistTests(TestCase):
         ok, msg = code.is_valid_for(cat)
         self.assertFalse(ok)
         self.assertIn("habis", msg.lower())
+
+    def test_excel_templates_catalog_view(self):
+        resp = self.client.get(reverse('excel_templates_catalog'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'Pernikahan')
+
+    def test_excel_template_category_view(self):
+        cat = EventCategory.objects.first()
+        resp = self.client.get(reverse('excel_template_category', kwargs={'category_slug': cat.slug}))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, cat.name)
+        self.assertContains(resp, 'Unduh Excel')
+
+    def test_excel_template_category_view_404(self):
+        resp = self.client.get(reverse('excel_template_category', kwargs={'category_slug': 'nonexistent-slug'}))
+        self.assertEqual(resp.status_code, 404)
+
+    def test_excel_template_download_without_login(self):
+        from core.models import TemplateDownloadCode, TemplateDownloadLog
+        cat = EventCategory.objects.first()
+        code = TemplateDownloadCode.objects.create(code="VND-TEST-DL", category=cat, max_uses=1)
+        
+        # Download without login
+        self.client.logout()
+        resp = self.client.post(
+            reverse('excel_template_download', kwargs={'category_slug': cat.slug}),
+            {'code': 'vnd-test-dl', 'email': 'shopee_buyer@example.com'}
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp['Content-Type'], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        self.assertIn(f'filename="Vendoraman_Template_{cat.slug}.xlsx"', resp['Content-Disposition'])
+        
+        # Verify quota increment and log
+        code.refresh_from_db()
+        self.assertEqual(code.used_count, 1)
+        self.assertTrue(TemplateDownloadLog.objects.filter(download_code=code, email='shopee_buyer@example.com').exists())
+
+    def test_excel_template_download_universal_code(self):
+        from core.models import TemplateDownloadCode
+        cat = EventCategory.objects.first()
+        uni_code = TemplateDownloadCode.objects.create(code="VND-MSTR-UNI", category=None, max_uses=2)
+        
+        resp = self.client.post(
+            reverse('excel_template_download', kwargs={'category_slug': cat.slug}),
+            {'code': 'VND-MSTR-UNI'}
+        )
+        self.assertEqual(resp.status_code, 200)
+        uni_code.refresh_from_db()
+        self.assertEqual(uni_code.used_count, 1)
+
+    def test_excel_template_download_mismatch_rejected(self):
+        from core.models import TemplateDownloadCode
+        cat1 = EventCategory.objects.first()
+        cat2 = EventCategory.objects.create(name='Ulang Tahun', slug='birthday', icon_name='cake')
+        code = TemplateDownloadCode.objects.create(code="VND-BDAY-ONLY", category=cat2, max_uses=1)
+        
+        # Try to use birthday code on cat1
+        resp = self.client.post(
+            reverse('excel_template_download', kwargs={'category_slug': cat1.slug}),
+            {'code': 'VND-BDAY-ONLY'},
+            follow=True
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Ulang Tahun")
+        code.refresh_from_db()
+        self.assertEqual(code.used_count, 0)

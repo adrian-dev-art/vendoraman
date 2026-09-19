@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Koleksi Master Template Excel Event & Wedding - Vendoraman{% endblock %}
+{% block meta_description %}Koleksi lengkap template Excel manajemen acara dan pernikahan berformula otomatis, anti-boncos, standar EO & WO profesional. Unduh instan dengan kode unik.{% endblock %}
+
+{% block content %}
+<div class="wrap" style="padding: 40px 20px 60px;">
+
+  <!-- Hero Header -->
+  <div style="text-align: center; max-width: 840px; margin: 0 auto 48px;">
+    <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(178, 58, 93, 0.1); border: 1px solid rgba(178, 58, 93, 0.25); color: var(--berry); padding: 6px 16px; border-radius: 99px; font-size: 0.82rem; font-weight: 700; margin-bottom: 18px;">
+      <i data-lucide="file-spreadsheet" style="width: 15px; height: 15px;"></i>
+      <span>KOLEKSI RESMI VENDORAMAN EXCEL SERIES</span>
+    </div>
+    <h1 style="font-size: 2.3rem; line-height: 1.25; margin-bottom: 16px; color: var(--ink);">
+      Master Template Excel Event &amp; Pernikahan Standar EO/WO Profesional
+    </h1>
+    <p style="font-size: 1.05rem; color: var(--ink-soft); line-height: 1.6; margin-bottom: 24px;">
+      Kelola anggaran tanpa takut boncos, koordinasi rundown menit-demi-menit tepat waktu, dan pilih vendor terkurasi. 
+      <strong>Diformulasikan otomatis siap pakai</strong> di Microsoft Excel maupun Google Sheets.
+    </p>
+
+    <!-- Value Badges -->
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 10px;">
+      <div style="display: inline-flex; align-items: center; gap: 6px; background: #fff; border: 1px solid var(--border-soft); padding: 6px 14px; border-radius: 8px; font-size: 0.84rem; color: var(--ink);">
+        <i data-lucide="zap" style="width: 15px; height: 15px; color: #D9A441;"></i>
+        <span>Unduh Langsung Tanpa Perlu Login</span>
+      </div>
+      <div style="display: inline-flex; align-items: center; gap: 6px; background: #fff; border: 1px solid var(--border-soft); padding: 6px 14px; border-radius: 8px; font-size: 0.84rem; color: var(--ink);">
+        <i data-lucide="shield-check" style="width: 15px; height: 15px; color: var(--sage);"></i>
+        <span>Legal &amp; Berhak Cipta Resmi</span>
+      </div>
+      <div style="display: inline-flex; align-items: center; gap: 6px; background: #fff; border: 1px solid var(--border-soft); padding: 6px 14px; border-radius: 8px; font-size: 0.84rem; color: var(--ink);">
+        <i data-lucide="check-circle-2" style="width: 15px; height: 15px; color: var(--berry);"></i>
+        <span>100% Formula Otomatis</span>
+      </div>
+      <div style="display: inline-flex; align-items: center; gap: 6px; background: #fff; border: 1px solid var(--border-soft); padding: 6px 14px; border-radius: 8px; font-size: 0.84rem; color: var(--ink);">
+        <i data-lucide="laptop" style="width: 15px; height: 15px; color: #4B4F72;"></i>
+        <span>Kompatibel Excel &amp; Google Sheets</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Cards Grid -->
+  <div style="margin-bottom: 56px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+      <div>
+        <span style="font-size: 0.8rem; font-weight: 700; color: var(--berry); text-transform: uppercase; letter-spacing: 0.05em;">PILIH KATEGORI ACARA ANDA</span>
+        <h2 style="margin: 4px 0 0; font-size: 1.6rem;">Katalog Template Spesifik per Kategori</h2>
+      </div>
+      <span style="font-size: 0.88rem; color: var(--ink-soft);">Punya kode unik dari Shopee? Buka kategori Anda untuk mengunduh.</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+      {% for item in categories_data %}
+        <div class="panel" style="display: flex; flex-direction: column; justify-content: space-between; padding: 28px; border-radius: 16px; border: 1px solid var(--border-soft); background: #ffffff; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 18px rgba(27, 31, 59, 0.04);">
+          <div>
+            <!-- Top Card Header -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(178, 58, 93, 0.08); display: flex; align-items: center; justify-content: center; color: var(--berry);">
+                <i data-lucide="{{ item.category.icon_name|default:'calendar' }}" style="width: 24px; height: 24px;"></i>
+              </div>
+              <span class="status-badge confirmed" style="font-size: 0.72rem; padding: 4px 10px;">
+                5 SHEET FORMULA
+              </span>
+            </div>
+
+            <!-- Title & Audience -->
+            <h3 style="font-size: 1.25rem; margin-bottom: 6px; color: var(--ink);">{{ item.category.name }}</h3>
+            <p style="font-size: 0.8rem; font-weight: 600; color: var(--berry); margin-bottom: 12px;">
+              Target: {{ item.info.target_audience }}
+            </p>
+            <p style="font-size: 0.88rem; color: var(--ink-soft); line-height: 1.5; margin-bottom: 18px;">
+              {{ item.info.subheadline }}
+            </p>
+
+            <!-- Key Perks -->
+            <div style="border-top: 1px dashed var(--border-soft); padding-top: 14px; margin-bottom: 20px;">
+              <div style="font-size: 0.78rem; font-weight: 700; color: var(--ink); margin-bottom: 8px;">FITUR UNGGULAN:</div>
+              <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
+                {% for perk in item.info.key_perks|slice:":3" %}
+                  <li style="display: flex; align-items: flex-start; gap: 8px; font-size: 0.82rem; color: var(--ink-soft); line-height: 1.4;">
+                    <i data-lucide="check" style="width: 14px; height: 14px; color: var(--sage); flex-shrink: 0; margin-top: 2px;"></i>
+                    <span>{{ perk }}</span>
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+
+          <!-- Bottom Action -->
+          <div style="margin-top: 10px;">
+            <a href="{% url 'excel_template_category' item.category.slug %}" class="btn btn-berry" style="width: 100%; justify-content: center; padding: 12px 18px;">
+              <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+              <span>Buka Detail &amp; Unduh (.xlsx)</span>
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- 5 Sheet Overview Showcase -->
+  <div class="panel" style="padding: 40px 32px; border-radius: 20px; background: #F8FAF6; border: 1px solid var(--border-soft); margin-bottom: 56px;">
+    <div style="text-align: center; max-width: 700px; margin: 0 auto 36px;">
+      <span style="font-size: 0.8rem; font-weight: 700; color: var(--sage); text-transform: uppercase;">STRUKTUR LENGKAP FILE</span>
+      <h2 style="margin: 8px 0 10px; font-size: 1.8rem;">5 Sheet Otomatis di Setiap Template Excel</h2>
+      <p style="font-size: 0.92rem; color: var(--ink-soft);">
+        Dirancang khusus oleh kurator acara dan tim Wedding Organizer untuk memastikan seluruh aspek acara terkendali tanpa celah.
+      </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+      <div style="background: #ffffff; padding: 22px; border-radius: 12px; border: 1px solid var(--border-soft);">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <span style="background: #1B1F3B; color: #fff; font-size: 0.75rem; font-weight: 700; width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">1</span>
+          <h4 style="margin: 0; font-size: 1rem;">Budget &amp; Bayar</h4>
+        </div>
+        <p style="font-size: 0.82rem; color: var(--ink-soft); line-height: 1.5; margin: 0;">
+          Kontrol finansial eksekutif. Kolom kuning siap diisi, formula otomatis menghitung total pagu, sisa anggaran, persentase serapan, DP, dan termin pelunasan.
+        </p>
+      </div>
+
+      <div style="background: #ffffff; padding: 22px; border-radius: 12px; border: 1px solid var(--border-soft);">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <span style="background: #1B1F3B; color: #fff; font-size: 0.75rem; font-weight: 700; width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">2</span>
+          <h4 style="margin: 0; font-size: 1rem;">Direktori Vendor Terkurasi</h4>
+        </div>
+        <p style="font-size: 0.82rem; color: var(--ink-soft); line-height: 1.5; margin: 0;">
+          List vendor resmi terverifikasi dan vetted di kategori event bersangkutan. Lengkap dengan nama vendor, domisili kota, kategori, dan rating review.
+        </p>
+      </div>
+
+      <div style="background: #ffffff; padding: 22px; border-radius: 12px; border: 1px solid var(--border-soft);">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <span style="background: #1B1F3B; color: #fff; font-size: 0.75rem; font-weight: 700; width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">3</span>
+          <h4 style="margin: 0; font-size: 1rem;">Jadwal &amp; Rundown Hari-H</h4>
+        </div>
+        <p style="font-size: 0.82rem; color: var(--ink-soft); line-height: 1.5; margin: 0;">
+          Hitung mundur live hari acara (TODAY), target persiapan bulanan &amp; mingguan, serta susunan rundown teknis menit-demi-menit beserta nama PIC.
+        </p>
+      </div>
+
+      <div style="background: #ffffff; padding: 22px; border-radius: 12px; border: 1px solid var(--border-soft);">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <span style="background: #1B1F3B; color: #fff; font-size: 0.75rem; font-weight: 700; width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">4</span>
+          <h4 style="margin: 0; font-size: 1rem;">Hitung Katering Cerdas</h4>
+        </div>
+        <p style="font-size: 0.82rem; color: var(--ink-soft); line-height: 1.5; margin: 0;">
+          Kalkulator rasio katering buffet 60% vs stall 40%, buffer pax pengaman 10%, simulasi biaya per tamu (Cost/Pax), dan analisis skenario kehadiran.
+        </p>
+      </div>
+
+      <div style="background: #ffffff; padding: 22px; border-radius: 12px; border: 1px solid var(--border-soft);">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <span style="background: #1B1F3B; color: #fff; font-size: 0.75rem; font-weight: 700; width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">5</span>
+          <h4 style="margin: 0; font-size: 1rem;">Master Daftar Barang</h4>
+        </div>
+        <p style="font-size: 0.82rem; color: var(--ink-soft); line-height: 1.5; margin: 0;">
+          Checklist 20+ item perlengkapan logistik penting, status kesiapan barang, lokasi penyimpanan, dan penanggung jawab perlengkapan saat Hari-H.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shopee Banner & Guide -->
+  <div style="background: linear-gradient(135deg, #EE4D2D 0%, #FF5722 100%); color: #ffffff; border-radius: 20px; padding: 36px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px;">
+    <div style="max-width: 620px;">
+      <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; margin-bottom: 12px;">
+        <i data-lucide="shopping-bag" style="width: 14px; height: 14px;"></i>
+        <span>BELUM MEMILIKI KODE UNIK?</span>
+      </div>
+      <h3 style="color: #ffffff; font-size: 1.6rem; margin: 0 0 10px;">Dapatkan Template Resmi di Toko Shopee Vendoraman</h3>
+      <p style="color: rgba(255,255,255,0.9); font-size: 0.92rem; line-height: 1.5; margin: 0;">
+        Pesan template kategori Anda di Shopee Official Store, dan dapatkan <strong>Kode Unik Digital</strong> instan via chat Shopee dalam 5-10 menit. Bebas ongkir 100%.
+      </p>
+    </div>
+    <div>
+      {% if SHOPEE_VOUCHER_URL %}
+        <a href="{{ SHOPEE_VOUCHER_URL }}" target="_blank" rel="noopener" class="btn" style="background: #ffffff; color: #EE4D2D; font-weight: 700; padding: 14px 24px; border-radius: 10px; font-size: 0.95rem; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+          <i data-lucide="external-link" style="width: 18px; height: 18px;"></i>
+          <span>Beli di Shopee Sekarang</span>
+        </a>
+      {% else %}
+        <a href="https://shopee.co.id" target="_blank" rel="noopener" class="btn" style="background: #ffffff; color: #EE4D2D; font-weight: 700; padding: 14px 24px; border-radius: 10px; font-size: 0.95rem; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+          <i data-lucide="shopping-cart" style="width: 18px; height: 18px;"></i>
+          <span>Kunjungi Toko Shopee</span>
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

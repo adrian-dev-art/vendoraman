@@ -66,6 +66,12 @@
               <span>Cari Vendor</span>
             </a>
           </li>
+          <li>
+            <a href="{% url 'excel_templates_catalog' %}" class="nav-link">
+              <i data-lucide="file-spreadsheet" style="width: 16px; height: 16px;"></i>
+              <span>Template Excel</span>
+            </a>
+          </li>
           {% if user.is_authenticated %}
             {% if user.is_customer %}
               <li>

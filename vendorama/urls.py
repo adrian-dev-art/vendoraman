@@ -6,6 +6,9 @@ from django.conf.urls.static import static
 
 from core.sitemaps import StaticViewSitemap
 from core.views_home import home_view, trust_guarantee_view, privacy_policy_view, terms_view, robots_txt_view, free_template_view, free_template_download_view, paid_template_view, paid_template_download_view
+from core.views_templates import (
+    excel_templates_catalog_view, excel_template_category_view, excel_template_download_action
+)
 from core.views_auth import login_view, register_customer_view, register_vendor_view, logout_view
 from core.views_planner import (
     planner_wizard_view, planner_results_view, unlock_planner_view, vendor_detail_view,
@@ -28,6 +31,10 @@ urlpatterns = [
     path('syarat-ketentuan/', terms_view, name='terms'),
     path('robots.txt', robots_txt_view, name='robots'),
     path('sitemap.xml', sitemap, {'sitemaps': {'static': StaticViewSitemap}}, name='sitemap'),
+    # Public Excel Category Templates & Unique Code Download (Without Login)
+    path('templates/', excel_templates_catalog_view, name='excel_templates_catalog'),
+    path('templates/<slug:category_slug>/', excel_template_category_view, name='excel_template_category'),
+    path('templates/<slug:category_slug>/unduh/', excel_template_download_action, name='excel_template_download'),
     # Hidden free-template page (NOT linked in nav/footer/sitemap; admin-gated)
     path('template-gratis/', free_template_view, name='free_template'),
     path('template-gratis/unduh/', free_template_download_view, name='free_template_download'),
