@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Katalog Mass Upload Shopee - Vendorama Master Event Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0f172a;
+      --secondary: #1e293b;
+      --accent-gold: #d97706;
+      --accent-gold-light: #fef3c7;
+      --accent-emerald: #059669;
+      --surface: #ffffff;
+      --bg: #f8fafc;
+      --line: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --shopee-orange: #ee4d2d;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      line-height: 1.6;
+      padding-bottom: 80px;
+    }
+    .header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #fff;
+      padding: 40px 24px;
+      text-align: center;
+      border-bottom: 3px solid var(--accent-gold);
+    }
+    .badge-shopee {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(238, 77, 45, 0.15);
+      border: 1px solid var(--shopee-orange);
+      color: #ff8469;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 14px;
+      border-radius: 99px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .sub {
+      color: #94a3b8;
+      max-width: 680px;
+      margin: 0 auto;
+      font-size: 1rem;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 32px auto 0;
+      padding: 0 20px;
+    }
+    .grid-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .action-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    .action-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 6px;
+      color: var(--primary);
+    }
+    .action-card p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-orange {
+      background: var(--shopee-orange);
+      color: #fff;
+    }
+    .btn-orange:hover {
+      background: #d73211;
+    }
+    .btn-navy {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-navy:hover {
+      background: #1e293b;
+    }
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin: 36px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    .img-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+    }
+    .img-card img {
+      width: 100%;
+      aspect-ratio: 1/1;
+      object-fit: cover;
+      border-bottom: 1px solid var(--line);
+    }
+    .img-meta {
+      padding: 16px;
+    }
+    .img-meta h4 {
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+      color: var(--primary);
+    }
+    .img-meta span {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .product-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .product-item {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .product-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+    }
+    .product-header h3 {
+      font-size: 1.15rem;
+      color: var(--primary);
+      max-width: 750px;
+    }
+    .price-tag {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--shopee-orange);
+    }
+    .meta-pills {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .pill {
+      background: #f1f5f9;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #475569;
+    }
+    .pill.green { background: #dcfce7; color: #15803d; }
+    .pill.gold { background: #fef3c7; color: #b45309; }
+    pre.desc-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      white-space: pre-wrap;
+      color: #334155;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="badge-shopee">SHOPEE MASS UPLOAD READY</div>
+    <h1>Katalog Digital Vendorama - Master Event Planner</h1>
+    <p class="sub">Paket lengkap file mass upload (.xlsx), aset gambar cover & infografis 1:1, serta template deskripsi produk berdaya konversi tinggi.</p>
+  </header>
+
+  <div class="container">
+    
+    <div class="grid-actions">
+      <div class="action-card">
+        <div>
+          <span class="pill gold" style="margin-bottom: 8px; display: inline-block;">Format Rekomendasi</span>
+          <h3>Shopee Category Template (.xlsx)</h3>
+          <p>Sudah terisi 8 produk dengan kategori <strong>101514 (Layanan)</strong>, atribut <strong>Bentuk Voucher = Digital</strong>, Merek = Tidak Ada Merek, harga, stok, & deskripsi.</p>
+        </div>
+        <a href="Shopee_mass_upload_FILLED_category_100642.xlsx" class="btn btn-orange" download>
+          Unduh File Excel Kategori (100642)
+        </a>
+      </div>
+
+      <div class="action-card">
+        <div>
+          <span class="pill" style="margin-bottom: 8px; display: inline-block;">Format Universal</span>
+          <h3>Shopee Basic Template (.xlsx)</h3>
+          <p>Format universal Shopee Seller Centre tanpa atribut kategori spesifik. Siap diunggah langsung ke menu Tambah Produk Massal.</p>
+        </div>
+        <a href="Shopee_mass_upload_FILLED_basic.xlsx" class="btn btn-navy" download>
+          Unduh File Excel Basic
+        </a>
+      </div>
+
+      <div class="action-card">
+        <div>
+          <span class="pill green" style="margin-bottom: 8px; display: inline-block;">Dokumentasi Lengkap</span>
+          <h3>Panduan & Deskripsi (.md)</h3>
+          <p>Dokumentasi seluruh teks deskripsi per produk siap copy-paste, aturan penamaan SEO, dan tips lolos verifikasi Shopee.</p>
+        </div>
+        <a href="DESKRIPSI_PRODUK_SHOPEE.md" class="btn btn-navy" target="_blank">
+          Buka Teks Deskripsi
+        </a>
+      </div>
+    </div>
+
+    <h2 class="section-title">Aset Gambar Produk (Rasio 1:1 Standar Shopee)</h2>
+    <div class="gallery">
+      <div class="img-card">
+        <img src="shopee_assets/cover_master_bundle.jpg" alt="Master Bundle Cover">
+        <div class="img-meta">
+          <h4>Foto Sampul: All-in-One Master Bundle</h4>
+          <span>Mockup 3D Laptop Excel & Booklet Pitch Deck</span>
+        </div>
+      </div>
+      <div class="img-card">
+        <img src="shopee_assets/cover_wedding.jpg" alt="Wedding Planner Cover">
+        <div class="img-meta">
+          <h4>Foto Sampul: Wedding & Resepsi Planner</h4>
+          <span>Nuansa elegan luxury champagne, booklet rundown bunga</span>
+        </div>
+      </div>
+      <div class="img-card">
+        <img src="shopee_assets/cover_corporate.jpg" alt="Corporate Planner Cover">
+        <div class="img-meta">
+          <h4>Foto Sampul: Corporate Event & Gathering</h4>
+          <span>Desain eksekutif navy, budget & rundown timeline</span>
+        </div>
+      </div>
+      <div class="img-card">
+        <img src="shopee_assets/slide_features_sheets.jpg" alt="5 Fitur Utama">
+        <div class="img-meta">
+          <h4>Slide Fitur: 5 Tab Otomatis Workbook</h4>
+          <span>Infografis Anggaran, Vendor, Rundown, Katering & Logistik</span>
+        </div>
+      </div>
+      <div class="img-card">
+        <img src="shopee_assets/slide_bonus_pitch_deck.jpg" alt="Executive Pitch Deck">
+        <div class="img-meta">
+          <h4>Slide Bonus: Executive Pitch Deck 11 Slide</h4>
+          <span>11 Slide PDF presentasi keluarga & direksi</span>
+        </div>
+      </div>
+      <div class="img-card">
+        <img src="shopee_assets/slide_how_to_order.jpg" alt="Cara Pemesanan">
+        <div class="img-meta">
+          <h4>Slide Panduan: Cara Pemesanan & Pengiriman</h4>
+          <span>Pengiriman kilat 5 menit via email & garansi legal</span>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title">Daftar Produk yang Sudah Disiapkan (8 Item)</h2>
+    <div class="product-list">
+
+      <div class="product-item">
+        <div class="product-header">
+          <div>
+            <h3>1. Vendorama Master Event Planner All-in-One Template Excel & PDF Deck - 6 in 1 Komplit Otomatis</h3>
+            <div class="meta-pills" style="margin-top: 8px;">
+              <span class="pill gold">SKU: VND-MSTR-ALL</span>
+              <span class="pill green">Stok: 999</span>
+              <span class="pill">Kategori: 101514</span>
+              <span class="pill">Format: Excel + PDF</span>
+            </div>
+          </div>
+          <div class="price-tag">Rp 149.000</div>
+        </div>
+        <p style="font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted);">Pratinjau Deskripsi Produk:</p>
+        <pre class="desc-box">[ PROMO SPESIAL ] MASTER EVENT PLANNER ALL-IN-ONE (TEMPLATE EXCEL + BONUS PITCH DECK PDF)
+Karya Asli & Berlisensi Resmi Vendorama | 100% Bebas Ongkir (Produk Digital)
+
+Pusing mengurus anggaran bengkak, vendor molor, dan rundown acara yang berantakan?
+Vendorama Master Event Planner All-in-One adalah solusi manajemen acara terlengkap di Indonesia. Dirancang khusus dengan standar profesional Wedding Organizer (WO) dan Event Management Agency papan atas...
+
+ISI PAKET:
+1. 5 Tab Formula Otomatis Excel (Anggaran, Direktori Vendor, Rundown H-90 s/d Hari-H, Kalkulator Katering 60:40, Checklist Logistik).
+2. Bonus Executive Pitch Deck PDF 11 Slide siap presentasi ke keluarga / direksi kantor.
+3. Termasuk 6 modul acara (Wedding, Corporate, Seminar, Ulang Tahun, Pameran, Intimate Gathering).
+
+PENGIRIMAN:
+- File dikirim via email dalam 5 menit setelah checkout Shopee.</pre>
+      </div>
+
+      <div class="product-item">
+        <div class="product-header">
+          <div>
+            <h3>2. Template Excel Wedding Planner & Rundown Resepsi Pernikahan Hari-H + Kalkulator Porsi Katering</h3>
+            <div class="meta-pills" style="margin-top: 8px;">
+              <span class="pill gold">SKU: VND-WED-01</span>
+              <span class="pill green">Stok: 999</span>
+              <span class="pill">Kategori: 101514</span>
+            </div>
+          </div>
+          <div class="price-tag">Rp 69.000</div>
+        </div>
+        <pre class="desc-box">Wujudkan pernikahan impian tanpa drama budget bengkak dan rundown berantakan!
+Template Excel Wedding Planner Vendorama disusun berdasarkan SOP Wedding Organizer profesional, memastikan seluruh rangkaian prosesi mulai dari Lamaran, Akad Nikah/Pemberkatan, hingga Resepsi berjalan sempurna.
+Lengkap dengan: Kalkulator porsi katering prasmanan vs gubukan (60:40), alokasi budget 8 pos utama, dan rundown akad & resepsi minute-by-minute.</pre>
+      </div>
+
+      <div class="product-item">
+        <div class="product-header">
+          <div>
+            <h3>3. Template Excel Corporate Event & Gathering Planner - Rundown Minute by Minute & Budget Perusahaan</h3>
+            <div class="meta-pills" style="margin-top: 8px;">
+              <span class="pill gold">SKU: VND-CORP-01</span>
+              <span class="pill green">Stok: 999</span>
+              <span class="pill">Kategori: 101514</span>
+            </div>
+          </div>
+          <div class="price-tag">Rp 59.000</div>
+        </div>
+        <pre class="desc-box">Solusi terbaik bagi HR, Event Committee, dan EO untuk merancang Family Gathering, Annual Gala Dinner, Outing Kantor, atau Awarding Night perusahaan secara profesional dan terukur.
+Lengkap dengan cost per employee (Cost per Pax), panggung/AV technical cue, dan slide presentasi BOD.</pre>
+      </div>
+
+      <div class="product-item">
+        <div class="product-header">
+          <div>
+            <h3>4. Template Excel Seminar, Workshop & Conference Event Planner - Timeline, Budget & Rundown Acara</h3>
+            <div class="meta-pills" style="margin-top: 8px;">
+              <span class="pill gold">SKU: VND-SEMINAR-01</span>
+              <span class="pill green">Stok: 999</span>
+              <span class="pill">Kategori: 101514</span>
+            </div>
+          </div>
+          <div class="price-tag">Rp 49.000</div>
+        </div>
+        <pre class="desc-box">Template manajemen acara ilmiah, seminar nasional, workshop sertifikasi, dan konferensi bisnis. Teruji untuk kepanitiaan kampus, asosiasi profesi, maupun lembaga pelatihan.</pre>
+      </div>
+
+      <div class="product-item">
+        <div class="product-header">
+          <div>
+            <h3>5. Template Excel Birthday Party & Sweet 17 Event Planner - Budgeting, Rundown & Vendor Acara</h3>
+            <div class="meta-pills" style="margin-top: 8px;">
+              <span class="pill gold">SKU: VND-BDAY-01</span>
+              <span class="pill green">Stok: 999</span>
+              <span class="pill">Kategori: 101514</span>
+            </div>
+          </div>
+          <div class="price-tag">Rp 49.000</div>
+        </div>
+        <pre class="desc-box">Rencanakan pesta ulang tahun anak, Sweet 17, atau pesta perayaan keluarga yang meriah, berkesan, dan tertata rapi tanpa melebihi budget yang disiapkan.</pre>
+      </div>
+
+      <div class="product-item">
+        <div class="product-header">
+          <div>
+            <h3>6. Template Excel Exhibition & Bazaar Event Planner - Floorplan, Booth & Budget Pameran Komplit</h3>
+            <div class="meta-pills" style="margin-top: 8px;">
+              <span class="pill gold">SKU: VND-EXHIBIT-01</span>
+              <span class="pill green">Stok: 999</span>
+              <span class="pill">Kategori: 101514</span>
+            </div>
+          </div>
+          <div class="price-tag">Rp 49.000</div>
+        </div>
+        <pre class="desc-box">Dirancang khusus untuk event organizer pameran, bazaar UMKM, job fair, art exhibition, dan expo komunitas. Manajemen booth tenant, sewa venue mall, dan loading rundown.</pre>
+      </div>
+
+      <div class="product-item">
+        <div class="product-header">
+          <div>
+            <h3>7. Template Excel Intimate Wedding & Lamaran Planner - Budget Hemat, Checklist & Rundown Acara</h3>
+            <div class="meta-pills" style="margin-top: 8px;">
+              <span class="pill gold">SKU: VND-INTIMATE-01</span>
+              <span class="pill green">Stok: 999</span>
+              <span class="pill">Kategori: 101514</span>
+            </div>
+          </div>
+          <div class="price-tag">Rp 49.000</div>
+        </div>
+        <pre class="desc-box">Cocok untuk calon pengantin yang mendambakan acara pernikahan intimate (50-150 pax), acara lamaran resmi, atau akad nikah khidmat dengan budget terkontrol dan suasana hangat.</pre>
+      </div>
+
+      <div class="product-item">
+        <div class="product-header">
+          <div>
+            <h3>8. Voucher Akses Vendorama Premium 30 Hari - Akses Seluruh Template Acara & Konsultasi Vendor</h3>
+            <div class="meta-pills" style="margin-top: 8px;">
+              <span class="pill gold">SKU: VND-VOUCHER-30</span>
+              <span class="pill green">Stok: 999</span>
+              <span class="pill">Kategori: 101514</span>
+            </div>
+          </div>
+          <div class="price-tag">Rp 99.000</div>
+        </div>
+        <pre class="desc-box">Beli voucher di Shopee, aktifkan langsung di aplikasi Vendoraman untuk menikmati seluruh fitur premium selama 30 hari. Bebas unduh semua template kategori dan prioritas konsultasi.</pre>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>
