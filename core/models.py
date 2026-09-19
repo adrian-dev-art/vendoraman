@@ -363,3 +363,51 @@ class PaidTemplateDownload(models.Model):
         return f'{self.user.username} → {cat}'
 
 
+class TemplateDownloadCode(models.Model):
+    """Kode unik untuk mengunduh template Excel kategori tertentu tanpa perlu login."""
+    code = models.CharField(max_length=40, unique=True, db_index=True)
+    category = models.ForeignKey(EventCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name='download_codes')
+    max_uses = models.PositiveIntegerField(default=1)
+    used_count = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    valid_until = models.DateField(null=True, blank=True)
+    notes = models.CharField(max_length=255, blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        cat_name = self.category.name if self.category else 'Universal (All)'
+        return f"{self.code} [{cat_name}] ({self.used_count}/{self.max_uses})"
+
+    def is_valid_for(self, target_category):
+        import datetime
+        if not self.is_active:
+            return False, "Kode unik tidak aktif atau telah dinonaktifkan."
+        if self.valid_until and self.valid_until < datetime.date.today():
+            return False, "Kode unik telah kedaluwarsa."
+        if self.used_count >= self.max_uses:
+            return False, "Batas pemakaian kode unik ini sudah habis."
+        if self.category and self.category != target_category:
+            return False, f"Kode ini hanya berlaku untuk kategori '{self.category.name}'."
+        return True, ""
+
+
+class TemplateDownloadLog(models.Model):
+    """Mencatat riwayat audit pemakaian kode unik unduh file template."""
+    download_code = models.ForeignKey(TemplateDownloadCode, on_delete=models.CASCADE, related_name='logs')
+    event_category = models.ForeignKey(EventCategory, on_delete=models.SET_NULL, null=True)
+    email = models.EmailField(blank=True, default='')
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True, default='')
+    downloaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-downloaded_at']
+
+    def __str__(self):
+        cat_str = self.event_category.name if self.event_category else '-'
+        return f"{self.download_code.code} -> {cat_str} at {self.downloaded_at.strftime('%Y-%m-%d %H:%M')}"
+
+

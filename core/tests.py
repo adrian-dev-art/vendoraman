@@ -651,3 +651,21 @@ class LaunchChecklistTests(TestCase):
         u.refresh_from_db()
         self.assertTrue(u.is_premium())
         self.assertEqual(u.premium_until, datetime.date.today() + datetime.timedelta(days=60))
+
+    def test_template_download_code_validation(self):
+        from core.models import TemplateDownloadCode, EventCategory
+        cat = EventCategory.objects.first()
+        code = TemplateDownloadCode.objects.create(
+            code="VND-TEST-01",
+            category=cat,
+            max_uses=2
+        )
+        ok, msg = code.is_valid_for(cat)
+        self.assertTrue(ok)
+        
+        # Test quota exhaustion
+        code.used_count = 2
+        code.save()
+        ok, msg = code.is_valid_for(cat)
+        self.assertFalse(ok)
+        self.assertIn("habis", msg.lower())
