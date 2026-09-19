@@ -4,7 +4,8 @@ from .models import (
     CustomUser, EventCategory, VendorProfile, VendorPackage,
     EventPlan, PlannerAccess, EventSavingsVault, SavingsDeposit,
     BookingOrder, FreeTemplateSettings, FreeTemplateLead,
-    EmailVerification, Voucher, VoucherRedemption, PaidTemplateDownload
+    EmailVerification, Voucher, VoucherRedemption, PaidTemplateDownload,
+    TemplateDownloadCode, TemplateDownloadLog
 )
 
 
@@ -138,4 +139,61 @@ class VoucherRedemptionAdmin(admin.ModelAdmin):
 class PaidTemplateDownloadAdmin(admin.ModelAdmin):
     list_display = ['user', 'event_category', 'created_at']
     search_fields = ['user__username', 'event_category__name']
+
+
+@admin.register(TemplateDownloadCode)
+class TemplateDownloadCodeAdmin(admin.ModelAdmin):
+    list_display = ['code', 'category_display', 'quota_display', 'is_active', 'valid_until', 'notes', 'created_at']
+    list_filter = ['is_active', 'category']
+    search_fields = ['code', 'notes']
+    actions = ['generate_10_universal_codes', 'generate_10_wedding_codes', 'deactivate_codes']
+
+    @admin.display(description='Kategori')
+    def category_display(self, obj):
+        return obj.category.name if obj.category else 'Universal (All)'
+
+    @admin.display(description='Kuota (Pakai / Maks)')
+    def quota_display(self, obj):
+        return f"{obj.used_count} / {obj.max_uses}"
+
+    @admin.action(description='Generate 10 Kode Baru: Universal (All Categories)')
+    def generate_10_universal_codes(self, request, queryset):
+        import secrets
+        created = 0
+        for _ in range(10):
+            token = secrets.token_hex(3).upper()
+            code_str = f"VND-MSTR-{token}"
+            if not TemplateDownloadCode.objects.filter(code=code_str).exists():
+                TemplateDownloadCode.objects.create(code=code_str, category=None, max_uses=1, notes="Batch Generated (Universal)")
+                created += 1
+        self.message_user(request, f"{created} kode universal berhasil dibuat.")
+
+    @admin.action(description='Generate 10 Kode Baru: Wedding Kategori')
+    def generate_10_wedding_codes(self, request, queryset):
+        import secrets
+        cat = EventCategory.objects.filter(slug='wedding').first()
+        created = 0
+        for _ in range(10):
+            token = secrets.token_hex(3).upper()
+            code_str = f"VND-WED-{token}"
+            if not TemplateDownloadCode.objects.filter(code=code_str).exists():
+                TemplateDownloadCode.objects.create(code=code_str, category=cat, max_uses=1, notes="Batch Generated (Wedding)")
+                created += 1
+        self.message_user(request, f"{created} kode kategori Wedding berhasil dibuat.")
+
+    @admin.action(description='Nonaktifkan kode yang dipilih')
+    def deactivate_codes(self, request, queryset):
+        count = queryset.update(is_active=False)
+        self.message_user(request, f"{count} kode berhasil dinonaktifkan.")
+
+
+@admin.register(TemplateDownloadLog)
+class TemplateDownloadLogAdmin(admin.ModelAdmin):
+    list_display = ['downloaded_at', 'download_code', 'event_category', 'email', 'ip_address']
+    list_filter = ['event_category', 'downloaded_at']
+    search_fields = ['download_code__code', 'email', 'ip_address']
+    readonly_fields = ['download_code', 'event_category', 'email', 'ip_address', 'user_agent', 'downloaded_at']
+
+    def has_add_permission(self, request):
+        return False
 
