@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from decimal import Decimal
 import uuid
 
 
@@ -11,6 +12,7 @@ class CustomUser(AbstractUser):
     ]
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='CUSTOMER')
     phone_number = models.CharField(max_length=25, blank=True, default='')
+    premium_until = models.DateField(null=True, blank=True, help_text='Langganan premium aktif sampai tanggal ini')
 
     def is_customer(self):
         return self.role == 'CUSTOMER'
@@ -20,6 +22,10 @@ class CustomUser(AbstractUser):
 
     def is_platform_admin(self):
         return self.role == 'ADMIN' or self.is_superuser
+
+    def is_premium(self):
+        import datetime
+        return bool(self.premium_until and self.premium_until >= datetime.date.today())
 
 
 class EventCategory(models.Model):
@@ -84,6 +90,14 @@ class VendorPackage(models.Model):
 
     def get_spec_list(self):
         return [line.strip() for line in self.specifications.splitlines() if line.strip()]
+
+    @property
+    def platform_fee(self):
+        return round(self.price * Decimal('0.10'))
+
+    @property
+    def net_price(self):
+        return self.price - self.platform_fee
 
 
 class EventPlan(models.Model):
@@ -156,18 +170,20 @@ class SavingsDeposit(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Deposit Rp {self.amount:,} to {self.vault.title}"
+        amt_str = f"{int(self.amount):,}".replace(',', '.')
+        return f"Deposit Rp {amt_str} to {self.vault.title}"
 
 
 class BookingOrder(models.Model):
     STATUS_CHOICES = [
-        ('PENDING_PAYMENT', 'Menunggu Pembayaran Escrow'),
-        ('HELD', 'Dana Aman Ditahan di Escrow'),
-        ('MILESTONE_1_PAID', 'Termin 1 (DP 30%) Dicairkan'),
-        ('MILESTONE_2_PAID', 'Termin 2 (Pelaksanaan 40%) Dicairkan'),
-        ('COMPLETED', 'Event Sukses & Pelunasan 30% Selesai'),
-        ('FROZEN', 'Escrow Dibekukan (Dispute Aktif)'),
-        ('REFUNDED', 'Dana Dikembalikan ke Customer (Garansi Finansial)'),
+        ('PENDING', 'Menunggu Konfirmasi Vendor'),
+        ('CONFIRMED', 'Dikonfirmasi Vendor'),
+        ('COMPLETED', 'Event Selesai'),
+        ('CANCELLED', 'Dibatalkan'),
+    ]
+    COMMISSION_STATUS_CHOICES = [
+        ('PENDING', 'Menunggu Settlement'),
+        ('PAID', 'Komisi Terbayar'),
     ]
 
     order_code = models.CharField(max_length=50, unique=True)
@@ -176,97 +192,174 @@ class BookingOrder(models.Model):
     package = models.ForeignKey(VendorPackage, on_delete=models.CASCADE, related_name='orders')
     event_date = models.DateField()
     total_price = models.DecimalField(max_digits=12, decimal_places=0)
-    escrow_status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='PENDING_PAYMENT')
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='PENDING')
+
+    # Commission-based fee from vendor
+    commission_rate = models.DecimalField(
+        max_digits=5, decimal_places=2, default=10.00,
+        help_text="Persentase komisi platform yang diambil dari vendor (misal 10.00%)"
+    )
+    commission_amount = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0,
+        help_text="Nominal komisi platform"
+    )
+    vendor_net_amount = models.DecimalField(
+        max_digits=12, decimal_places=0, default=0,
+        help_text="Pendapatan bersih yang diterima vendor setelah potongan komisi"
+    )
+    commission_status = models.CharField(
+        max_length=20, choices=COMMISSION_STATUS_CHOICES, default='PENDING'
+    )
+
     notes = models.TextField(blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.order_code} - {self.vendor.business_name} ({self.escrow_status})"
+        return f"{self.order_code} - {self.vendor.business_name} ({self.status})"
 
     def save(self, *args, **kwargs):
         if not self.order_code:
             self.order_code = f"ORD-{uuid.uuid4().hex[:8].upper()}"
+        if self.total_price is not None:
+            from decimal import Decimal
+            rate = Decimal(str(self.commission_rate)) if self.commission_rate is not None else Decimal('10.00')
+            price = Decimal(str(self.total_price))
+            self.commission_amount = (price * rate / Decimal('100')).quantize(Decimal('1'))
+            self.vendor_net_amount = price - self.commission_amount
         super().save(*args, **kwargs)
 
-    def create_default_milestones(self):
-        if not self.milestones.exists():
-            dp_amount = round(self.total_price * 30 / 100)
-            mid_amount = round(self.total_price * 40 / 100)
-            final_amount = self.total_price - dp_amount - mid_amount
 
-            EscrowMilestone.objects.create(
-                order=self,
-                milestone_index=1,
-                title='Down Payment (DP) Persiapan Vendor',
-                percentage=30,
-                amount=dp_amount,
-                status='HELD'
-            )
-            EscrowMilestone.objects.create(
-                order=self,
-                milestone_index=2,
-                title='Termin Pelaksanaan & Kesiapan H-3',
-                percentage=40,
-                amount=mid_amount,
-                status='HELD'
-            )
-            EscrowMilestone.objects.create(
-                order=self,
-                milestone_index=3,
-                title='Pelunasan Akhir Pasca-Event Sukses (H+1)',
-                percentage=30,
-                amount=final_amount,
-                status='HELD'
-            )
+class FreeTemplateSettings(models.Model):
+    """Singleton: controls the hidden free-template download page.
 
-
-class EscrowMilestone(models.Model):
-    STATUS_CHOICES = [
-        ('HELD', 'Ditahan di Escrow'),
-        ('REQUESTED', 'Pencairan Diajukan Vendor'),
-        ('RELEASED', 'Dana Dicairkan ke Vendor'),
-        ('DISPUTED', 'Ditahan karena Sengketa'),
-    ]
-
-    order = models.ForeignKey(BookingOrder, on_delete=models.CASCADE, related_name='milestones')
-    milestone_index = models.PositiveSmallIntegerField()
-    title = models.CharField(max_length=150)
-    percentage = models.PositiveSmallIntegerField()
-    amount = models.DecimalField(max_digits=12, decimal_places=0)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='HELD')
-    released_at = models.DateTimeField(null=True, blank=True)
+    The page is NOT linked from the navbar/footer/sitemap — it is only
+    reachable via its direct URL, and only when ``is_enabled`` is True.
+    Toggle it from Django Admin (Core > Free template settings).
+    """
+    is_enabled = models.BooleanField(
+        default=False,
+        help_text='Aktif = halaman template gratis bisa dibuka & file bisa diunduh. '
+                  'Nonaktif = halaman mengembalikan 404.'
+    )
+    original_price = models.DecimalField(
+        max_digits=12, decimal_places=0, default=15000,
+        help_text='Harga coret yang ditampilkan (misal 15000 = Rp 15.000). Harga bayar selalu Rp 0.'
+    )
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['milestone_index']
+        verbose_name = 'Free template settings'
+        verbose_name_plural = 'Free template settings'
 
     def __str__(self):
-        return f"{self.order.order_code} - M{self.milestone_index} ({self.title}): Rp {self.amount:,}"
-
-
-class DisputeTicket(models.Model):
-    STATUS_CHOICES = [
-        ('OPEN', 'Dispute Diajukan - Escrow Dibekukan'),
-        ('INVESTIGATING', 'Sedang Dimediasi / Investigasi Tim Vendorama'),
-        ('REFUNDED_TO_CUSTOMER', 'Garansi Finansial Disetujui: 100% Refund ke Customer'),
-        ('SETTLED_PARTIAL', 'Penyelesaian Parsial Disepakati'),
-        ('REJECTED', 'Dispute Ditolak - Payout Dilanjutkan'),
-    ]
-
-    ticket_code = models.CharField(max_length=50, unique=True)
-    order = models.OneToOneField(BookingOrder, on_delete=models.CASCADE, related_name='dispute')
-    complainant = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='disputes')
-    reason = models.TextField(help_text='Rincian keluhan atau kelalaian vendor')
-    evidence_text = models.TextField(blank=True, help_text='Link bukti atau rincian saksi/fakta lapangan')
-    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='OPEN')
-    admin_notes = models.TextField(blank=True, default='')
-    penalty_applied = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    resolved_at = models.DateTimeField(null=True, blank=True)
-
-    def __str__(self):
-        return f"Dispute {self.ticket_code} for {self.order.order_code}"
+        state = 'AKTIF' if self.is_enabled else 'NONAKTIF'
+        return f'Template Gratis: {state} (coret Rp {int(self.original_price):,})'
 
     def save(self, *args, **kwargs):
-        if not self.ticket_code:
-            self.ticket_code = f"DSP-{uuid.uuid4().hex[:6].upper()}"
+        self.pk = 1  # enforce singleton: exactly one row
         super().save(*args, **kwargs)
+
+    @classmethod
+    def get(cls):
+        obj, _ = cls.objects.get_or_create(pk=1, defaults={'is_enabled': False})
+        return obj
+
+
+class FreeTemplateLead(models.Model):
+    """Email + HP captured before a free-template download (lead magnet)."""
+    email = models.EmailField()
+    phone_number = models.CharField(max_length=25)
+    is_verified = models.BooleanField(default=False, help_text='True = e-mail lolos verifikasi OTP')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        mark = '✓' if self.is_verified else '?'
+        return f'{self.email} / {self.phone_number} [{mark}]'
+
+
+class EmailVerification(models.Model):
+    """One-time 6-digit code proving an e-mail address really exists."""
+    email = models.EmailField(db_index=True)
+    code = models.CharField(max_length=6)
+    attempts = models.PositiveIntegerField(default=0)
+    verified_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'OTP {self.email} ({self.code})'
+
+    def is_expired(self):
+        import datetime
+        from django.utils import timezone
+        return timezone.now() > self.created_at + datetime.timedelta(minutes=15)
+
+    @classmethod
+    def new_code(cls, email):
+        import secrets
+        email = email.strip().lower()
+        cls.objects.filter(email=email, verified_at__isnull=True).delete()
+        return cls.objects.create(email=email, code=f'{secrets.randbelow(900000) + 100000}')
+
+
+class Voucher(models.Model):
+    """Voucher langganan (dijual via Shopee, diaktivasi langsung di aplikasi).
+
+    No payment gateway: admin creates codes, customer redeems a code,
+    redemption extends the subscription. Usage counted to enforce max_uses.
+    """
+    code = models.CharField(max_length=32, unique=True, help_text='Kode persis seperti di Shopee (huruf besar disarankan)')
+    duration_days = models.PositiveIntegerField(default=30, help_text='Berapa hari langganan bertambah per redeem')
+    max_uses = models.PositiveIntegerField(default=1, help_text='Berapa kali kode ini bisa dipakai total')
+    used_count = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    valid_until = models.DateField(null=True, blank=True, help_text='Opsional: kode kedaluwarsa tanggal ini')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.code} ({self.used_count}/{self.max_uses} dipakai)'
+
+    def usages_left(self):
+        return max(self.max_uses - self.used_count, 0)
+
+    def is_valid(self):
+        import datetime
+        if not self.is_active:
+            return False, 'Voucher sudah dinonaktifkan.'
+        if self.valid_until and self.valid_until < datetime.date.today():
+            return False, 'Voucher sudah kedaluwarsa.'
+        if self.used_count >= self.max_uses:
+            return False, 'Kuota pemakaian voucher ini sudah habis.'
+        return True, ''
+
+
+class VoucherRedemption(models.Model):
+    voucher = models.ForeignKey(Voucher, on_delete=models.CASCADE, related_name='redemptions')
+    user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='voucher_redemptions')
+    email = models.EmailField()
+    expires_at = models.DateField(help_text='Langganan aktif sampai tanggal ini')
+    redeemed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-redeemed_at']
+
+    def __str__(self):
+        return f'{self.voucher.code} → {self.email} (s/d {self.expires_at})'
+
+
+class PaidTemplateDownload(models.Model):
+    """Satu user hanya boleh memilih SATU template kategori berbayar."""
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='paid_template')
+    event_category = models.ForeignKey(EventCategory, on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        cat = self.event_category.name if self.event_category else '-'
+        return f'{self.user.username} → {cat}'
+
+

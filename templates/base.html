@@ -1,114 +1,153 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+  {% load static %}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Vendorama - Platform Kurasi Vendor & Garansi Escrow Event{% endblock %}</title>
+  <title>{% block title %}Vendoraman - Temukan Vendor Event yang Pas{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Vendoraman: konsultasi event cepat, vendor terverifikasi, tabungan event, dan booking aman bergaransi di seluruh Indonesia.{% endblock %}">
+  <link rel="canonical" href="{{ SITE_URL }}{{ request.path }}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Vendoraman">
+  <meta property="og:title" content="{% block og_title %}Vendoraman - Temukan Vendor Event yang Pas{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}Konsultasi cepat, vendor yang pas — terverifikasi, bergaransi, tanpa mark-up.{% endblock %}">
+  <meta property="og:url" content="{{ SITE_URL }}{{ request.path }}">
+  <meta property="og:image" content="{{ SITE_URL }}{% static 'img/og-cover.png' %}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Vendoraman - Temukan Vendor Event yang Pas">
+  <meta name="twitter:description" content="Konsultasi cepat, vendor yang pas — terverifikasi, bergaransi, tanpa mark-up.">
+  <meta name="twitter:image" content="{{ SITE_URL }}{% static 'img/og-cover.png' %}">
+  <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
+  <link rel="alternate icon" type="image/png" href="{% static 'img/favicon.png' %}">
   
-  <!-- Main CSS -->
-  {% load static %}
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Main CSS with Design System -->
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
-  
-  <!-- Lucide Icons Script -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Lucide Icons Script (deferred so it never blocks page render) -->
+  <script src="https://unpkg.com/lucide@latest" defer></script>
+  {% if ANALYTICS_ID %}
+  <!-- Analytics (loaded only when ANALYTICS_ID is configured AND user consents) -->
+  <script>
+    window.__analyticsId = "{{ ANALYTICS_ID }}";
+  </script>
+  {% endif %}
+  <script>
+    // Safe icon refresh: works even if the deferred lucide script hasn't loaded yet.
+    window.refreshIcons = function (attempts) {
+      attempts = (typeof attempts === 'number') ? attempts : 50;
+      if (window.lucide && window.lucide.createIcons) {
+        window.lucide.createIcons();
+      } else if (attempts > 0) {
+        setTimeout(function () { window.refreshIcons(attempts - 1); }, 100);
+      }
+    };
+  </script>
 </head>
 <body>
 
-  <!-- Navigation Bar -->
-  <nav class="navbar">
-    <div class="container nav-container">
-      <a href="{% url 'home' %}" class="brand">
-        <div class="brand-icon">
-          <i data-lucide="shield-check"></i>
-        </div>
-        <span>Vendorama</span>
-      </a>
+  <!-- Top Navigation Bar -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div style="display: flex; align-items: center; gap: 28px;">
+        <a href="{% url 'home' %}" style="display: flex; flex-direction: column;">
+          <div class="brand">Vendor<span>aman</span></div>
+          <div class="brand-sub">Konsultasi cepat, vendor yang pas</div>
+        </a>
 
-      <ul class="nav-links">
-        <li>
-          <a href="{% url 'planner_wizard' %}" class="nav-link">
-            <i data-lucide="compass"></i>
-            <span>Cari Vendor</span>
-          </a>
-        </li>
-        {% if user.is_authenticated %}
-          {% if user.is_customer %}
+        <ul class="nav-menu">
+          <li>
+            <a href="{% url 'planner_wizard' %}" class="nav-link">
+              <i data-lucide="compass" style="width: 16px; height: 16px;"></i>
+              <span>Cari Vendor</span>
+            </a>
+          </li>
+          {% if user.is_authenticated %}
+            {% if user.is_customer %}
+              <li>
+                <a href="{% url 'customer_dashboard' %}" class="nav-link">
+                  <i data-lucide="layout-dashboard" style="width: 16px; height: 16px;"></i>
+                  <span>Dashboard Saya</span>
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'savings_list' %}" class="nav-link">
+                  <i data-lucide="piggy-bank" style="width: 16px; height: 16px;"></i>
+                  <span>Tabungan Event</span>
+                </a>
+              </li>
+            {% elif user.is_vendor_user %}
+              <li>
+                <a href="{% url 'vendor_dashboard' %}" class="nav-link">
+                  <i data-lucide="store" style="width: 16px; height: 16px;"></i>
+                  <span>Portal Vendor</span>
+                </a>
+              </li>
+            {% elif user.is_platform_admin %}
+              <li>
+                <a href="{% url 'admin_dashboard' %}" class="nav-link">
+                  <i data-lucide="sliders" style="width: 16px; height: 16px;"></i>
+                  <span>Panel Admin & Komisi</span>
+                </a>
+              </li>
+            {% endif %}
+          {% endif %}
+          {% if user.is_authenticated and user.is_vendor_user or user.is_platform_admin %}
             <li>
-              <a href="{% url 'customer_dashboard' %}" class="nav-link">
-                <i data-lucide="layout-dashboard"></i>
-                <span>Dashboard Event</span>
-              </a>
-            </li>
-            <li>
-              <a href="{% url 'savings_list' %}" class="nav-link">
-                <i data-lucide="piggy-bank"></i>
-                <span>Tabungan Event</span>
-              </a>
-            </li>
-          {% elif user.is_vendor_user %}
-            <li>
-              <a href="{% url 'vendor_dashboard' %}" class="nav-link">
-                <i data-lucide="store"></i>
-                <span>Portal Vendor</span>
-              </a>
-            </li>
-          {% elif user.is_platform_admin %}
-            <li>
-              <a href="{% url 'admin_dashboard' %}" class="nav-link">
-                <i data-lucide="shield-alert"></i>
-                <span>Pusat Kendali Escrow</span>
+              <a href="{% url 'trust_guarantee' %}" class="nav-link">
+                <i data-lucide="award" style="width: 16px; height: 16px;"></i>
+                <span>Kemitraan &amp; Komisi</span>
               </a>
             </li>
           {% endif %}
-        {% endif %}
-        <li>
-          <a href="{% url 'trust_guarantee' %}" class="nav-link">
-            <i data-lucide="award"></i>
-            <span>Garansi & Proteksi</span>
-          </a>
-        </li>
-      </ul>
+        </ul>
+      </div>
 
       <div class="nav-actions">
         {% if user.is_authenticated %}
-          <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <div style="text-align: right; line-height: 1.2;">
-              <div style="font-weight: 700; font-size: 0.875rem;">{{ user.username }}</div>
-              <span class="badge {% if user.is_customer %}badge-primary{% elif user.is_vendor_user %}badge-amber{% else %}badge-emerald{% endif %}">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--gold); color: var(--ink); font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; text-transform: uppercase;">
+              {{ user.username|slice:":1" }}
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; line-height: 1;">
+              <span style="font-weight: 700; font-size: 0.88rem; color: var(--paper);">{{ user.username }}</span>
+              <span class="status-badge confirmed" style="font-size: 0.7rem; padding: 2px 8px;">
                 {{ user.get_role_display }}
               </span>
             </div>
             <form action="{% url 'logout' %}" method="post" style="display: inline;">
               {% csrf_token %}
-              <button type="submit" class="btn btn-secondary btn-sm" title="Logout">
-                <i data-lucide="log-out"></i>
+              <button type="submit" class="btn btn-ghost-light btn-sm" title="Logout">
+                <i data-lucide="log-out" style="width: 14px; height: 14px;"></i>
                 <span>Keluar</span>
               </button>
             </form>
           </div>
         {% else %}
-          <a href="{% url 'login' %}" class="btn btn-secondary btn-sm">
-            <i data-lucide="log-in"></i>
+          <a href="{% url 'login' %}" class="btn btn-ghost-light btn-sm">
+            <i data-lucide="log-in" style="width: 14px; height: 14px;"></i>
             <span>Masuk</span>
           </a>
-          <a href="{% url 'register_customer' %}" class="btn btn-primary btn-sm">
-            <i data-lucide="user-plus"></i>
-            <span>Daftar Customer</span>
+          <a href="{% url 'register_customer' %}" class="btn btn-gold btn-sm">
+            <i data-lucide="user-plus" style="width: 14px; height: 14px;"></i>
+            <span>Daftar Akun</span>
           </a>
         {% endif %}
       </div>
     </div>
-  </nav>
+  </header>
 
   <!-- Flash Messages -->
   {% if messages %}
-    <div class="container" style="margin-top: 1.5rem;">
+    <div class="wrap" style="padding-bottom: 0; padding-top: 20px;">
       {% for message in messages %}
-        <div class="card" style="padding: 1rem 1.25rem; margin-bottom: 0.75rem; border-left: 4px solid {% if message.tags == 'error' %}var(--crimson){% elif message.tags == 'success' %}var(--emerald){% else %}var(--primary){% endif %}; display: flex; align-items: center; justify-content: space-between;">
-          <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <i data-lucide="{% if message.tags == 'error' %}alert-circle{% elif message.tags == 'success' %}check-circle-2{% else %}info{% endif %}" style="color: {% if message.tags == 'error' %}var(--crimson){% elif message.tags == 'success' %}var(--emerald){% else %}var(--primary){% endif %};"></i>
-            <span style="font-size: 0.925rem; font-weight: 500;">{{ message }}</span>
-          </div>
+        <div class="flash-message {% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% else %}info{% endif %}">
+          <i data-lucide="{% if message.tags == 'error' %}alert-circle{% elif message.tags == 'success' %}check-circle-2{% else %}info{% endif %}" style="width: 20px; height: 20px; flex-shrink: 0;"></i>
+          <span>{{ message }}</span>
         </div>
       {% endfor %}
     </div>
@@ -122,37 +161,184 @@
 
   <!-- Global Footer -->
   <footer>
-    <div class="container footer-container">
+    <div class="footer-inner">
       <div>
-        <div class="footer-brand" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-          <i data-lucide="shield-check" style="color: var(--primary);"></i>
-          <span>Vendorama Indonesia</span>
-        </div>
-        <p style="font-size: 0.85rem; max-width: 450px;">
-          Solusi terpercaya pencarian dan kurasi vendor event dengan garansi proteksi dana Escrow dan penggantian finansial langsung jika terjadi wanprestasi.
+        <div class="footer-brand">Vendor<span>aman</span></div>
+        <p style="font-size: 0.88rem; line-height: 1.6; max-width: 440px; color: #B7BAD6;">
+          Platform kurasi dan marketplace vendor event terkemuka di Indonesia. Menghubungkan penyelenggara acara dengan vendor berkualitas tinggi melalui konsultasi cerdas dan model komisi yang transparan.
         </p>
       </div>
-      <div style="display: flex; gap: 2rem; font-size: 0.85rem;">
-        <div>
-          <div style="font-weight: 700; color: white; margin-bottom: 0.5rem;">Fitur Unggulan</div>
-          <div>Cari Vendor (Free vs Paid Planner)</div>
-          <div>Tabungan Event (Flexible Vault)</div>
-          <div>Escrow 3-Termin Bertahap</div>
-        </div>
-        <div>
-          <div style="font-weight: 700; color: white; margin-bottom: 0.5rem;">Perlindungan</div>
-          <div>Garansi Finansial 100%</div>
-          <div>Kurasi Vendor Ketat</div>
-          <div>Pusat Mediasi Sengketa</div>
-        </div>
+      <div>
+        <div style="font-weight: 700; color: var(--paper); font-size: 0.92rem; margin-bottom: 12px;">Navigasi Layanan</div>
+        <ul class="footer-links">
+          <li><a href="{% url 'planner_wizard' %}">Cari Rekomendasi Vendor</a></li>
+          <li><a href="{% url 'register_vendor' %}">Gabung Menjadi Mitra Vendor</a></li>
+          <li><a href="{% url 'savings_list' %}">Tabungan Dana Event</a></li>
+          <li><a href="{% url 'privacy' %}">Kebijakan Privasi</a></li>
+          <li><a href="{% url 'terms' %}">Syarat &amp; Ketentuan</a></li>
+        </ul>
       </div>
+      <div>
+        <div style="font-weight: 700; color: var(--paper); font-size: 0.92rem; margin-bottom: 12px;">Model Kemitraan</div>
+        <ul class="footer-links">
+          <li>Pendaftaran Vendor Gratis</li>
+          <li>Fee Komisi Berbasis Transaksi Sukses</li>
+          <li>Kurasi Portofolio Ketat</li>
+          <li>Dukungan Pelanggan Terpadu</li>
+          <li style="margin-top: 10px;">
+            <a href="https://wa.me/62881023641280?text=Halo%20Vendoraman,%20saya%20ingin%20konsultasi%20layanan%20event." target="_blank" style="color: #25D366; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+              <i data-lucide="message-circle" style="width: 15px; height: 15px;"></i>
+              <span>WhatsApp: +62 881-0236-41280</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>&copy; 2026 Vendoraman Indonesia. Hak cipta dilindungi.</div>
+      <div style="color: var(--gold); font-size: 0.78rem;">Konsultasi cepat, vendor yang pas.</div>
     </div>
   </footer>
 
-  <!-- Activate Lucide Icons -->
+  <!-- Floating WhatsApp CTA Widget -->
+  <style>
+    .wa-floating-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #25D366;
+      color: #ffffff !important;
+      text-decoration: none !important;
+      padding: 10px 18px 10px 14px;
+      border-radius: 999px;
+      box-shadow: 0 8px 24px rgba(37, 211, 102, 0.45), 0 2px 6px rgba(0,0,0,0.15);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      font-family: 'Inter', -apple-system, sans-serif;
+    }
+    .wa-floating-btn:hover {
+      background: #20BA5A;
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 12px 30px rgba(37, 211, 102, 0.55), 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .wa-floating-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .wa-floating-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+      text-align: left;
+    }
+    .wa-floating-title {
+      font-weight: 700;
+      font-size: 0.84rem;
+      color: #ffffff;
+      letter-spacing: 0.2px;
+    }
+    .wa-floating-sub {
+      font-size: 0.72rem;
+      color: rgba(255, 255, 255, 0.92);
+      font-weight: 500;
+    }
+    .wa-online-dot {
+      width: 9px;
+      height: 9px;
+      background: #ffffff;
+      border-radius: 50%;
+      animation: pulse-green 1.8s infinite;
+    }
+    @keyframes pulse-green {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    @media (max-width: 640px) {
+      .wa-floating-btn {
+        bottom: 18px;
+        right: 18px;
+        padding: 9px 14px 9px 11px;
+      }
+      .wa-floating-sub {
+        display: none;
+      }
+    }
+  </style>
+
+  <a href="https://wa.me/62881023641280?text=Halo%20Vendoraman,%20saya%20ingin%20konsultasi%20perencanaan%20acara%20dan%20rekomendasi%20vendor."
+     target="_blank"
+     rel="noopener noreferrer"
+     class="wa-floating-btn"
+     title="Chat WhatsApp dengan Konsultan Vendoraman"
+     aria-label="Hubungi WhatsApp Vendoraman (+62881023641280)">
+    <div class="wa-floating-icon">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+        <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.63C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M9.53 7.35C9.36 7.35 9.09 7.41 8.86 7.66C8.63 7.91 7.99 8.51 7.99 9.74C7.99 10.97 8.88 12.16 9.01 12.33C9.14 12.5 10.74 15.08 13.25 16.08C15.34 16.91 15.77 16.75 16.22 16.71C16.67 16.67 17.68 16.11 17.89 15.53C18.1 14.94 18.1 14.44 18.03 14.33C17.96 14.22 17.8 14.16 17.55 14.04C17.3 13.91 16.08 13.31 15.85 13.23C15.62 13.14 15.46 13.1 15.3 13.35C15.13 13.6 14.67 14.16 14.53 14.33C14.39 14.5 14.25 14.52 14 14.39C13.75 14.27 12.95 14.01 12 13.16C11.26 12.5 10.76 11.68 10.61 11.43C10.46 11.18 10.6 11.05 10.72 10.92C10.83 10.81 10.97 10.63 11.1 10.48C11.23 10.33 11.27 10.22 11.35 10.06C11.43 9.9 11.39 9.75 11.33 9.63C11.27 9.5 10.77 8.27 10.56 7.78C10.36 7.29 10.15 7.36 9.98 7.35H9.53Z"/>
+      </svg>
+    </div>
+    <div class="wa-floating-text">
+      <span class="wa-floating-title">Konsultasi WhatsApp</span>
+      <span class="wa-floating-sub">+62 881-0236-41280</span>
+    </div>
+    <span class="wa-online-dot"></span>
+  </a>
+
   <script>
-    lucide.createIcons();
+    // Initialize Lucide Icons on first paint (safe helper defined in <head>).
+    window.refreshIcons();
   </script>
-  {% block extra_js %}{% endblock %}
+
+  <!-- Cookie consent banner (no tracking cookies without explicit consent) -->
+  <div id="cookieBanner" hidden style="position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 10000; max-width: 560px; margin: 0 auto; background: var(--ink); color: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; box-shadow: 0 12px 32px rgba(0,0,0,0.35); font-size: 0.85rem; line-height: 1.5;">
+    <div style="font-weight: 700; margin-bottom: 4px;">Kami memakai cookie seperlunya</div>
+    <p style="margin: 0 0 12px; color: #D6D8EC;">Cookie login &amp; keamanan wajib aktif. Analitik opsional hanya jalan kalau Anda setuju. Baca <a href="{% url 'privacy' %}" style="color: var(--gold); font-weight: 700;">Kebijakan Privasi</a>.</p>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+      <button type="button" id="cookieReject" class="btn btn-ghost-light btn-sm">Tolak analitik</button>
+      <button type="button" id="cookieAccept" class="btn btn-gold btn-sm">Setuju</button>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var KEY = 'vendoraman_cookie_consent';
+      var banner = document.getElementById('cookieBanner');
+      function loadAnalytics() {
+        if (!window.__analyticsId || window.__analyticsLoaded) return;
+        window.__analyticsLoaded = true;
+        var s = document.createElement('script');
+        s.async = true;
+        // Vendor-neutral hook: set ANALYTICS_ID to your provider snippet URL.
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(window.__analyticsId);
+        document.head.appendChild(s);
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function () { window.dataLayer.push(arguments); };
+        window.gtag('js', new Date());
+        window.gtag('config', window.__analyticsId, { anonymize_ip: true });
+      }
+      try {
+        var saved = localStorage.getItem(KEY);
+        if (!saved) {
+          banner.hidden = false;
+        } else if (saved === 'accepted') {
+          loadAnalytics();
+        }
+        document.getElementById('cookieAccept').addEventListener('click', function () {
+          localStorage.setItem(KEY, 'accepted');
+          banner.hidden = true;
+          loadAnalytics();
+        });
+        document.getElementById('cookieReject').addEventListener('click', function () {
+          localStorage.setItem(KEY, 'rejected');
+          banner.hidden = true;
+        });
+      } catch (e) {
+        banner.hidden = true;
+      }
+    })();
+  </script>
 </body>
 </html>

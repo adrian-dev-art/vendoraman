@@ -1,132 +1,350 @@
 {% extends 'base.html' %}
 
-{% block title %}Wizard Perencanaan Event - Vendorama{% endblock %}
+{% block title %}Konsultasi & Cari Vendor Event - Vendoraman{% endblock %}
 
 {% block content %}
-<div class="container" style="padding: 3.5rem 0;">
-  <div class="card container-narrow" style="max-width: 720px; margin: 0 auto; padding: 2.5rem;">
-    
-    <!-- Wizard Header -->
-    <div style="text-align: center; margin-bottom: 2rem;">
-      <span class="badge badge-primary" style="margin-bottom: 0.5rem;">AI Event Matching Engine</span>
-      <h2 style="font-size: 2rem; font-weight: 800; letter-spacing: -0.02em;">Susun Kebutuhan Event Anda</h2>
-      <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.35rem;">
-        Masukkan estimasi budget, lokasi, dan kategori layanan untuk mendapatkan kurasi vendor yang presisi.
-      </p>
+<div class="wrap-narrow">
+
+  <!-- Progress rail (wizard) -->
+  <div class="rail-wrap" id="railWrap">
+    <div class="rail" id="rail">
+      <div class="rail-step active"></div>
+      <div class="rail-step"></div>
+      <div class="rail-step"></div>
+      <div class="rail-step"></div>
+      <div class="rail-step"></div>
     </div>
-
-    <!-- Wizard Steps Indicator -->
-    <div class="wizard-steps">
-      <div class="step-item active">
-        <div class="step-circle">1</div>
-        <div class="step-title">Kategori & Jadwal</div>
-      </div>
-      <div class="step-item active">
-        <div class="step-circle">2</div>
-        <div class="step-title">Kapasitas & Budget</div>
-      </div>
-      <div class="step-item active">
-        <div class="step-circle">3</div>
-        <div class="step-title">Kebutuhan Vendor</div>
-      </div>
+    <div class="rail-labels">
+      <span>Jenis acara</span>
+      <span>Anggaran</span>
+      <span>Kebutuhan</span>
+      <span>Prioritas</span>
+      <span>Ringkasan</span>
     </div>
-
-    <form method="post">
-      {% csrf_token %}
-
-      <!-- Section 1 -->
-      <div style="margin-bottom: 2rem;">
-        <h4 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-          <i data-lucide="calendar" style="color: var(--primary);"></i>
-          <span>1. Informasi Acara & Jadwal</span>
-        </h4>
-        
-        <div class="form-group">
-          <label class="form-label">Nama Rencana Acara</label>
-          {{ form.event_title }}
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-          <div class="form-group">
-            <label class="form-label">Kategori Event</label>
-            {{ form.category }}
-          </div>
-          <div class="form-group">
-            <label class="form-label">Kota / Lokasi Acara</label>
-            {{ form.city }}
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Tanggal Pelaksanaan Acara</label>
-          {{ form.event_date }}
-        </div>
-      </div>
-
-      <!-- Section 2 -->
-      <div style="margin-bottom: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
-        <h4 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-          <i data-lucide="wallet" style="color: var(--emerald);"></i>
-          <span>2. Estimasi Tamu & Alokasi Budget</span>
-        </h4>
-
-        <div class="form-group">
-          <label class="form-label">Estimasi Jumlah Tamu (Pax)</label>
-          {{ form.estimated_pax }}
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-          <div class="form-group">
-            <label class="form-label">Budget Minimum (IDR)</label>
-            {{ form.budget_min }}
-          </div>
-          <div class="form-group">
-            <label class="form-label">Budget Maksimum (IDR)</label>
-            {{ form.budget_max }}
-          </div>
-        </div>
-      </div>
-
-      <!-- Section 3 -->
-      <div style="margin-bottom: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
-        <h4 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-          <i data-lucide="layers" style="color: var(--primary);"></i>
-          <span>3. Kebutuhan Vendor yang Dicari</span>
-        </h4>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
-          <label style="display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); cursor: pointer;">
-            <input type="checkbox" name="services" value="catering" checked>
-            <span style="font-size: 0.9rem; font-weight: 600;">Catering & Menu</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); cursor: pointer;">
-            <input type="checkbox" name="services" value="decoration" checked>
-            <span style="font-size: 0.9rem; font-weight: 600;">Dekorasi & Panggung</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); cursor: pointer;">
-            <input type="checkbox" name="services" value="venue" checked>
-            <span style="font-size: 0.9rem; font-weight: 600;">Gedung / Venue</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); cursor: pointer;">
-            <input type="checkbox" name="services" value="documentation" checked>
-            <span style="font-size: 0.9rem; font-weight: 600;">Foto & Video</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); cursor: pointer;">
-            <input type="checkbox" name="services" value="sound" checked>
-            <span style="font-size: 0.9rem; font-weight: 600;">Sound & Lighting</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); cursor: pointer;">
-            <input type="checkbox" name="services" value="mc" checked>
-            <span style="font-size: 0.9rem; font-weight: 600;">MC & Entertainment</span>
-          </label>
-        </div>
-      </div>
-
-      <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
-        <i data-lucide="search"></i>
-        <span>Temukan Kurasi Vendor yang Cocok</span>
-      </button>
-    </form>
   </div>
+
+  <form id="wizardForm" method="post" action="{% url 'planner_wizard' %}">
+    {% csrf_token %}
+    <!-- Hidden Inputs Synced with Wizard State -->
+    <input type="hidden" name="category" id="hiddenCategory" value="{% if categories.first %}{{ categories.first.id }}{% endif %}">
+    <input type="hidden" name="event_title" id="hiddenTitle" value="Rencana Event Saya">
+    <input type="hidden" name="city" id="hiddenCity" value="Jakarta">
+    <input type="hidden" name="budget_min" id="hiddenBudgetMin" value="10000000">
+    <input type="hidden" name="budget_max" id="hiddenBudgetMax" value="50000000">
+    <input type="hidden" name="estimated_pax" id="hiddenPax" value="150">
+    <input type="hidden" name="event_date" id="hiddenDate" value="">
+    <div id="hiddenServicesContainer"></div>
+
+    <!-- ===================== STEP 1: Jenis event ===================== -->
+    <div class="panel step" id="step1">
+      <div class="step-eyebrow">Langkah 1 dari 5</div>
+      <h1 class="step-title">Acara apa yang sedang kamu rencanakan?</h1>
+      <p class="step-help">Pilih satu kategori yang paling mendekati. Ini membantu kami menyaring vendor yang biasa menangani acara sejenis.</p>
+      
+      <div class="choice-grid" id="eventTypeGrid">
+        {% for cat in categories %}
+          <button type="button" class="choice-card {% if forloop.first %}selected{% endif %}" data-id="{{ cat.id }}" data-name="{{ cat.name }}">
+            <i data-lucide="{% if cat.icon_name %}{{ cat.icon_name }}{% else %}calendar{% endif %}" style="width: 24px; height: 24px; color: var(--ink);"></i>
+            <span class="label">{{ cat.name }}</span>
+          </button>
+        {% empty %}
+          <button type="button" class="choice-card selected" data-id="1" data-name="Pernikahan">
+            <i data-lucide="heart" style="width: 24px; height: 24px;"></i>
+            <span class="label">Pernikahan (Wedding)</span>
+          </button>
+          <button type="button" class="choice-card" data-id="2" data-name="Corporate Gathering">
+            <i data-lucide="briefcase" style="width: 24px; height: 24px;"></i>
+            <span class="label">Corporate Gathering</span>
+          </button>
+          <button type="button" class="choice-card" data-id="3" data-name="Ulang Tahun">
+            <i data-lucide="cake" style="width: 24px; height: 24px;"></i>
+            <span class="label">Ulang Tahun</span>
+          </button>
+        {% endfor %}
+      </div>
+
+      <div class="step-nav">
+        <span></span>
+        <button type="button" class="btn btn-primary" id="toStep2">Lanjut ke Anggaran</button>
+      </div>
+    </div>
+
+    <!-- ===================== STEP 2: Anggaran & lokasi ===================== -->
+    <div class="panel step" id="step2" hidden>
+      <div class="step-eyebrow">Langkah 2 dari 5</div>
+      <h2 class="step-title">Berapa perkiraan anggaran dan di mana lokasinya?</h2>
+      <p class="step-help">Angka ini hanya perkiraan kasar untuk seluruh acara, bukan per vendor. Kamu masih bisa menyesuaikan nanti.</p>
+
+      <div class="field">
+        <label>Estimasi total anggaran acara</label>
+        <div class="budget-row" id="budgetGrid">
+          <button type="button" class="budget-opt" data-min="0" data-max="10000000" data-label="&lt; 10 juta">&lt; 10 juta</button>
+          <button type="button" class="budget-opt" data-min="10000000" data-max="30000000" data-label="10–30 juta">10–30 juta</button>
+          <button type="button" class="budget-opt selected" data-min="30000000" data-max="75000000" data-label="30–75 juta">30–75 juta</button>
+          <button type="button" class="budget-opt" data-min="75000000" data-max="150000000" data-label="75–150 juta">75–150 juta</button>
+          <button type="button" class="budget-opt" data-min="150000000" data-max="300000000" data-label="150–300 juta">150–300 juta</button>
+          <button type="button" class="budget-opt" data-min="300000000" data-max="1000000000" data-label="&gt; 300 juta">&gt; 300 juta</button>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="field">
+          <label for="locationSelect">Kota lokasi acara *</label>
+          <select id="locationSelect" required>
+            <option value="Jakarta" selected>Jakarta</option>
+            <option value="Bandung">Bandung</option>
+            <option value="Surabaya">Surabaya</option>
+            <option value="Yogyakarta">Yogyakarta</option>
+            <option value="Semarang">Semarang</option>
+            <option value="Bali">Bali</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="guestCount">Perkiraan jumlah tamu</label>
+          <input type="number" id="guestCount" placeholder="Contoh: 150" min="10" value="150">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="eventDateInput">Perkiraan Tanggal Acara (Opsional)</label>
+        <input type="date" id="eventDateInput">
+      </div>
+
+      <div class="step-nav">
+        <button type="button" class="btn btn-ghost" id="toStep1back">Kembali</button>
+        <button type="button" class="btn btn-primary" id="toStep3">Lanjut ke Kebutuhan</button>
+      </div>
+    </div>
+
+    <!-- ===================== STEP 3: Kebutuhan vendor ===================== -->
+    <div class="panel step" id="step3" hidden>
+      <div class="step-eyebrow">Langkah 3 dari 5</div>
+      <h2 class="step-title">Vendor apa saja yang kamu butuhkan?</h2>
+      <p class="step-help">Pilih sebanyak yang relevan. Kami akan menampilkan kurasi rekomendasi terbaik sesuai kategori ini.</p>
+      
+      <div class="chip-row" id="categoryChips">
+        <button type="button" class="chip selected" data-id="venue">Venue / Gedung</button>
+        <button type="button" class="chip selected" data-id="catering">Katering</button>
+        <button type="button" class="chip selected" data-id="dekorasi">Dekorasi & Bunga</button>
+        <button type="button" class="chip" data-id="foto">Fotografi & Videografi</button>
+        <button type="button" class="chip" data-id="mc">MC & Hiburan</button>
+        <button type="button" class="chip" data-id="eo">Event / Wedding Organizer</button>
+        <button type="button" class="chip" data-id="sound">Sound System & Lighting</button>
+        <button type="button" class="chip" data-id="rias">Rias & Busana</button>
+        <button type="button" class="chip" data-id="souvenir">Undangan & Souvenir</button>
+        <button type="button" class="chip" data-id="tenda">Tenda & Perlengkapan</button>
+      </div>
+
+      <div class="step-nav">
+        <button type="button" class="btn btn-ghost" id="toStep2back">Kembali</button>
+        <button type="button" class="btn btn-primary" id="toStep4">Lanjut ke Prioritas</button>
+      </div>
+    </div>
+
+    <!-- ===================== STEP 4: Prioritas / highlight ===================== -->
+    <div class="panel step" id="step4" hidden>
+      <div class="step-eyebrow">Langkah 4 dari 5</div>
+      <h2 class="step-title">Apa yang paling ingin kamu tonjolkan?</h2>
+      <p class="step-help">Pilih 1–3 prioritas utama. Ini kami pakai untuk mengurutkan vendor yang paling pas dan berbobot tinggi.</p>
+      
+      <div class="chip-row" id="highlightChips">
+        <button type="button" class="chip selected" data-id="mewah">Mewah & Elegan</button>
+        <button type="button" class="chip" data-id="unik">Konsep Unik / Bertema</button>
+        <button type="button" class="chip" data-id="hemat">Ramah Anggaran</button>
+        <button type="button" class="chip selected" data-id="praktis">Serba Praktis (All-in-one)</button>
+        <button type="button" class="chip" data-id="dokumentasi">Kualitas Dokumentasi</button>
+        <button type="button" class="chip" data-id="pengalaman">Pengalaman Tamu Maksimal</button>
+        <button type="button" class="chip" data-id="outdoor">Outdoor / Ramah Alam</button>
+      </div>
+
+      <div class="step-nav">
+        <button type="button" class="btn btn-ghost" id="toStep3back">Kembali</button>
+        <button type="button" class="btn btn-primary" id="toStep5">Lanjut ke Ringkasan</button>
+      </div>
+    </div>
+
+    <!-- ===================== STEP 5: Ringkasan ===================== -->
+    <div class="panel step" id="step5" hidden>
+      <div class="step-eyebrow">Langkah 5 dari 5</div>
+      <h2 class="step-title">Cek dulu sebelum lihat rekomendasi</h2>
+      <p class="step-help">Pastikan data ini sudah sesuai. Kami akan menyusun daftar vendor yang paling pas dengan preferensimu.</p>
+      
+      <div class="summary-list" id="summaryList"></div>
+
+      <div class="step-nav">
+        <button type="button" class="btn btn-ghost" id="toStep4back">Kembali</button>
+        <button type="submit" class="btn btn-berry btn-lg" id="submitBtn">
+          <i data-lucide="sparkles" style="width: 18px; height: 18px;"></i>
+          Lihat Rekomendasi Vendor
+        </button>
+      </div>
+    </div>
+  </form>
+
 </div>
+
+<script>
+  // State Object
+  const wizardState = {
+    step: 1,
+    categoryId: '{{ categories.first.id|default:"1" }}',
+    categoryName: '{{ categories.first.name|default:"Pernikahan" }}',
+    budgetLabel: '30–75 juta',
+    budgetMin: '30000000',
+    budgetMax: '75000000',
+    city: 'Jakarta',
+    guestCount: '150',
+    eventDate: '',
+    needs: new Set(['venue', 'catering', 'dekorasi']),
+    highlights: new Set(['mewah', 'praktis'])
+  };
+
+  // Selectors
+  const steps = [1, 2, 3, 4, 5];
+  function goToStep(n) {
+    steps.forEach(s => {
+      const el = document.getElementById('step' + s);
+      if (el) el.hidden = (s !== n);
+    });
+    wizardState.step = n;
+    renderRail();
+    if (n === 5) renderSummary();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function renderRail() {
+    const rail = document.getElementById('rail');
+    rail.innerHTML = steps.map(s => `
+      <div class="rail-step ${s < wizardState.step ? 'done' : s === wizardState.step ? 'active' : ''}"></div>
+    `).join('');
+  }
+
+  // Step 1: Choice grid
+  document.querySelectorAll('#eventTypeGrid .choice-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('#eventTypeGrid .choice-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      wizardState.categoryId = card.dataset.id;
+      wizardState.categoryName = card.dataset.name;
+      document.getElementById('hiddenCategory').value = card.dataset.id;
+      document.getElementById('hiddenTitle').value = 'Rencana ' + card.dataset.name;
+    });
+  });
+
+  // Step 2: Budget & Location
+  document.querySelectorAll('#budgetGrid .budget-opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('#budgetGrid .budget-opt').forEach(b => b.classList.remove('selected'));
+      opt.classList.add('selected');
+      wizardState.budgetLabel = opt.dataset.label;
+      wizardState.budgetMin = opt.dataset.min;
+      wizardState.budgetMax = opt.dataset.max;
+      document.getElementById('hiddenBudgetMin').value = opt.dataset.min;
+      document.getElementById('hiddenBudgetMax').value = opt.dataset.max;
+    });
+  });
+
+  const citySelect = document.getElementById('locationSelect');
+  citySelect.addEventListener('change', (e) => {
+    wizardState.city = e.target.value;
+    document.getElementById('hiddenCity').value = e.target.value;
+  });
+
+  const guestInput = document.getElementById('guestCount');
+  guestInput.addEventListener('input', (e) => {
+    wizardState.guestCount = e.target.value;
+    document.getElementById('hiddenPax').value = e.target.value;
+  });
+
+  const dateInput = document.getElementById('eventDateInput');
+  dateInput.addEventListener('change', (e) => {
+    wizardState.eventDate = e.target.value;
+    document.getElementById('hiddenDate').value = e.target.value;
+  });
+
+  // Step 3: Category Chips
+  document.querySelectorAll('#categoryChips .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const id = chip.dataset.id;
+      if (wizardState.needs.has(id)) {
+        wizardState.needs.delete(id);
+        chip.classList.remove('selected');
+      } else {
+        wizardState.needs.add(id);
+        chip.classList.add('selected');
+      }
+      document.getElementById('toStep4').disabled = (wizardState.needs.size === 0);
+      syncHiddenServices();
+    });
+  });
+
+  function syncHiddenServices() {
+    const container = document.getElementById('hiddenServicesContainer');
+    container.innerHTML = Array.from(wizardState.needs).map(svc => `
+      <input type="hidden" name="services" value="${svc}">
+    `).join('');
+  }
+  syncHiddenServices();
+
+  // Step 4: Highlight Chips
+  document.querySelectorAll('#highlightChips .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const id = chip.dataset.id;
+      if (wizardState.highlights.has(id)) {
+        wizardState.highlights.delete(id);
+        chip.classList.remove('selected');
+      } else {
+        if (wizardState.highlights.size >= 3) return;
+        wizardState.highlights.add(id);
+        chip.classList.add('selected');
+      }
+      document.getElementById('toStep5').disabled = (wizardState.highlights.size === 0);
+    });
+  });
+
+  // Step 5: Summary
+  function renderSummary() {
+    const needsText = Array.from(wizardState.needs).map(id => {
+      const chip = document.querySelector(`#categoryChips .chip[data-id="${id}"]`);
+      return chip ? chip.textContent.trim() : id;
+    }).join(', ');
+
+    const hText = Array.from(wizardState.highlights).map(id => {
+      const chip = document.querySelector(`#highlightChips .chip[data-id="${id}"]`);
+      return chip ? chip.textContent.trim() : id;
+    }).join(', ');
+
+    const rows = [
+      ['Jenis Acara', wizardState.categoryName],
+      ['Estimasi Anggaran', wizardState.budgetLabel],
+      ['Lokasi Kota', wizardState.city],
+      ['Perkiraan Tamu', wizardState.guestCount ? wizardState.guestCount + ' orang' : 'Belum ditentukan'],
+      ['Tanggal Acara', wizardState.eventDate || 'Fleksibel (~3 bulan ke depan)'],
+      ['Kebutuhan Vendor', needsText || '-'],
+      ['Prioritas Utama', hText || '-'],
+    ];
+
+    document.getElementById('summaryList').innerHTML = rows.map(([k, v]) => `
+      <div class="summary-row">
+        <span class="k">${k}</span>
+        <span class="v">${v}</span>
+      </div>
+    `).join('');
+  }
+
+  // Nav Event Listeners
+  document.getElementById('toStep2').addEventListener('click', () => goToStep(2));
+  document.getElementById('toStep1back').addEventListener('click', () => goToStep(1));
+  document.getElementById('toStep3').addEventListener('click', () => goToStep(3));
+  document.getElementById('toStep2back').addEventListener('click', () => goToStep(2));
+  document.getElementById('toStep4').addEventListener('click', () => goToStep(4));
+  document.getElementById('toStep3back').addEventListener('click', () => goToStep(3));
+  document.getElementById('toStep5').addEventListener('click', () => goToStep(5));
+  document.getElementById('toStep4back').addEventListener('click', () => goToStep(4));
+
+  // Initialize
+  renderRail();
+  window.refreshIcons();
+</script>
 {% endblock %}

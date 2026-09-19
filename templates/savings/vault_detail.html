@@ -1,89 +1,89 @@
 {% extends 'base.html' %}
 
-{% block title %}Detail Tabungan: {{ vault.title }} - Vendorama{% endblock %}
+{% block title %}Detail Tabungan: {{ vault.title }} - Vendoraman{% endblock %}
 
 {% block content %}
-<div class="container" style="padding: 3rem 0;">
+<div class="wrap">
   
-  <div style="margin-bottom: 1.5rem;">
-    <a href="{% url 'savings_list' %}" class="btn btn-secondary btn-sm">
-      <i data-lucide="arrow-left"></i>
+  <div style="margin-bottom: 20px;">
+    <a href="{% url 'savings_list' %}" class="btn btn-ghost" style="display: inline-flex; align-items: center; gap: 6px;">
+      <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
       <span>Kembali ke Daftar Tabungan</span>
     </a>
   </div>
 
-  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
     
     <!-- Vault Details & Deposits History -->
     <div>
       <!-- Vault Summary Card -->
-      <div class="card" style="margin-bottom: 2rem;">
-        <div class="card-header">
+      <div class="panel">
+        <div class="panel-header" style="margin-bottom: 14px;">
           <div>
-            <span class="badge badge-emerald" style="margin-bottom: 0.35rem;">Rekening Bersama Escrow Aktif</span>
-            <h1 style="font-size: 2rem; font-weight: 800; color: var(--text-primary);">
+            <span class="match-badge" style="margin-bottom: 6px; display: inline-block;">Tabungan Terverifikasi</span>
+            <h1 style="font-size: 1.8rem; color: var(--ink);">
               {{ vault.title }}
             </h1>
-            <div style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem;">
+            <div style="color: var(--ink-soft); font-size: 0.88rem; margin-top: 4px;">
               Target Tanggal Acara: <strong>{{ vault.target_date|date:"d F Y" }}</strong>
             </div>
           </div>
         </div>
 
-        <div style="margin: 1.5rem 0;">
-          <div style="display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 800; margin-bottom: 0.5rem;">
-            <span style="color: var(--primary);">Terkumpul: Rp {{ vault.current_amount|floatformat:0 }}</span>
-            <span style="color: var(--text-secondary);">Target: Rp {{ vault.target_amount|floatformat:0 }}</span>
+        <div style="margin: 20px 0;">
+          <div style="display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 700; margin-bottom: 8px;">
+            <span style="color: var(--berry);">Terkumpul: Rp {{ vault.current_amount|intdot }}</span>
+            <span style="color: var(--ink-soft);">Target: Rp {{ vault.target_amount|intdot }}</span>
           </div>
-          <div class="progress-container" style="height: 16px;">
-            <div class="progress-bar" style="width: {{ vault.progress_percentage }}%;"></div>
+          <div style="background: var(--paper-dim); height: 12px; border-radius: 6px; overflow: hidden;">
+            <div style="background: var(--gold); height: 100%; width: {{ vault.progress_percentage }}%; border-radius: 6px;"></div>
           </div>
-          <div style="display: flex; justify-content: space-between; font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.84rem; color: var(--ink-soft); margin-top: 6px;">
             <span>Pencapaian: {{ vault.progress_percentage }}%</span>
-            <span>Kekurangan: Rp {{ vault.remaining_amount|floatformat:0 }}</span>
+            <span>Kekurangan: Rp {{ vault.remaining_amount|intdot }}</span>
           </div>
         </div>
 
-        <div style="background: var(--primary-light); border: 1px solid var(--primary-border); border-radius: var(--radius-md); padding: 1rem; display: flex; align-items: center; gap: 0.75rem;">
-          <i data-lucide="shield-check" style="color: var(--primary); min-width: 20px;"></i>
-          <span style="font-size: 0.85rem; color: #1e40af;">
-            Seluruh saldo dalam tabungan ini dapat dialokasikan langsung untuk membayar uang muka (DP) atau pelunasan booking vendor bergaransi Escrow.
+        <div style="background: var(--paper-dim); border-radius: 10px; padding: 14px; display: flex; align-items: center; gap: 10px;">
+          <i data-lucide="info" style="color: var(--gold-deep); width: 18px; height: 18px; flex-shrink: 0;"></i>
+          <span style="font-size: 0.84rem; color: var(--ink-soft);">
+            Saldo tabungan ini dapat kamu gunakan secara fleksibel saat mengonfirmasi booking paket vendor pilihanmu di Vendoraman.
           </span>
         </div>
       </div>
 
       <!-- Deposit History Card -->
-      <div class="card">
-        <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
-          <i data-lucide="history" style="color: var(--text-primary);"></i>
+      <div class="panel">
+        <h3 style="font-size: 1.2rem; color: var(--ink); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="history" style="width: 18px; height: 18px; color: var(--ink-soft);"></i>
           <span>Riwayat Setoran Tabungan</span>
         </h3>
 
         {% if deposits %}
-          <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; font-size: 0.925rem;">
+          <div class="table-responsive">
+            <table class="table">
               <thead>
-                <tr style="border-bottom: 2px solid var(--border-color); text-align: left; color: var(--text-secondary);">
-                  <th style="padding: 0.75rem 0.5rem;">Waktu</th>
-                  <th style="padding: 0.75rem 0.5rem;">Nominal</th>
-                  <th style="padding: 0.75rem 0.5rem;">Metode</th>
-                  <th style="padding: 0.75rem 0.5rem;">Catatan</th>
+                <tr>
+                  <th>Tanggal Setor</th>
+                  <th>Nominal</th>
+                  <th>Metode</th>
+                  <th>Catatan</th>
                 </tr>
               </thead>
               <tbody>
-                {% for dep in deposits %}
-                  <tr style="border-bottom: 1px solid var(--border-color);">
-                    <td style="padding: 0.75rem 0.5rem; color: var(--text-muted); font-size: 0.85rem;">
-                      {{ dep.created_at|date:"d M Y H:i" }}
+                {% for d in deposits %}
+                  <tr>
+                    <td style="color: var(--ink-soft); font-size: 0.86rem;">
+                      {{ d.created_at|date:"d M Y, H:i" }}
                     </td>
-                    <td style="padding: 0.75rem 0.5rem; font-weight: 700; color: var(--emerald);">
-                      + Rp {{ dep.amount|floatformat:0 }}
+                    <td style="font-weight: 700; color: var(--sage);">
+                      + Rp {{ d.amount|intdot }}
                     </td>
-                    <td style="padding: 0.75rem 0.5rem; color: var(--text-secondary);">
-                      {{ dep.payment_method }}
+                    <td style="font-size: 0.84rem; color: var(--ink-soft);">
+                      {{ d.payment_method }}
                     </td>
-                    <td style="padding: 0.75rem 0.5rem; color: var(--text-secondary);">
-                      {{ dep.notes|default:"-" }}
+                    <td style="font-size: 0.84rem;">
+                      {{ d.notes|default:"-" }}
                     </td>
                   </tr>
                 {% endfor %}
@@ -91,38 +91,35 @@
             </table>
           </div>
         {% else %}
-          <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
-            Belum ada setoran tercatat. Masukkan setoran pertama Anda pada form di sebelah kanan.
+          <div style="text-align: center; padding: 32px 16px; color: var(--ink-soft);">
+            <p>Belum ada riwayat setoran pada tabungan ini.</p>
           </div>
         {% endif %}
       </div>
     </div>
 
-    <!-- Deposit Form Card -->
+    <!-- Deposit Action Form -->
     <div>
-      <div class="card" style="position: sticky; top: 96px;">
-        <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-          <i data-lucide="plus-circle" style="color: var(--emerald);"></i>
-          <span>Setor Dana ke Vault</span>
-        </h3>
-        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
-          Setoran fleksibel kapan saja tanpa batas minimal kaku. Dana langsung diamankan di Escrow platform.
-        </p>
-
+      <div class="panel">
+        <h3 style="font-size: 1.2rem; color: var(--ink); margin-bottom: 14px;">+ Tambah Setoran Tabungan</h3>
         <form method="post">
           {% csrf_token %}
-          <div class="form-group">
-            <label class="form-label">Nominal Setoran (IDR)</label>
+          <div class="field">
+            <label class="form-label" for="id_amount">Nominal Setoran (Rp) *</label>
             {{ deposit_form.amount }}
+            {% for error in deposit_form.amount.errors %}
+              <div style="color: var(--berry); font-size: 0.82rem; margin-top: 4px;">{{ error }}</div>
+            {% endfor %}
           </div>
-          <div class="form-group">
-            <label class="form-label">Catatan Tambahan (Opsional)</label>
+
+          <div class="field">
+            <label class="form-label" for="id_notes">Catatan Setoran</label>
             {{ deposit_form.notes }}
           </div>
 
-          <button type="submit" class="btn btn-emerald" style="width: 100%; margin-top: 0.5rem;">
-            <i data-lucide="arrow-down-circle"></i>
-            <span>Setor Sekarang</span>
+          <button type="submit" class="btn btn-berry" style="width: 100%; padding: 12px; margin-top: 6px;">
+            <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+            <span>Setor Dana Tabungan</span>
           </button>
         </form>
       </div>

@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Konfirmasi Booking Vendor - Vendoraman{% endblock %}
+
+{% block content %}
+<div class="wrap-narrow">
+  <div class="panel">
+    <div class="step-eyebrow">Pemesanan Langsung</div>
+    <h1 class="step-title">Konfirmasi Booking Vendor</h1>
+    <p class="step-help">
+      Lengkapi data pelaksanaan acara untuk mengirimkan permintaan pemesanan resmi kepada vendor.
+    </p>
+
+    <!-- Vendor & Package Card -->
+    <div style="background: var(--paper); border: 1.5px solid var(--line); border-left: 4px solid var(--gold); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+        <div>
+          <div style="font-size: 0.82rem; color: var(--ink-soft); font-weight: 600; text-transform: uppercase;">Paket Terpilih</div>
+          <div style="font-size: 1.25rem; font-weight: 700; color: var(--ink); margin-top: 2px;">{{ package.name }}</div>
+          <div style="font-size: 0.92rem; color: var(--ink-soft); margin-top: 4px;">
+            Oleh <strong>{{ package.vendor.business_name }}</strong> &bull; {{ package.vendor.city }}
+          </div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-size: 0.8rem; color: var(--ink-soft);">Total Harga Paket</div>
+          <div style="font-size: 1.35rem; font-weight: 700; font-family: 'Fraunces', serif; color: var(--ink);">
+            Rp {{ total_price|intdot }}
+          </div>
+        </div>
+      </div>
+
+      {% if package.get_spec_list %}
+        <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line);">
+          <div style="font-size: 0.84rem; font-weight: 600; color: var(--ink); margin-bottom: 8px;">Rincian Layanan:</div>
+          <ul style="padding-left: 20px; font-size: 0.86rem; color: var(--ink-soft); display: grid; gap: 4px;">
+            {% for item in package.get_spec_list %}
+              <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Transparent Commission Scheme Box -->
+    <div class="commission-box">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+        <i data-lucide="info" style="width: 18px; height: 18px; color: var(--gold-deep);"></i>
+        <strong style="font-size: 0.92rem; color: var(--ink);">Skema Biaya Transparan Vendoraman</strong>
+      </div>
+      <p style="font-size: 0.82rem; color: var(--ink-soft); margin-bottom: 12px; line-height: 1.4;">
+        Vendoraman mengenakan komisi platform berbasis persentase (10%) langsung kepada vendor dari setiap pesanan yang sukses. Customer tidak dikenakan biaya tambahan tersembunyi.
+      </p>
+      <div class="commission-row">
+        <span>Nilai Paket:</span>
+        <strong>Rp {{ total_price|intdot }}</strong>
+      </div>
+      <div class="commission-row" style="color: var(--gold-deep);">
+        <span>Fee Komisi Platform (10% dari vendor):</span>
+        <span>Rp {{ commission_amount|intdot }}</span>
+      </div>
+      <div class="commission-row total">
+        <span>Penerimaan Bersih Vendor:</span>
+        <span style="color: var(--sage);">Rp {{ vendor_net_amount|intdot }}</span>
+      </div>
+    </div>
+
+    <!-- Booking Form -->
+    <form method="post" action="{% url 'booking_checkout' %}">
+      {% csrf_token %}
+      <input type="hidden" name="package_id" value="{{ package.id }}">
+      {% if plan %}
+        <input type="hidden" name="plan_id" value="{{ plan.id }}">
+      {% endif %}
+
+      <div class="field">
+        <label for="event_date">Tanggal Pelaksanaan Event *</label>
+        <input type="date" id="event_date" name="event_date" required value="{% if plan %}{{ plan.event_date|date:'Y-m-d' }}{% endif %}">
+      </div>
+
+      <div class="field">
+        <label for="notes">Catatan & Kebutuhan Khusus</label>
+        <textarea id="notes" name="notes" rows="4" placeholder="Contoh: Acara resepsi outdoor di Bandung, mulai pukul 10.00 WIB. Membutuhkan setting dekorasi H-1."></textarea>
+      </div>
+
+      <div class="step-nav">
+        {% if plan %}
+          <a href="{% url 'planner_results' plan.id %}" class="btn btn-ghost">
+            <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
+            Kembali ke Hasil Rekomendasi
+          </a>
+        {% else %}
+          <a href="javascript:history.back()" class="btn btn-ghost">
+            <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
+            Kembali
+          </a>
+        {% endif %}
+
+        <button type="submit" class="btn btn-berry btn-lg">
+          <i data-lucide="send" style="width: 18px; height: 18px;"></i>
+          Kirim Permintaan Booking ke Vendor
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

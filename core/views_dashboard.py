@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import Sum
 from .models import EventPlan, BookingOrder, EventSavingsVault, VendorProfile, VendorPackage, EventCategory
 
 
@@ -11,7 +12,7 @@ def customer_dashboard_view(request):
             return redirect('vendor_dashboard')
 
     plans = EventPlan.objects.filter(customer=request.user).order_by('-created_at')
-    orders = BookingOrder.objects.filter(customer=request.user).order_by('-created_at')
+    orders = BookingOrder.objects.filter(customer=request.user).select_related('vendor', 'package').order_by('-created_at')
     vaults = EventSavingsVault.objects.filter(customer=request.user).order_by('-created_at')
 
     return render(request, 'customer/dashboard.html', {
@@ -28,8 +29,14 @@ def vendor_dashboard_view(request):
         return redirect('home')
 
     vendor = request.user.vendor_profile
-    orders = BookingOrder.objects.filter(vendor=vendor).order_by('-created_at')
+    orders = BookingOrder.objects.filter(vendor=vendor).select_related('customer', 'package').order_by('-created_at')
     packages = vendor.packages.all().order_by('-created_at')
+
+    # Commission Financial Metrics
+    active_or_completed = orders.exclude(status='CANCELLED')
+    gross_revenue = active_or_completed.aggregate(Sum('total_price'))['total_price__sum'] or 0
+    total_commission_paid = active_or_completed.aggregate(Sum('commission_amount'))['commission_amount__sum'] or 0
+    net_earnings = active_or_completed.aggregate(Sum('vendor_net_amount'))['vendor_net_amount__sum'] or 0
 
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -52,4 +59,7 @@ def vendor_dashboard_view(request):
         'vendor': vendor,
         'orders': orders,
         'packages': packages,
+        'gross_revenue': gross_revenue,
+        'total_commission_paid': total_commission_paid,
+        'net_earnings': net_earnings,
     })

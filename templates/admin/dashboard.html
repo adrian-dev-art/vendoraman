@@ -1,159 +1,91 @@
 {% extends 'base.html' %}
 
-{% block title %}Pusat Kendali Escrow & Arbitrase - Vendorama Admin{% endblock %}
+{% block title %}Pusat Kendali Admin & Komisi - Vendoraman{% endblock %}
 
 {% block content %}
-<div class="container" style="padding: 3.5rem 0;">
+<div class="wrap">
   
-  <div style="margin-bottom: 2.5rem;">
-    <span class="badge badge-primary" style="margin-bottom: 0.5rem;">Operator Portal</span>
-    <h1 style="font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em;">Pusat Kendali Escrow & Arbitrase</h1>
-    <p style="color: var(--text-secondary); font-size: 0.95rem;">
-      Kelola verifikasi kurasi vendor, monitor dana penampungan Escrow, dan eksekusi jaminan finansial sengketa.
+  <div style="margin-bottom: 24px;">
+    <div class="step-eyebrow">Pusat Kendali Platform</div>
+    <h1 style="font-size: 2rem; color: var(--ink);">Panel Administrasi & Pendapatan Komisi</h1>
+    <p style="color: var(--ink-soft); font-size: 0.92rem;">
+      Pantau performa transaksi platform, realisasi komisi vendor 10%, dan verifikasi mitra vendor.
     </p>
   </div>
 
-  <!-- Metric Overview Cards -->
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
-    <div class="card" style="border-left: 4px solid var(--primary);">
-      <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">
-        Total Dana Ditampung di Escrow
-      </div>
-      <div style="font-size: 2rem; font-weight: 800; color: var(--text-primary); margin: 0.5rem 0;">
-        Rp {{ total_escrow_held|floatformat:0 }}
-      </div>
-      <div style="font-size: 0.8rem; color: var(--emerald); display: flex; align-items: center; gap: 0.35rem;">
-        <i data-lucide="shield-check" style="width: 14px; height: 14px;"></i>
-        <span>Dana Terproteksi di Rekening Bersama</span>
-      </div>
+  <!-- Platform Metrics Grid -->
+  <div class="stat-grid">
+    <div class="stat-card" style="border-left: 4px solid var(--gold);">
+      <div class="stat-title">Pendapatan Komisi Platform</div>
+      <div class="stat-val" style="color: var(--gold-deep);">Rp {{ total_commission_revenue|intdot }}</div>
+      <div class="stat-sub">Total fee 10% dari transaksi vendor yang terealisasi</div>
     </div>
 
-    <div class="card" style="border-left: 4px solid var(--crimson);">
-      <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">
-        Tiket Dispute Aktif (Escrow Frozen)
-      </div>
-      <div style="font-size: 2rem; font-weight: 800; color: var(--crimson); margin: 0.5rem 0;">
-        {{ active_disputes|length }}
-      </div>
-      <div style="font-size: 0.8rem; color: var(--text-muted);">
-        Membutuhkan keputusan mediasi / refund
-      </div>
+    <div class="stat-card">
+      <div class="stat-title">Gross Merchandise Value (GMV)</div>
+      <div class="stat-val">Rp {{ total_gmv|intdot }}</div>
+      <div class="stat-sub">Akumulasi seluruh nilai transaksi pesanan event</div>
     </div>
 
-    <div class="card" style="border-left: 4px solid var(--amber);">
-      <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">
-        Vendor Menunggu Kurasi
-      </div>
-      <div style="font-size: 2rem; font-weight: 800; color: var(--amber); margin: 0.5rem 0;">
-        {{ pending_vendors|length }}
-      </div>
-      <div style="font-size: 0.8rem; color: var(--text-muted);">
-        Menunggu audit identitas & portofolio
-      </div>
-    </div>
-
-    <div class="card" style="border-left: 4px solid var(--emerald);">
-      <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">
-        Vendor Terverifikasi Aktif
-      </div>
-      <div style="font-size: 2rem; font-weight: 800; color: var(--emerald); margin: 0.5rem 0;">
-        {{ total_vetted_vendors }}
-      </div>
-      <div style="font-size: 0.8rem; color: var(--text-muted);">
-        Mitra dengan Vetted Trust Badge
-      </div>
+    <div class="stat-card" style="border-left: 4px solid var(--sage);">
+      <div class="stat-title">Mitra Vendor Terverifikasi</div>
+      <div class="stat-val" style="color: var(--sage);">{{ total_vetted_vendors }}</div>
+      <div class="stat-sub">Vendor aktif berstatus Vetted Partner</div>
     </div>
   </div>
 
-  <!-- Active Disputes Section (Highest Priority) -->
-  {% if active_disputes %}
-    <div class="card" style="border: 2px solid var(--crimson); margin-bottom: 3rem;">
-      <div class="card-header" style="border-bottom: 1px solid var(--crimson-border); padding-bottom: 1rem;">
-        <div>
-          <span class="badge badge-crimson">Perlu Tindakan Arbitrase Segera</span>
-          <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--crimson); margin-top: 0.25rem;">
-            Tiket Sengketa / Dispute Aktif
-          </h2>
-        </div>
-      </div>
-
-      <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.25rem;">
-        {% for disp in active_disputes %}
-          <div style="background: var(--crimson-light); border: 1px solid var(--crimson-border); border-radius: var(--radius-md); padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-            <div>
-              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
-                <span class="badge badge-crimson">{{ disp.ticket_code }}</span>
-                <span style="font-weight: 700; font-size: 1rem;">Pesanan: {{ disp.order.order_code }}</span>
-              </div>
-              <div style="font-size: 0.9rem; color: var(--text-primary); margin-top: 0.35rem;">
-                <strong>Pelapor:</strong> {{ disp.complainant.username }} &bull; 
-                <strong>Vendor Terlapor:</strong> {{ disp.order.vendor.business_name }} &bull; 
-                <strong>Nilai Escrow:</strong> Rp {{ disp.order.total_price|floatformat:0 }}
-              </div>
-              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.35rem;">
-                "{{ disp.reason|truncatewords:20 }}"
-              </p>
-            </div>
-
-            <a href="{% url 'admin_dispute_detail' dispute_id=disp.id %}" class="btn btn-crimson btn-sm">
-              <i data-lucide="scale"></i>
-              <span>Arbitrase & Putuskan Kasus</span>
-            </a>
-          </div>
-        {% endfor %}
-      </div>
-    </div>
-  {% endif %}
-
-  <!-- Pending Vendor Verification Table -->
-  <div class="card" style="margin-bottom: 3rem;">
-    <div class="card-header">
+  <!-- Vendor Verification Queue -->
+  <div class="panel">
+    <div class="panel-header">
       <div>
-        <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--text-primary);">
-          Verifikasi & Kurasi Vendor Baru
-        </h2>
-        <p style="font-size: 0.875rem; color: var(--text-secondary);">
-          Vendor yang belum diverifikasi tidak akan muncul di hasil pencarian publik.
+        <h2 style="font-size: 1.3rem; color: var(--ink);">Antrean Verifikasi Mitra Vendor ({{ pending_vendors|length }})</h2>
+        <p style="font-size: 0.86rem; color: var(--ink-soft); margin-top: 2px;">
+          Tinjau profil usaha pendaftar baru sebelum memberikan lencana Vetted Partner.
         </p>
       </div>
-      <span class="badge badge-amber">{{ pending_vendors|length }} Menunggu Review</span>
     </div>
 
     {% if pending_vendors %}
-      <div style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+      <div class="table-responsive">
+        <table class="table">
           <thead>
-            <tr style="border-bottom: 2px solid var(--border-color); text-align: left; color: var(--text-secondary);">
-              <th style="padding: 0.75rem 0.5rem;">Nama Bisnis & Kode</th>
-              <th style="padding: 0.75rem 0.5rem;">Kategori & Kota</th>
-              <th style="padding: 0.75rem 0.5rem;">PIC & Kontak</th>
-              <th style="padding: 0.75rem 0.5rem;">Aksi Kurasi</th>
+            <tr>
+              <th>Brand Vendor</th>
+              <th>Kategori & Kota</th>
+              <th>Nama PIC</th>
+              <th>Kontak</th>
+              <th>Tanggal Daftar</th>
+              <th>Tindakan Kurasi</th>
             </tr>
           </thead>
           <tbody>
             {% for v in pending_vendors %}
-              <tr style="border-bottom: 1px solid var(--border-color);">
-                <td style="padding: 0.85rem 0.5rem;">
-                  <div style="font-weight: 700; color: var(--text-primary);">{{ v.business_name }}</div>
-                  <small style="color: var(--text-muted);">{{ v.anonymized_code }}</small>
+              <tr>
+                <td>
+                  <div style="font-weight: 700; color: var(--ink);">{{ v.business_name }}</div>
+                  <div style="font-size: 0.8rem; color: var(--ink-soft);">{{ v.anonymized_code }}</div>
                 </td>
-                <td style="padding: 0.85rem 0.5rem;">
-                  <div>{{ v.category.name }}</div>
-                  <small style="color: var(--text-secondary);">{{ v.city }}</small>
+                <td>
+                  <div>{{ v.category.name|default:"Umum" }}</div>
+                  <div style="font-size: 0.8rem; color: var(--ink-soft);">{{ v.city }}</div>
                 </td>
-                <td style="padding: 0.85rem 0.5rem;">
-                  <div>{{ v.pic_name }}</div>
-                  <small style="color: var(--text-secondary);">{{ v.contact_phone }} &bull; {{ v.contact_email }}</small>
+                <td>{{ v.pic_name }}</td>
+                <td>
+                  <div style="font-size: 0.84rem;">{{ v.contact_phone }}</div>
+                  <div style="font-size: 0.78rem; color: var(--ink-soft);">{{ v.contact_email }}</div>
                 </td>
-                <td style="padding: 0.85rem 0.5rem;">
-                  <div style="display: flex; gap: 0.5rem;">
-                    <a href="{% url 'admin_verify_vendor' vendor_id=v.id action='approve' %}" class="btn btn-emerald btn-sm">
-                      <i data-lucide="check"></i>
-                      <span>Approve & Vet</span>
+                <td style="color: var(--ink-soft); font-size: 0.84rem;">
+                  {{ v.created_at|date:"d M Y" }}
+                </td>
+                <td>
+                  <div style="display: flex; gap: 8px;">
+                    <a href="{% url 'admin_verify_vendor' vendor_id=v.id action='approve' %}" class="btn btn-berry btn-sm" onclick="return confirm('Verifikasi dan setujui vendor ini?');">
+                      <i data-lucide="check" style="width: 14px; height: 14px;"></i>
+                      Setujui
                     </a>
-                    <a href="{% url 'admin_verify_vendor' vendor_id=v.id action='reject' %}" class="btn btn-secondary btn-sm" style="color: var(--crimson);">
-                      <i data-lucide="x"></i>
-                      <span>Tolak</span>
+                    <a href="{% url 'admin_verify_vendor' vendor_id=v.id action='reject' %}" class="btn btn-outline btn-sm" onclick="return confirm('Tolak pendaftaran vendor ini?');">
+                      <i data-lucide="x" style="width: 14px; height: 14px;"></i>
+                      Tolak
                     </a>
                   </div>
                 </td>
@@ -163,59 +95,75 @@
         </table>
       </div>
     {% else %}
-      <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
-        Semua vendor telah diproses. Tidak ada permohonan tertunda.
+      <div style="text-align: center; padding: 28px 16px; color: var(--ink-soft);">
+        <i data-lucide="check-circle-2" style="width: 32px; height: 32px; color: var(--sage); margin-bottom: 8px;"></i>
+        <p>Semua pendaftaran vendor telah ditinjau dan diverifikasi.</p>
       </div>
     {% endif %}
   </div>
 
-  <!-- Active Escrow Orders -->
-  <div class="card">
-    <div class="card-header">
+  <!-- All Orders & Commission Settlement -->
+  <div class="panel">
+    <div class="panel-header">
       <div>
-        <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--text-primary);">
-          Pesanan & Aliran Dana Escrow Terkini
-        </h2>
-        <p style="font-size: 0.875rem; color: var(--text-secondary);">
-          Pantau status penampungan dan pencairan termin di seluruh platform.
+        <h2 style="font-size: 1.3rem; color: var(--ink);">Seluruh Transaksi Pesanan & Fee Platform ({{ active_orders|length }})</h2>
+        <p style="font-size: 0.86rem; color: var(--ink-soft); margin-top: 2px;">
+          Rincian pesanan pemesan, pembagian komisi platform 10%, dan hak bersih vendor.
         </p>
       </div>
     </div>
 
     {% if active_orders %}
-      <div style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+      <div class="table-responsive">
+        <table class="table">
           <thead>
-            <tr style="border-bottom: 2px solid var(--border-color); text-align: left; color: var(--text-secondary);">
-              <th style="padding: 0.75rem 0.5rem;">Kode Order</th>
-              <th style="padding: 0.75rem 0.5rem;">Customer & Vendor</th>
-              <th style="padding: 0.75rem 0.5rem;">Total Nilai</th>
-              <th style="padding: 0.75rem 0.5rem;">Status Escrow</th>
-              <th style="padding: 0.75rem 0.5rem;">Detail</th>
+            <tr>
+              <th>Kode Order</th>
+              <th>Pemesan</th>
+              <th>Vendor</th>
+              <th>Tanggal Event</th>
+              <th>Total Transaksi</th>
+              <th>Komisi Platform (10%)</th>
+              <th>Penerimaan Vendor</th>
+              <th>Status</th>
+              <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
             {% for o in active_orders %}
-              <tr style="border-bottom: 1px solid var(--border-color);">
-                <td style="padding: 0.85rem 0.5rem; font-weight: 700; color: var(--primary);">
+              <tr>
+                <td style="font-weight: 700; color: var(--berry);">
                   {{ o.order_code }}
                 </td>
-                <td style="padding: 0.85rem 0.5rem;">
-                  <div>Cust: {{ o.customer.username }}</div>
-                  <small style="color: var(--text-secondary);">Vendor: {{ o.vendor.business_name }}</small>
+                <td>
+                  <div style="font-weight: 600;">{{ o.customer.username }}</div>
+                  <div style="font-size: 0.78rem; color: var(--ink-soft);">{{ o.customer.phone_number }}</div>
                 </td>
-                <td style="padding: 0.85rem 0.5rem; font-weight: 700;">
-                  Rp {{ o.total_price|floatformat:0 }}
+                <td>
+                  <div style="font-weight: 600;">{{ o.vendor.business_name }}</div>
+                  <div style="font-size: 0.78rem; color: var(--ink-soft);">{{ o.package.name }}</div>
                 </td>
-                <td style="padding: 0.85rem 0.5rem;">
-                  <span class="badge {% if o.escrow_status == 'FROZEN' %}badge-crimson{% else %}badge-emerald{% endif %}">
-                    {{ o.get_escrow_status_display }}
+                <td style="color: var(--ink-soft); font-size: 0.84rem;">
+                  {{ o.event_date|date:"d M Y" }}
+                </td>
+                <td style="font-weight: 700;">
+                  Rp {{ o.total_price|intdot }}
+                </td>
+                <td style="color: var(--gold-deep); font-weight: 600;">
+                  Rp {{ o.commission_amount|intdot }}
+                </td>
+                <td style="color: var(--sage); font-weight: 700;">
+                  Rp {{ o.vendor_net_amount|intdot }}
+                </td>
+                <td>
+                  <span class="status-badge {% if o.status == 'PENDING' %}pending{% elif o.status == 'CONFIRMED' %}confirmed{% elif o.status == 'COMPLETED' %}completed{% else %}cancelled{% endif %}">
+                    {{ o.get_status_display }}
                   </span>
                 </td>
-                <td style="padding: 0.85rem 0.5rem;">
-                  <a href="{% url 'order_detail' order_id=o.id %}" class="btn btn-secondary btn-sm">
-                    <i data-lucide="eye"></i>
-                    <span>Lihat</span>
+                <td>
+                  <a href="{% url 'order_detail' order_id=o.id %}" class="btn btn-outline btn-sm">
+                    <i data-lucide="eye" style="width: 14px; height: 14px;"></i>
+                    Rincian
                   </a>
                 </td>
               </tr>
@@ -224,8 +172,8 @@
         </table>
       </div>
     {% else %}
-      <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
-        Tidak ada pesanan aktif saat ini.
+      <div style="text-align: center; padding: 28px 16px; color: var(--ink-soft);">
+        <p>Belum ada transaksi pesanan yang tercatat.</p>
       </div>
     {% endif %}
   </div>

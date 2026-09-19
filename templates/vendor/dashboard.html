@@ -1,183 +1,208 @@
 {% extends 'base.html' %}
 
-{% block title %}Portal Vendor - {{ vendor.business_name }} - Vendorama{% endblock %}
+{% block title %}Portal Vendor - {{ vendor.business_name }} - Vendoraman{% endblock %}
 
 {% block content %}
-<div class="container" style="padding: 3.5rem 0;">
+<div class="wrap">
   
   <!-- Vendor Profile Header -->
-  <div class="card" style="margin-bottom: 2.5rem; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white;">
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem;">
+  <div class="panel" style="background: var(--ink); color: var(--paper); border: none; margin-bottom: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
       <div>
-        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
           {% if vendor.is_vetted %}
-            <span class="badge badge-emerald">
-              <i data-lucide="badge-check"></i>
-              <span>Vetted Partner Resmi</span>
+            <span class="match-badge" style="background: rgba(92, 122, 94, 0.3); color: #A5D6A7;">
+              Vetted Partner Resmi
             </span>
           {% else %}
-            <span class="badge badge-amber">
-              <i data-lucide="clock"></i>
-              <span>{{ vendor.get_verification_status_display }}</span>
+            <span class="status-badge pending">
+              {{ vendor.get_verification_status_display }}
             </span>
           {% endif %}
-          <span class="badge badge-slate" style="color: white; border-color: rgba(255,255,255,0.2);">{{ vendor.anonymized_code }}</span>
-          <span class="badge badge-primary">{{ vendor.category.name }}</span>
+          <span class="tag" style="background: rgba(255,255,255,0.1); color: var(--paper);">{{ vendor.category.name }}</span>
+          <span class="tag" style="background: rgba(255,255,255,0.1); color: var(--paper);">{{ vendor.city }}</span>
         </div>
 
-        <h1 style="font-size: 2.2rem; font-weight: 800; color: white;">
+        <h1 style="font-size: 2.2rem; color: var(--paper); margin: 0 0 6px;">
           {{ vendor.business_name }}
         </h1>
-        <div style="color: #cbd5e1; font-size: 0.925rem; margin-top: 0.35rem; display: flex; gap: 1.5rem; flex-wrap: wrap;">
-          <span>PIC: {{ vendor.pic_name }}</span>
-          <span>Kota: {{ vendor.city }}</span>
-          <span>Kontak: {{ vendor.contact_phone }}</span>
+        <div style="color: #C7C9E4; font-size: 0.88rem; display: flex; gap: 16px; flex-wrap: wrap;">
+          <span>PIC: <strong>{{ vendor.pic_name }}</strong></span>
+          <span>Kontak: <strong>{{ vendor.contact_phone }}</strong></span>
+          <span>Email: <strong>{{ vendor.contact_email }}</strong></span>
         </div>
       </div>
 
       <div style="text-align: right;">
-        <div style="font-size: 1.75rem; font-weight: 800; color: white; display: flex; align-items: center; justify-content: flex-end; gap: 0.35rem;">
-          <i data-lucide="star" style="width: 22px; height: 22px; fill: #f59e0b; color: #f59e0b;"></i>
+        <div class="rating" style="font-size: 1.6rem; color: var(--paper); justify-content: flex-end;">
+          <svg viewBox="0 0 20 20" style="width: 22px; height: 22px; fill: var(--gold);"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.5l6.4-.6L10 1z"/></svg>
           <span>{{ vendor.rating }}</span>
+          <span style="font-size: 0.9rem; color: #B7BAD6;">/ 5.0</span>
         </div>
-        <div style="color: #94a3b8; font-size: 0.85rem; margin-top: 0.2rem;">
+        <div style="color: #B7BAD6; font-size: 0.82rem; margin-top: 4px;">
           {{ vendor.total_completed_events }} Event Berhasil
         </div>
       </div>
     </div>
   </div>
 
-  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
-    
-    <!-- Left Column: Incoming Orders & Milestones -->
-    <div>
-      <div class="card" style="margin-bottom: 2.5rem;">
-        <div class="card-header">
-          <div>
-            <h2 style="font-size: 1.35rem; font-weight: 800;">Pesanan Masuk & Termin Escrow ({{ orders|length }})</h2>
-            <p style="font-size: 0.85rem; color: var(--text-secondary);">
-              Dana ditampung aman di Escrow platform. Ajukan pencairan sesuai termin kesiapan.
-            </p>
-          </div>
-        </div>
-
-        {% if orders %}
-          <div style="display: flex; flex-direction: column; gap: 1rem;">
-            {% for o in orders %}
-              <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
-                  <div>
-                    <span class="badge badge-primary">{{ o.order_code }}</span>
-                    <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-top: 0.25rem;">
-                      {{ o.package.name }}
-                    </h3>
-                    <div style="font-size: 0.85rem; color: var(--text-secondary);">
-                      Klien: {{ o.customer.username }} &bull; Tanggal Acara: {{ o.event_date|date:"d M Y" }}
-                    </div>
-                  </div>
-                  <div style="text-align: right;">
-                    <div style="font-weight: 800; font-size: 1.2rem; color: var(--primary);">
-                      Rp {{ o.total_price|floatformat:0 }}
-                    </div>
-                    <span class="badge {% if o.escrow_status == 'COMPLETED' %}badge-emerald{% elif o.escrow_status == 'FROZEN' %}badge-crimson{% else %}badge-amber{% endif %}">
-                      {{ o.get_escrow_status_display }}
-                    </span>
-                  </div>
-                </div>
-
-                <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-color); display: flex; justify-content: space-between; align-items: center;">
-                  <div style="font-size: 0.825rem; color: var(--text-muted);">
-                    Termin: DP 30% &bull; Pelaksanaan 40% &bull; Pelunasan 30%
-                  </div>
-                  <a href="{% url 'order_detail' order_id=o.id %}" class="btn btn-secondary btn-sm">
-                    <i data-lucide="eye"></i>
-                    <span>Buka Rincian & Termin Payout</span>
-                  </a>
-                </div>
-              </div>
-            {% endfor %}
-          </div>
-        {% else %}
-          <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
-            Belum ada pesanan masuk. Pastikan paket layanan Anda telah aktif.
-          </div>
-        {% endif %}
-      </div>
-
-      <!-- Packages List -->
-      <div class="card">
-        <div class="card-header">
-          <div>
-            <h2 style="font-size: 1.35rem; font-weight: 800;">Katalog Paket Layanan ({{ packages|length }})</h2>
-            <p style="font-size: 0.85rem; color: var(--text-secondary);">
-              Paket ini akan ditampilkan kepada calon customer yang mencari vendor.
-            </p>
-          </div>
-        </div>
-
-        {% if packages %}
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
-            {% for p in packages %}
-              <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-                  <div style="font-weight: 700; font-size: 1rem;">{{ p.name }}</div>
-                  <span class="badge badge-slate">{{ p.pax_capacity }} Pax</span>
-                </div>
-                <div style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 0.5rem;">
-                  Rp {{ p.price|floatformat:0 }}
-                </div>
-                <ul style="font-size: 0.8rem; color: var(--text-secondary); margin-left: 1rem;">
-                  {% for s in p.get_spec_list %}
-                    <li>{{ s }}</li>
-                  {% endfor %}
-                </ul>
-              </div>
-            {% endfor %}
-          </div>
-        {% else %}
-          <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
-            Belum ada paket yang terdaftar. Tambahkan paket pada form di sebelah kanan.
-          </div>
-        {% endif %}
-      </div>
+  <!-- Financial & Commission Overview -->
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-title">Total Transaksi Kotor</div>
+      <div class="stat-val">Rp {{ gross_revenue|intdot }}</div>
+      <div class="stat-sub">Akumulasi nilai pesanan aktif & selesai</div>
     </div>
 
-    <!-- Right Column: Add Package Form -->
-    <div>
-      <div class="card" style="position: sticky; top: 96px;">
-        <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
-          <i data-lucide="plus-circle" style="color: var(--primary);"></i>
-          <span>Tambah Paket Layanan</span>
-        </h3>
+    <div class="stat-card" style="border-left: 4px solid var(--gold);">
+      <div class="stat-title">Fee Komisi Platform (10%)</div>
+      <div class="stat-val" style="color: var(--gold-deep);">Rp {{ total_commission_paid|intdot }}</div>
+      <div class="stat-sub">Dipotong otomatis saat transaksi berhasil</div>
+    </div>
 
-        <form method="post">
+    <div class="stat-card" style="border-left: 4px solid var(--sage);">
+      <div class="stat-title">Pendapatan Bersih Vendor</div>
+      <div class="stat-val" style="color: var(--sage);">Rp {{ net_earnings|intdot }}</div>
+      <div class="stat-sub">Hak bersih diterima vendor (90%)</div>
+    </div>
+  </div>
+
+  <!-- Orders & Packages Grid -->
+  <div style="display: grid; grid-template-columns: 1fr; gap: 24px;">
+    
+    <!-- Incoming Orders -->
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <h2 style="font-size: 1.35rem; color: var(--ink);">Daftar Pesanan Masuk ({{ orders|length }})</h2>
+          <p style="font-size: 0.86rem; color: var(--ink-soft); margin-top: 2px;">
+            Pesanan dari pelanggan beserta rincian komisi platform 10%.
+          </p>
+        </div>
+      </div>
+
+      {% if orders %}
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Kode & Paket</th>
+                <th>Pemesan</th>
+                <th>Tanggal Acara</th>
+                <th>Nilai Paket</th>
+                <th>Komisi Platform (10%)</th>
+                <th>Pendapatan Bersih</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for o in orders %}
+                <tr>
+                  <td>
+                    <div style="font-weight: 700; color: var(--berry);">{{ o.order_code }}</div>
+                    <div style="font-size: 0.82rem; color: var(--ink-soft);">{{ o.package.name }}</div>
+                  </td>
+                  <td>
+                    <div style="font-weight: 600;">{{ o.customer.username }}</div>
+                    <div style="font-size: 0.78rem; color: var(--ink-soft);">{{ o.customer.phone_number|default:"-" }}</div>
+                  </td>
+                  <td style="color: var(--ink-soft); font-size: 0.86rem;">
+                    {{ o.event_date|date:"d M Y" }}
+                  </td>
+                  <td style="font-weight: 600;">
+                    Rp {{ o.total_price|intdot }}
+                  </td>
+                  <td style="color: var(--gold-deep); font-weight: 600;">
+                    - Rp {{ o.commission_amount|intdot }}
+                  </td>
+                  <td style="color: var(--sage); font-weight: 700;">
+                    Rp {{ o.vendor_net_amount|intdot }}
+                  </td>
+                  <td>
+                    <span class="status-badge {% if o.status == 'PENDING' %}pending{% elif o.status == 'CONFIRMED' %}confirmed{% elif o.status == 'COMPLETED' %}completed{% else %}cancelled{% endif %}">
+                      {{ o.get_status_display }}
+                    </span>
+                  </td>
+                  <td>
+                    <a href="{% url 'order_detail' order_id=o.id %}" class="btn btn-outline btn-sm">
+                      <i data-lucide="eye" style="width: 14px; height: 14px;"></i>
+                      <span>Kelola</span>
+                    </a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div style="text-align: center; padding: 36px 16px; color: var(--ink-soft);">
+          <i data-lucide="inbox" style="width: 36px; height: 36px; margin-bottom: 8px;"></i>
+          <p>Belum ada pesanan masuk.</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Catalog Management -->
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <h2 style="font-size: 1.35rem; color: var(--ink);">Katalog Paket Layanan ({{ packages|length }})</h2>
+          <p style="font-size: 0.86rem; color: var(--ink-soft); margin-top: 2px;">
+            Kelola pilihan paket dan harga yang tampil pada hasil pencarian.
+          </p>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        {% for pkg in packages %}
+          <div style="background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+              <h4 style="font-size: 1.05rem; color: var(--ink);">{{ pkg.name }}</h4>
+              <span class="tag">{{ pkg.pax_capacity }} Pax</span>
+            </div>
+            <div style="font-size: 1.3rem; font-weight: 700; font-family: 'Fraunces', serif; color: var(--ink); margin-bottom: 8px;">
+              Rp {{ pkg.price|intdot }}
+            </div>
+            <div style="font-size: 0.8rem; color: var(--ink-soft);">
+              Fee Platform (10%): Rp {{ pkg.platform_fee|intdot }} (Est. Bersih: Rp {{ pkg.net_price|intdot }})
+            </div>
+          </div>
+        {% empty %}
+          <p style="color: var(--ink-soft); padding: 10px 0;">Belum ada paket yang didaftarkan.</p>
+        {% endfor %}
+      </div>
+
+      <!-- Add New Package Form -->
+      <div style="background: var(--paper-dim); border-radius: 12px; padding: 20px;">
+        <h3 style="font-size: 1.1rem; color: var(--ink); margin-bottom: 12px;">+ Tambah Paket Layanan Baru</h3>
+        <form action="{% url 'vendor_dashboard' %}" method="post">
           {% csrf_token %}
-          <div class="form-group">
-            <label class="form-label">Nama Paket</label>
-            <input type="text" name="name" class="form-control" placeholder="Contoh: Paket All-in Gold" required>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
+            <div class="field" style="margin-bottom: 10px;">
+              <label for="name">Nama Paket *</label>
+              <input type="text" id="name" name="name" required placeholder="Contoh: Paket Silver Resepsi 500 Pax">
+            </div>
+            <div class="field" style="margin-bottom: 10px;">
+              <label for="price">Harga Paket (Rp) *</label>
+              <input type="number" id="price" name="price" required placeholder="Contoh: 35000000" min="500000">
+            </div>
+            <div class="field" style="margin-bottom: 10px;">
+              <label for="pax_capacity">Kapasitas Pax</label>
+              <input type="number" id="pax_capacity" name="pax_capacity" value="100" min="1">
+            </div>
           </div>
-
-          <div class="form-group">
-            <label class="form-label">Harga Paket (IDR)</label>
-            <input type="number" name="price" class="form-control" placeholder="Contoh: 35000000" required>
+          <div class="field" style="margin-bottom: 16px;">
+            <label for="specifications">Spesifikasi Item (Pisahkan dengan baris baru)</label>
+            <textarea id="specifications" name="specifications" rows="3" placeholder="Contoh:&#10;- Menu utama 5 pilihan&#10;- 3 stall gubukan dessert&#10;- Pelayanan waiter berstandar"></textarea>
           </div>
-
-          <div class="form-group">
-            <label class="form-label">Kapasitas Tamu (Pax)</label>
-            <input type="number" name="pax_capacity" class="form-control" value="200" required>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Spesifikasi Detail (Satu per baris)</label>
-            <textarea name="specifications" class="form-control" rows="4" placeholder="Menu utama 5 macam&#10;Dekorasi pelaminan 8 meter&#10;Dokumentasi 2 fotografer 1 videografer&#10;Sound system 5000 watt" required></textarea>
-          </div>
-
-          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
-            <i data-lucide="save"></i>
-            <span>Simpan Paket</span>
+          <button type="submit" class="btn btn-berry">
+            <i data-lucide="plus-circle" style="width: 16px; height: 16px;"></i>
+            <span>Simpan Paket ke Katalog</span>
           </button>
         </form>
       </div>
+
     </div>
 
   </div>

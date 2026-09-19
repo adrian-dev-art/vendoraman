@@ -3,7 +3,8 @@ from django.contrib.auth.admin import UserAdmin
 from .models import (
     CustomUser, EventCategory, VendorProfile, VendorPackage,
     EventPlan, PlannerAccess, EventSavingsVault, SavingsDeposit,
-    BookingOrder, EscrowMilestone, DisputeTicket
+    BookingOrder, FreeTemplateSettings, FreeTemplateLead,
+    EmailVerification, Voucher, VoucherRedemption, PaidTemplateDownload
 )
 
 
@@ -12,7 +13,7 @@ class CustomUserAdmin(UserAdmin):
     list_display = ['username', 'email', 'role', 'phone_number', 'is_staff']
     list_filter = ['role', 'is_staff', 'is_superuser']
     fieldsets = UserAdmin.fieldsets + (
-        ('Vendorama Role & Info', {'fields': ('role', 'phone_number')}),
+        ('Vendoraman Role & Info', {'fields': ('role', 'phone_number')}),
     )
 
 
@@ -35,7 +36,7 @@ class VendorProfileAdmin(admin.ModelAdmin):
 
     def suspend_vendor(self, request, queryset):
         queryset.update(verification_status='SUSPENDED', is_vetted=False)
-    suspend_vendor.short_description = 'Suspend and penalize selected vendors'
+    suspend_vendor.short_description = 'Suspend selected vendors'
 
 
 @admin.register(VendorPackage)
@@ -66,21 +67,75 @@ class SavingsDepositAdmin(admin.ModelAdmin):
     list_display = ['vault', 'amount', 'payment_method', 'created_at']
 
 
-class EscrowMilestoneInline(admin.TabularInline):
-    model = EscrowMilestone
-    extra = 0
-
-
 @admin.register(BookingOrder)
 class BookingOrderAdmin(admin.ModelAdmin):
-    list_display = ['order_code', 'customer', 'vendor', 'package', 'total_price', 'escrow_status', 'event_date']
-    list_filter = ['escrow_status']
+    list_display = ['order_code', 'customer', 'vendor', 'package', 'total_price', 'commission_amount', 'vendor_net_amount', 'status', 'commission_status', 'event_date']
+    list_filter = ['status', 'commission_status']
     search_fields = ['order_code', 'customer__username', 'vendor__business_name']
-    inlines = [EscrowMilestoneInline]
 
 
-@admin.register(DisputeTicket)
-class DisputeTicketAdmin(admin.ModelAdmin):
-    list_display = ['ticket_code', 'order', 'complainant', 'status', 'penalty_applied', 'created_at']
-    list_filter = ['status', 'penalty_applied']
-    search_fields = ['ticket_code', 'order__order_code', 'complainant__username']
+@admin.register(FreeTemplateSettings)
+class FreeTemplateSettingsAdmin(admin.ModelAdmin):
+    list_display = ['__str__', 'is_enabled', 'original_price', 'updated_at']
+    list_editable = ['is_enabled']
+    actions = ['enable_page', 'disable_page']
+
+    def has_add_permission(self, request):
+        # Singleton: never add a second row; edit the existing one.
+        return not FreeTemplateSettings.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def enable_page(self, request, queryset):
+        queryset.update(is_enabled=True)
+    enable_page.short_description = 'Aktifkan halaman template gratis'
+
+    def disable_page(self, request, queryset):
+        queryset.update(is_enabled=False)
+    disable_page.short_description = 'Nonaktifkan halaman template gratis (jadi 404)'
+
+
+@admin.register(FreeTemplateLead)
+class FreeTemplateLeadAdmin(admin.ModelAdmin):
+    list_display = ['email', 'phone_number', 'is_verified', 'created_at']
+    list_filter = ['is_verified']
+    search_fields = ['email', 'phone_number']
+    readonly_fields = ['email', 'phone_number', 'is_verified', 'created_at']
+
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(EmailVerification)
+class EmailVerificationAdmin(admin.ModelAdmin):
+    list_display = ['email', 'code', 'attempts', 'verified_at', 'created_at']
+    search_fields = ['email']
+    readonly_fields = ['email', 'code', 'attempts', 'verified_at', 'created_at']
+
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(Voucher)
+class VoucherAdmin(admin.ModelAdmin):
+    list_display = ['code', 'duration_days', 'used_count', 'max_uses', 'is_active', 'valid_until', 'created_at']
+    list_filter = ['is_active']
+    search_fields = ['code']
+
+
+@admin.register(VoucherRedemption)
+class VoucherRedemptionAdmin(admin.ModelAdmin):
+    list_display = ['voucher', 'email', 'user', 'expires_at', 'redeemed_at']
+    search_fields = ['email', 'voucher__code']
+    readonly_fields = ['voucher', 'user', 'email', 'expires_at', 'redeemed_at']
+
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(PaidTemplateDownload)
+class PaidTemplateDownloadAdmin(admin.ModelAdmin):
+    list_display = ['user', 'event_category', 'created_at']
+    search_fields = ['user__username', 'event_category__name']
+

@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Executive Deck: {{ plan.title }} - Vendoraman</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --ink: #1B1F3B;
+      --ink-soft: #4B4F72;
+      --paper: #FBF8F2;
+      --paper-dim: #F1ECE0;
+      --gold: #D9A441;
+      --gold-deep: #B9852B;
+      --gold-soft: #FBF0DA;
+      --berry: #B23A5D;
+      --berry-soft: #F3DCE2;
+      --sage: #5C7A5E;
+      --sage-soft: #E1E9DE;
+      --line: #E4DDD0;
+      --white: #FFFFFF;
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0F1222;
+      color: var(--ink);
+      font-family: 'Inter', sans-serif;
+      padding: 30px 20px 80px;
+      min-height: 100vh;
+    }
+
+    h1, h2, h3, .brand {
+      font-family: 'Fraunces', serif;
+    }
+
+    /* Fixed Top Control Bar */
+    .control-bar {
+      max-width: 1060px;
+      margin: 0 auto 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      background: rgba(27, 31, 59, 0.85);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 12px 20px;
+      border-radius: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      color: var(--ink);
+    }
+    .btn-gold:hover { background: var(--gold-deep); color: #fff; }
+
+    .btn-ghost {
+      background: rgba(255,255,255,0.1);
+      color: #F8FAF6;
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.2); }
+
+    .btn-berry {
+      background: var(--berry);
+      color: #fff;
+    }
+    .btn-berry:hover { background: #922645; }
+
+    /* Slide Container (16:9 Landscape aspect ratio) */
+    .deck-container {
+      max-width: 1060px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+    }
+
+    .slide {
+      background: var(--paper);
+      border-radius: var(--radius);
+      padding: 48px 56px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--line);
+      min-height: 596px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      page-break-after: always;
+      break-after: page;
+    }
+
+    .slide-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+      margin-top: 24px;
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+    }
+
+    .badge-vetted {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--sage-soft);
+      color: var(--sage);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    /* Cover Slide Styling */
+    .slide-cover {
+      background: radial-gradient(circle at top right, #242A4E, #14172E);
+      color: #FFFFFF;
+      text-align: center;
+      justify-content: center;
+      gap: 32px;
+    }
+    .slide-cover h1 {
+      font-size: 2.8rem;
+      color: #FFFFFF;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+    .slide-cover p {
+      color: #B7BAD6;
+      font-size: 1.15rem;
+    }
+    .cover-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin: 16px auto 0;
+      max-width: 900px;
+      text-align: left;
+    }
+    .meta-box {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .meta-box small {
+      display: block;
+      color: #B7BAD6;
+      font-size: 0.78rem;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .meta-box span {
+      color: #FFFFFF;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+
+    /* Tables & Cards inside slides */
+    .budget-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    .budget-table th {
+      background: var(--ink);
+      color: #FFFFFF;
+      text-align: left;
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .budget-table td {
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.92rem;
+    }
+    .budget-table tr:nth-child(even) {
+      background: var(--paper-dim);
+    }
+
+    .vendor-deck-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      margin-top: 12px;
+    }
+    .vendor-deck-card {
+      background: #FFFFFF;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    /* Print-to-PDF styles */
+    @media print {
+      body {
+        background: #FFFFFF;
+        padding: 0;
+      }
+      .control-bar {
+        display: none !important;
+      }
+      .deck-container {
+        max-width: 100%;
+      }
+      .slide {
+        box-shadow: none;
+        border: none;
+        border-radius: 0;
+        min-height: 100vh;
+        page-break-after: always;
+        break-after: page;
+        padding: 40px;
+      }
+      @page {
+        size: landscape;
+        margin: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Control Bar -->
+  <div class="control-bar">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <a href="{% url 'planner_results' plan_id=plan.id %}" class="btn btn-ghost">
+        <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
+        Kembali ke Hasil Planner
+      </a>
+      <span style="color: #B7BAD6; font-size: 0.85rem;">|</span>
+      <span style="color: #F8FAF6; font-size: 0.9rem; font-weight: 600;">
+        Slide Deck Mode: {{ plan.title }}
+      </span>
+    </div>
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <a href="{% url 'export_planner_excel' plan_id=plan.id %}" class="btn btn-ghost">
+        <i data-lucide="table" style="width: 16px; height: 16px;"></i>
+        Unduh Excel (.xlsx)
+      </a>
+      <a href="{% url 'export_planner_pdf' plan_id=plan.id %}" class="btn btn-gold">
+        <i data-lucide="file-down" style="width: 16px; height: 16px;"></i>
+        Unduh PDF Deck (.pdf)
+      </a>
+      <button onclick="window.print()" class="btn btn-berry">
+        <i data-lucide="printer" style="width: 16px; height: 16px;"></i>
+        Cetak / Simpan PDF
+      </button>
+    </div>
+  </div>
+
+  <div class="deck-container">
+
+    <!-- SLIDE 1: COVER -->
+    <div class="slide slide-cover">
+      <div>
+        <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(217, 164, 65, 0.15); border: 1px solid var(--gold); border-radius: 999px; padding: 6px 16px; color: var(--gold); font-size: 0.82rem; font-weight: 700; margin-bottom: 18px; letter-spacing: 0.5px;">
+          <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i>
+          EXECUTIVE EVENT PROPOSAL &bull; VENDORAMAN VETTED
+        </div>
+        <h1>{{ plan.title }}</h1>
+        <p>Disusun secara komprehensif untuk {{ plan.customer.get_full_name|default:plan.customer.username }} &bull; {{ plan.city }}</p>
+      </div>
+
+      <div class="cover-meta-grid">
+        <div class="meta-box">
+          <small>Kategori Acara</small>
+          <span>{{ plan.event_category.name|default:"Event" }}</span>
+        </div>
+        <div class="meta-box">
+          <small>Tanggal Acara</small>
+          <span>{{ plan.event_date|date:"d M Y" }}</span>
+        </div>
+        <div class="meta-box">
+          <small>Jumlah Tamu</small>
+          <span>{{ plan.estimated_pax }} Pax</span>
+        </div>
+        <div class="meta-box">
+          <small>Pagu Anggaran</small>
+          <span>Rp {{ plan.budget_min|intdot }} – {{ plan.budget_max|intdot }}</span>
+        </div>
+      </div>
+
+      <div style="font-size: 0.84rem; color: #8F94B8;">
+        Terverifikasi Resmi &bull; Pembayaran Dilindungi Sistem Milestone Escrow Vendoraman
+      </div>
+    </div>
+
+    <!-- SLIDE 2: STRATEGIC BUDGET BREAKDOWN -->
+    <div class="slide">
+      <div class="slide-header">
+        <div>
+          <h2 style="font-size: 1.6rem; color: var(--ink);">Alokasi Strategis Anggaran Acara</h2>
+          <p style="font-size: 0.88rem; color: var(--ink-soft); margin-top: 2px;">
+            Panduan distribusi anggaran berbasis standar industri untuk plafon pagu <strong>Rp {{ plan.budget_max|intdot }}</strong>
+          </p>
+        </div>
+        <span class="badge-vetted">Optimal 100% Escrow</span>
+      </div>
+
+      <div>
+        <table class="budget-table">
+          <thead>
+            <tr>
+              <th>Komponen Pengeluaran</th>
+              <th>Alokasi Target</th>
+              <th>Pagu Biaya Rencana (Rp)</th>
+              <th>Panduan Manajemen Pengeluaran</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for cat_name, alloc_val in budget_allocations.items %}
+              <tr>
+                <td><strong>{{ cat_name }}</strong></td>
+                <td>
+                  {% if cat_name == 'Catering' %}40%
+                  {% elif cat_name == 'Dekorasi & Venue' %}30%
+                  {% else %}15%{% endif %}
+                </td>
+                <td><strong style="color: var(--berry);">Rp {{ alloc_val|intdot }}</strong></td>
+                <td style="color: var(--ink-soft); font-size: 0.86rem;">
+                  {% if cat_name == 'Catering' %}Porsi buffet aman 60% + 4x porsi stall variasi makanan
+                  {% elif cat_name == 'Dekorasi & Venue' %}Fokus pelaminan, backdrop photobooth & pencahayaan panggung
+                  {% elif cat_name == 'Dokumentasi (Foto/Video)' %}Teaser cinematic 1 menit, album kolase & unedited file
+                  {% else %}Pemandu acara formal/santai, sound system & akustik band{% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+            <tr style="background: var(--paper-dim); font-weight: 700;">
+              <td>TOTAL ANGGARAN PLAFON</td>
+              <td>100%</td>
+              <td style="color: var(--ink);">Rp {{ plan.budget_max|intdot }}</td>
+              <td style="color: var(--sage);">100% Dilindungi Skema Pencairan Milestone Escrow</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="background: var(--gold-soft); border-left: 4px solid var(--gold-deep); padding: 12px 16px; border-radius: 8px; margin-top: 20px; font-size: 0.86rem; color: var(--ink);">
+          <strong>Catatan Finansial:</strong> Pembayaran dicairkan bertahap ke vendor melalui 3 milestone (DP 30% saat booking, 40% H-3 kesiapan, dan 30% setelah acara selesai dengan persetujuan Anda).
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>Vendoraman &bull; Solusi Tepercaya Temukan & Amankan Vendor Event</span>
+        <span>Slide 2</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: VENDOR ROSTER -->
+    <div class="slide">
+      <div class="slide-header">
+        <div>
+          <h2 style="font-size: 1.6rem; color: var(--ink);">Rekomendasi Vendor Terkurasi & Kontak PIC</h2>
+          <p style="font-size: 0.88rem; color: var(--ink-soft); margin-top: 2px;">
+            Vendor resmi terverifikasi yang cocok dengan kriteria lokasi di {{ plan.city }}
+          </p>
+        </div>
+        <span class="badge-vetted">Paid Planner Unlocked</span>
+      </div>
+
+      <div class="vendor-deck-grid">
+        {% for vendor in vendors|slice:":4" %}
+          <div class="vendor-deck-card">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                <h3 style="font-size: 1.2rem; color: var(--ink);">{{ vendor.business_name }}</h3>
+                <span class="badge-vetted" style="font-size: 0.75rem;">Rating {{ vendor.rating }}</span>
+              </div>
+              <div style="font-size: 0.82rem; color: var(--ink-soft); margin-bottom: 10px;">
+                {{ vendor.category.name }} &bull; {{ vendor.city }} &bull; {{ vendor.total_completed_events }} Event Selesai
+              </div>
+              <p style="font-size: 0.84rem; color: var(--ink); line-height: 1.45; margin-bottom: 12px;">
+                {{ vendor.description|truncatewords:20 }}
+              </p>
+              {% with pkg=vendor.packages.first %}
+                {% if pkg %}
+                  <div style="background: var(--paper); border-radius: 8px; padding: 8px 12px; font-size: 0.82rem;">
+                    <strong>Paket Rekomendasi:</strong> {{ pkg.name }} — <span style="color: var(--berry); font-weight: 700;">Rp {{ pkg.price|intdot }}</span>
+                  </div>
+                {% endif %}
+              {% endwith %}
+            </div>
+
+            <div style="border-top: 1px solid var(--line); padding-top: 10px; font-size: 0.84rem;">
+              <div><strong>PIC:</strong> {{ vendor.pic_name }}</div>
+              <div><strong>WhatsApp:</strong> <a href="https://wa.me/{{ vendor.contact_phone }}" style="color: var(--berry); font-weight: 700; text-decoration: none;">{{ vendor.contact_phone }}</a></div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="slide-footer">
+        <span>Kontak resmi WhatsApp vendor dapat langsung dihubungi untuk konsultasi jadwal & spesifikasi</span>
+        <span>Slide 3</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: TARGET DEADLINE (BULANAN, MINGGUAN & HARIAN) -->
+    <div class="slide">
+      <div class="slide-header">
+        <div>
+          <h2 style="font-size: 1.6rem; color: var(--ink);">Target Deadline Persiapan: Bulanan, Mingguan & Harian</h2>
+          <p style="font-size: 0.88rem; color: var(--ink-soft); margin-top: 2px;">
+            Dekomposisi bertahap untuk memastikan koordinasi operasional dan eksekusi vendor berjalan presisi
+          </p>
+        </div>
+        <span class="badge-vetted">Actionable Checklist</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin: 16px 0;">
+        <!-- Column 1: Target Bulanan -->
+        <div style="background: #FFFFFF; border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+          <div style="border-bottom: 2px solid var(--ink); padding-bottom: 8px;">
+            <div style="font-size: 0.78rem; font-weight: 700; color: var(--gold-deep); text-transform: uppercase;">Persiapan tiap bulan</div>
+            <h3 style="font-size: 1.15rem; color: var(--ink);">Jadwal Bulanan</h3>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.84rem; color: var(--ink); line-height: 1.45;">
+            <div><strong>H-6:</strong> Tentukan budget maksimal & perkiraan jumlah tamu.</div>
+            <div><strong>H-5:</strong> Kunci gedung & pesan katering (bayar uang muka 30%, ditahan aman).</div>
+            <div><strong>H-4:</strong> Pesan dekorasi & tim foto/video.</div>
+            <div><strong>H-3:</strong> Coba baju pertama & pilih MC/musik.</div>
+            <div><strong>H-2:</strong> Cetak undangan & kirim undangan online, pesan souvenir.</div>
+          </div>
+        </div>
+
+        <!-- Column 2: Target Mingguan -->
+        <div style="background: #FFFFFF; border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+          <div style="border-bottom: 2px solid var(--gold-deep); padding-bottom: 8px;">
+            <div style="font-size: 0.78rem; font-weight: 700; color: var(--gold-deep); text-transform: uppercase;">Persiapan tiap minggu</div>
+            <h3 style="font-size: 1.15rem; color: var(--ink);">Jadwal Mingguan</h3>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.84rem; color: var(--ink); line-height: 1.45;">
+            <div><strong>Minggu 4:</strong> Ketemu semua vendor di gedung.</div>
+            <div><strong>Minggu 3:</strong> Sebar undangan & catat siapa yang pasti datang.</div>
+            <div><strong>Minggu 2:</strong> Kunci jumlah porsi katering (+ 10% cadangan) & coba baju terakhir.</div>
+            <div><strong>Minggu 1:</strong> Kunci jadwal hari-H bareng MC & urus izin gedung.</div>
+          </div>
+        </div>
+
+        <!-- Column 3: Target Harian -->
+        <div style="background: #FFFFFF; border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+          <div style="border-bottom: 2px solid var(--berry); padding-bottom: 8px;">
+            <div style="font-size: 0.78rem; font-weight: 700; color: var(--berry); text-transform: uppercase;">Persiapan tiap hari</div>
+            <h3 style="font-size: 1.15rem; color: var(--ink);">Jadwal Harian</h3>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.82rem; color: var(--ink); line-height: 1.4;">
+            <div><strong>H-7:</strong> Cek kesiapan semua vendor.</div>
+            <div><strong>H-4:</strong> Cek bukti persiapan vendor.</div>
+            <div><strong>H-3:</strong> Bayar tahap ke-2 (40%) kalau persiapan oke.</div>
+            <div><strong>H-2:</strong> Latihan di gedung & tes suara.</div>
+            <div><strong>H-1:</strong> Loading dekorasi & briefing malam keluarga.</div>
+            <div><strong>Hari-H:</strong> Eksekusi rundown menit-ke-menit presisi.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>Detail checklist interaktif dapat dikelola di file Excel Master Tab 'Rundown & Timeline'</span>
+        <span>Slide 4</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: MASTER RUNDOWN HARI-H (24 Sesi Operasional Menit-ke-Menit) -->
+    <div class="slide">
+      <div class="slide-header">
+        <div>
+          <h2 style="font-size: 1.6rem; color: var(--ink);">Master Rundown Hari-H: Susunan Acara Detail Menit-ke-Menit</h2>
+          <p style="font-size: 0.88rem; color: var(--ink-soft); margin-top: 2px;">
+            24 Agenda terstruktur dalam 8 fase operasional dari persiapan subuh (04.30) hingga closing & teardown (16.30 WIB)
+          </p>
+        </div>
+        <span class="badge-vetted">24 Timeline Points</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 12px 0;">
+        <!-- Column 1: Subuh, Loading & Kedatangan -->
+        <div style="background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 14px; font-size: 0.78rem;">
+          <div style="border-bottom: 2px solid #1B1F3B; padding-bottom: 4px; margin-bottom: 8px;">
+            <div style="font-size: 0.7rem; font-weight: 700; color: #1B1F3B; text-transform: uppercase;">Fase 1 & 2 (04.30 - 08.00)</div>
+            <strong style="color: var(--ink); font-size: 0.88rem;">Subuh, Loading & Sambutan</strong>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px; line-height: 1.35;">
+            <div><strong style="color: var(--berry);">04.30 - 05.30:</strong> Loading dekorasi, genset & sound FOH.</div>
+            <div><strong style="color: var(--berry);">05.00 - 07.00:</strong> Sesi rias pengantin & orang tua (MUA).</div>
+            <div><strong style="color: var(--berry);">06.30 - 07.15:</strong> Sarapan pagi panitia & keluarga 50 pax.</div>
+            <div><strong style="color: var(--berry);">07.00 - 07.30:</strong> Briefing panitia, MC & soundcheck.</div>
+            <div><strong style="color: var(--berry);">07.30 - 07.45:</strong> Kedatangan keluarga pria & seserahan.</div>
+            <div><strong style="color: var(--berry);">07.45 - 08.00:</strong> Pengalungan melati & sambutan selamat datang.</div>
+          </div>
+        </div>
+
+        <!-- Column 2: Akad Nikah & Janji Suci -->
+        <div style="background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 14px; font-size: 0.78rem;">
+          <div style="border-bottom: 2px solid var(--gold-deep); padding-bottom: 4px; margin-bottom: 8px;">
+            <div style="font-size: 0.7rem; font-weight: 700; color: var(--gold-deep); text-transform: uppercase;">Fase 3 & 4 (08.00 - 10.45)</div>
+            <strong style="color: var(--ink); font-size: 0.88rem;">Akad Sakral & Transisi</strong>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px; line-height: 1.35;">
+            <div><strong style="color: var(--gold-deep);">08.00 - 08.15:</strong> Pembukaan MC, Ayat Suci Al-Qur'an.</div>
+            <div><strong style="color: var(--gold-deep);">08.15 - 08.45:</strong> Khutbah nikah & prosesi Ijab Qabul sakral.</div>
+            <div><strong style="color: var(--gold-deep);">08.45 - 09.05:</strong> Doa nikah, mahar & cincin kawin.</div>
+            <div><strong style="color: var(--gold-deep);">09.05 - 09.20:</strong> Tanda tangan buku nikah resmi KUA.</div>
+            <div><strong style="color: var(--gold-deep);">09.20 - 09.40:</strong> Sungkeman haru kedua pasang orang tua.</div>
+            <div><strong style="color: var(--gold-deep);">09.40 - 10.45:</strong> Foto sakral, retouch rias & cek katering.</div>
+          </div>
+        </div>
+
+        <!-- Column 3: Resepsi Akbar & Jamuan -->
+        <div style="background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 14px; font-size: 0.78rem;">
+          <div style="border-bottom: 2px solid var(--berry); padding-bottom: 4px; margin-bottom: 8px;">
+            <div style="font-size: 0.7rem; font-weight: 700; color: var(--berry); text-transform: uppercase;">Fase 5 & 6 (10.45 - 13.15)</div>
+            <strong style="color: var(--ink); font-size: 0.88rem;">Kirab, Prasmanan & Foto</strong>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px; line-height: 1.35;">
+            <div><strong style="color: var(--berry);">10.45 - 11.00:</strong> Registrasi foyer & e-guestbook dibuka.</div>
+            <div><strong style="color: var(--berry);">11.00 - 11.20:</strong> Grand Entrance Kirab Pengantin megah.</div>
+            <div><strong style="color: var(--berry);">11.20 - 11.35:</strong> Sambutan keluarga & doa restu resepsi.</div>
+            <div><strong style="color: var(--berry);">11.35 - 11.45:</strong> Wedding toast & pemotongan kue cinta.</div>
+            <div><strong style="color: var(--berry);">11.45 - 13.15:</strong> Jamuan prasmanan & live acoustic band.</div>
+            <div><strong style="color: var(--berry);">12.00 - 13.15:</strong> Foto bergantian VIP, kolega & sahabat.</div>
+          </div>
+        </div>
+
+        <!-- Column 4: Penutupan & Teardown -->
+        <div style="background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 14px; font-size: 0.78rem;">
+          <div style="border-bottom: 2px solid var(--sage); padding-bottom: 4px; margin-bottom: 8px;">
+            <div style="font-size: 0.7rem; font-weight: 700; color: var(--sage); text-transform: uppercase;">Fase 7 & 8 (13.15 - 16.30)</div>
+            <strong style="color: var(--ink); font-size: 0.88rem;">Games, Penutupan & Teardown</strong>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px; line-height: 1.35;">
+            <div><strong style="color: var(--sage);">13.15 - 13.35:</strong> Lempar hand bouquet & bagi doorprize.</div>
+            <div><strong style="color: var(--sage);">13.35 - 13.50:</strong> Closing resmi MC & ucapan terima kasih.</div>
+            <div><strong style="color: var(--sage);">13.50 - 14.00:</strong> Foto panitia keluarga & kru wedding organizer.</div>
+            <div><strong style="color: var(--sage);">14.00 - 14.45:</strong> Pengamanan kotak angpao & rekap digital.</div>
+            <div><strong style="color: var(--sage);">14.45 - 16.00:</strong> Loading out seluruh vendor dekor & audio.</div>
+            <div><strong style="color: var(--sage);">16.00 - 16.30:</strong> Sign-off venue & rekomendasi pelunasan escrow.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>Seluruh instruksi lapangan, SOP audio, dan PIC tersedia lengkap di lembar kerja Excel Master 'Rundown & Timeline'</span>
+        <span>Slide 5</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: CATERING & HOSPITALITY CALCULATOR -->
+    <div class="slide">
+      <div class="slide-header">
+        <div>
+          <h2 style="font-size: 1.6rem; color: var(--ink);">Kalkulator Porsi Katering & Simulasi Jamuan Tamu</h2>
+          <p style="font-size: 0.88rem; color: var(--ink-soft); margin-top: 2px;">
+            Perhitungan presisi rasio buffet vs stall, buffer keamanan panitia & analisis sensitivitas kehadiran
+          </p>
+        </div>
+        <span class="badge-vetted">Hospitality Model</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 10px 0;">
+        <!-- Left: Allocation Ratios -->
+        <div style="background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 18px;">
+          <h4 style="font-size: 1rem; color: var(--ink); margin-bottom: 12px; border-bottom: 2px solid var(--gold-deep); padding-bottom: 6px;">
+            Distribusi Porsi Makanan (Standar 100% Tamu: {{ planner_data.catering.total_porsi }} Pax)
+          </h4>
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.84rem;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--line); color: var(--ink-soft);">
+                <th style="padding: 6px 0; text-align: left;">Komponen Konsumsi</th>
+                <th style="padding: 6px 0; text-align: center;">Rasio</th>
+                <th style="padding: 6px 0; text-align: center;">Porsi</th>
+                <th style="padding: 6px 0; text-align: right;">Estimasi Biaya</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid var(--line);">
+                <td style="padding: 8px 0;"><strong>Buffet Utama (Prasmanan)</strong></td>
+                <td style="padding: 8px 0; text-align: center;">60%</td>
+                <td style="padding: 8px 0; text-align: center; font-weight: 700;">{{ planner_data.catering.buffet_portions }} Pax</td>
+                <td style="padding: 8px 0; text-align: right; color: var(--berry); font-weight: 700;">Rp {{ planner_data.catering.subtotal_buffet|intdot }}</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--line);">
+                <td style="padding: 8px 0;"><strong>Food Stalls (Pondokan)</strong></td>
+                <td style="padding: 8px 0; text-align: center;">40% (x4 Menu)</td>
+                <td style="padding: 8px 0; text-align: center; font-weight: 700;">{{ planner_data.catering.stall_portions }} Porsi</td>
+                <td style="padding: 8px 0; text-align: right; color: var(--berry); font-weight: 700;">Rp {{ planner_data.catering.subtotal_stall|intdot }}</td>
+              </tr>
+              <tr style="font-weight: 700; background: var(--paper-dim);">
+                <td style="padding: 8px 4px;">TOTAL FOOD COST</td>
+                <td style="padding: 8px 4px; text-align: center;">100%</td>
+                <td style="padding: 8px 4px; text-align: center;">{{ planner_data.catering.total_porsi }} Tamu</td>
+                <td style="padding: 8px 4px; text-align: right; color: var(--berry);">Rp {{ planner_data.catering.total_food_cost|intdot }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="margin-top: 10px; font-size: 0.8rem; color: var(--ink-soft); display: flex; justify-content: space-between;">
+            <span>Food Cost / Pax: <strong>Rp {{ planner_data.catering.food_cost_per_pax|intdot }}</strong></span>
+            <span>Buffer Aman Kru: <strong>{{ planner_data.catering.buffer_pax }} Pax (10%)</strong></span>
+          </div>
+        </div>
+
+        <!-- Right: Sensitivity Scenarios -->
+        <div style="background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 18px;">
+          <h4 style="font-size: 1rem; color: var(--ink); margin-bottom: 12px; border-bottom: 2px solid var(--berry); padding-bottom: 6px;">
+            Analisis Sensitivitas Kehadiran (3 Skenario Biaya)
+          </h4>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            {% for s in planner_data.catering.scenarios %}
+              <div style="background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-size: 0.85rem; font-weight: 700; color: var(--ink);">{{ s.name }}</div>
+                  <div style="font-size: 0.76rem; color: var(--ink-soft);">{{ s.desc }}</div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size: 0.95rem; font-weight: 700; color: var(--berry);">Rp {{ s.cost|intdot }}</div>
+                  <div style="font-size: 0.75rem; color: var(--ink-soft);">{{ s.pax }} Pax</div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>Kalkulator porsi lengkap interaktif dapat disimulasikan di Excel Master Tab 'Kalkulator Katering'</span>
+        <span>Slide 6</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: MASTER LOGISTICS & EQUIPMENT CHECKLIST -->
+    <div class="slide">
+      <div class="slide-header">
+        <div>
+          <h2 style="font-size: 1.6rem; color: var(--ink);">Master Checklist Logistik & Perlengkapan Fisik</h2>
+          <p style="font-size: 0.88rem; color: var(--ink-soft); margin-top: 2px;">
+            Daftar amunisi penting yang wajib disiapkan tim panitia & WO agar eksekusi Hari-H tanpa hambatan
+          </p>
+        </div>
+        <span class="badge-vetted">20 Core Assets</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 12px 0;">
+        <!-- Division 1 -->
+        <div style="background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 14px;">
+          <h4 style="font-size: 0.88rem; font-weight: 700; color: var(--ink); border-bottom: 2px solid var(--ink); padding-bottom: 4px; margin-bottom: 8px;">
+            Dokumen & Finansial
+          </h4>
+          <ul style="list-style: none; font-size: 0.78rem; display: flex; flex-direction: column; gap: 6px; color: var(--ink);">
+            <li>&bull; Buku Nikah / Akta Resmi</li>
+            <li>&bull; Cincin Kawin & Box Mahar</li>
+            <li>&bull; Amplop Honor / Tip Vendor</li>
+            <li>&bull; Kotak Angpao & Gembok Serep</li>
+          </ul>
+        </div>
+
+        <!-- Division 2 -->
+        <div style="background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 14px;">
+          <h4 style="font-size: 0.88rem; font-weight: 700; color: var(--ink); border-bottom: 2px solid var(--gold-deep); padding-bottom: 4px; margin-bottom: 8px;">
+            Busana & Rias
+          </h4>
+          <ul style="list-style: none; font-size: 0.78rem; display: flex; flex-direction: column; gap: 6px; color: var(--ink);">
+            <li>&bull; Baju Akad & Resepsi Pengantin</li>
+            <li>&bull; Sepatu Pengantin + Sandal Serep</li>
+            <li>&bull; Dasi, Manset & Kaos Kaki</li>
+            <li>&bull; P3K Darurat & Obat Pribadi</li>
+            <li>&bull; Touch-up Makeup Kit & Hair Spray</li>
+          </ul>
+        </div>
+
+        <!-- Division 3 -->
+        <div style="background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 14px;">
+          <h4 style="font-size: 0.88rem; font-weight: 700; color: var(--ink); border-bottom: 2px solid var(--sage); padding-bottom: 4px; margin-bottom: 8px;">
+            Resepsi & Tamu
+          </h4>
+          <ul style="list-style: none; font-size: 0.78rem; display: flex; flex-direction: column; gap: 6px; color: var(--ink);">
+            <li>&bull; Buku Tamu / Tablet E-Guestbook</li>
+            <li>&bull; Pulpen Emas & Spidol Tanda Tangan</li>
+            <li>&bull; Souvenir Bersih & Tas Cadangan</li>
+            <li>&bull; Nomor Meja VIP & Signage Meja</li>
+            <li>&bull; Stand QRIS & Rekening Digital</li>
+          </ul>
+        </div>
+
+        <!-- Division 4 -->
+        <div style="background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 14px;">
+          <h4 style="font-size: 0.88rem; font-weight: 700; color: var(--ink); border-bottom: 2px solid var(--berry); padding-bottom: 4px; margin-bottom: 8px;">
+            Teknis & Multimedia
+          </h4>
+          <ul style="list-style: none; font-size: 0.78rem; display: flex; flex-direction: column; gap: 6px; color: var(--ink);">
+            <li>&bull; Flashdisk Video & Foto Prewed</li>
+            <li>&bull; Flashdisk Lagu Kirab & Playlist</li>
+            <li>&bull; Hardcopy Master Rundown Laminasi</li>
+            <li>&bull; Baterai Cadangan Mic Wireless</li>
+            <li>&bull; Lakban Hitam, Gunting & Kabel Rol</li>
+            <li>&bull; HT & Earpiece Panitia Lapangan</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>Checklist interaktif dengan tracking progress kesiapan tersedia di web dan Excel Tab 'Checklist Logistik'</span>
+        <span>Slide 7</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 8: ROADMAP & FINANCIAL GUARANTEE -->
+    <div class="slide">
+      <div class="slide-header">
+        <div>
+          <h2 style="font-size: 1.6rem; color: var(--ink);">Roadmap Persiapan & Jaminan Keamanan Finansial</h2>
+          <p style="font-size: 0.88rem; color: var(--ink-soft); margin-top: 2px;">
+            Tahapan eksekusi bebas cemas dengan perlindungan penuh platform Vendoraman
+          </p>
+        </div>
+        <span class="badge-vetted">Financial Guarantee</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 24px 0;">
+        <div style="background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 18px;">
+          <div style="color: var(--gold-deep); font-weight: 700; font-size: 0.82rem; text-transform: uppercase; margin-bottom: 6px;">Tahap 1</div>
+          <h4 style="font-size: 1.05rem; margin-bottom: 8px; color: var(--ink);">Kunci Vendor & DP</h4>
+          <p style="font-size: 0.82rem; color: var(--ink-soft); line-height: 1.45;">
+            Pilih paket vendor resmi di platform, bayar DP 30% ke sistem Escrow. Tanggal acara Anda terkunci resmi.
+          </p>
+        </div>
+
+        <div style="background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 18px;">
+          <div style="color: var(--gold-deep); font-weight: 700; font-size: 0.82rem; text-transform: uppercase; margin-bottom: 6px;">Tahap 2</div>
+          <h4 style="font-size: 1.05rem; margin-bottom: 8px; color: var(--ink);">Technical Meeting</h4>
+          <p style="font-size: 0.82rem; color: var(--ink-soft); line-height: 1.45;">
+            Koordinasi teknis langsung dengan PIC vendor via WhatsApp. Sesuaikan detail susunan acara dan menu.
+          </p>
+        </div>
+
+        <div style="background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 18px;">
+          <div style="color: var(--gold-deep); font-weight: 700; font-size: 0.82rem; text-transform: uppercase; margin-bottom: 6px;">Tahap 3</div>
+          <h4 style="font-size: 1.05rem; margin-bottom: 8px; color: var(--ink);">H-3 Readiness Check</h4>
+          <p style="font-size: 0.82rem; color: var(--ink-soft); line-height: 1.45;">
+            Vendor mengonfirmasi kesiapan barang & tim. Platform mencairkan milestone ke-2 (40%) untuk persiapan akhir.
+          </p>
+        </div>
+
+        <div style="background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 18px;">
+          <div style="color: var(--gold-deep); font-weight: 700; font-size: 0.82rem; text-transform: uppercase; margin-bottom: 6px;">Tahap 4</div>
+          <h4 style="font-size: 1.05rem; margin-bottom: 8px; color: var(--ink);">Hari-H & Pelunasan</h4>
+          <p style="font-size: 0.82rem; color: var(--ink-soft); line-height: 1.45;">
+            Acara berjalan sukses. Setelah Anda puas dan konfirmasi di platform, sisa dana 30% dicairkan ke vendor.
+          </p>
+        </div>
+      </div>
+
+      <div style="background: var(--sage-soft); border: 1px solid var(--sage); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <strong style="color: var(--sage); font-size: 0.95rem;">Jaminan Anti-Wanprestasi & Ganti Rugi Finansial</strong>
+          <p style="color: var(--ink); font-size: 0.84rem; margin-top: 2px;">
+            Jika vendor default atau melanggar kesepakatan spesifikasi, dana escrow dibekukan seketika dan dikembalikan 100% kepada Anda.
+          </p>
+        </div>
+        <a href="tel:081234567890" class="btn btn-berry btn-sm">
+          Konsultasi Concierge
+        </a>
+      </div>
+
+      <div class="slide-footer">
+        <span>Hak Cipta &copy; 2026 Vendoraman Marketplace &bull; Semua Hak Dilindungi</span>
+        <span>Slide 8 (Akhir)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    window.refreshIcons();
+  </script>
+</body>
+</html>

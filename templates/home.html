@@ -1,195 +1,1080 @@
 {% extends 'base.html' %}
 
-{% block title %}Vendorama - Ekosistem Vendor Event Terkurasi & Proteksi Escrow{% endblock %}
+{% block title %}Vendoraman - Temukan Vendor Event yang Pas{% endblock %}
 
 {% block content %}
+<style>
+  /* Landing Page Custom Enhancements */
+  .stat-chip {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 18px 20px;
+    text-align: center;
+    backdrop-filter: blur(4px);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+  .stat-chip:hover {
+    transform: translateY(-2px);
+    border-color: var(--gold);
+  }
+  .stat-chip .stat-num {
+    font-family: 'Fraunces', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+  .stat-chip .stat-lbl {
+    font-size: 0.82rem;
+    color: #C7C9E4;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+
+  .cat-card-rich {
+    background: #FFFFFF;
+    border: 1.5px solid var(--line);
+    border-radius: 16px;
+    padding: 24px;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(27, 31, 59, 0.04);
+  }
+  .cat-card-rich:hover {
+    border-color: var(--gold);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(27, 31, 59, 0.08);
+  }
+
+  .city-card {
+    background: #FFFFFF;
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    padding: 22px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  }
+  .city-card:hover {
+    border-color: var(--berry);
+    box-shadow: 0 8px 20px rgba(178, 58, 93, 0.08);
+    transform: translateY(-3px);
+  }
+
+  .review-card {
+    background: #FFFFFF;
+    border: 1.5px solid var(--line);
+    border-radius: 16px;
+    padding: 26px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 12px rgba(27, 31, 59, 0.04);
+    transition: transform 0.2s ease;
+  }
+  .review-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--gold-deep);
+  }
+
+  .faq-item {
+    background: #FFFFFF;
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s ease;
+  }
+  .faq-item.active {
+    border-color: var(--gold-deep);
+    box-shadow: 0 4px 14px rgba(217, 164, 65, 0.1);
+  }
+  .faq-question {
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--ink);
+    font-size: 1.02rem;
+    user-select: none;
+    transition: background 0.15s ease;
+  }
+  .faq-question:hover {
+    background: var(--paper);
+  }
+  .faq-answer {
+    padding: 0 24px 22px;
+    color: var(--ink-soft);
+    font-size: 0.94rem;
+    line-height: 1.65;
+    display: none;
+  }
+  .faq-item.active .faq-answer {
+    display: block;
+  }
+  .faq-icon {
+    transition: transform 0.25s ease;
+    flex-shrink: 0;
+    color: var(--gold-deep);
+  }
+  .faq-item.active .faq-icon {
+    transform: rotate(180deg);
+  }
+</style>
+
 <!-- Hero Section -->
-<section class="hero">
-  <div class="container">
-    <span class="badge badge-emerald" style="margin-bottom: 1rem;">
-      <i data-lucide="shield-check"></i>
-      <span>Jaminan Rasa Aman 100% Bebas Risiko Wanprestasi</span>
-    </span>
-    <h1>Temukan Vendor Event Terbaik<br>Dengan Perlindungan Finansial Total</h1>
-    <p class="lead">
-      Setiap vendor di Vendorama telah melalui verifikasi ketat tim kurasi. Seluruh pembayaran ditampung aman di rekening Escrow bertahap. Jika terjadi kendala, kami yang maju paling depan dan memberikan ganti rugi finansial langsung.
+<section style="background: linear-gradient(180deg, #1B1F3B 0%, #15182F 100%); color: var(--paper); padding: 75px 20px 85px; text-align: center;">
+  {% if from_free_template %}
+  <div id="refBanner" class="wrap" style="padding-top: 0; padding-bottom: 0; margin-bottom: 22px;">
+    <div style="display: flex; align-items: center; gap: 12px; justify-content: space-between; background: rgba(217, 164, 65, 0.12); border: 1.5px solid var(--gold); border-radius: 14px; padding: 12px 18px; text-align: left; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 10px; font-size: 0.9rem;">
+        <i data-lucide="party-popper" style="width: 20px; height: 20px; color: var(--gold); flex-shrink: 0;"></i>
+        <span>Habis dari halaman <strong>template gratis</strong>? Ini aplikasi utamanya — vendor asli, budget interaktif, dan ekspor personal.</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <a href="{% url 'free_template' %}" class="btn btn-ghost-light btn-sm">Kembali ke Template Gratis</a>
+        <button type="button" id="refBannerClose" class="btn btn-ghost-light btn-sm" aria-label="Tutup">Tutup</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var b = document.getElementById('refBannerClose');
+      if (b) b.addEventListener('click', function () {
+        var banner = document.getElementById('refBanner');
+        if (banner) banner.style.display = 'none';
+      });
+    })();
+  </script>
+  {% endif %}
+  <div class="wrap" style="padding-top: 0; padding-bottom: 0;">
+    <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(217, 164, 65, 0.15); border: 1px solid var(--gold); border-radius: var(--radius-pill); padding: 6px 18px; margin-bottom: 24px; font-size: 0.84rem; font-weight: 700; color: var(--gold);">
+      <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i>
+      <span>Platform Kurasi Vendor & Proteksi Finansial Escrow Terpercaya</span>
+    </div>
+
+    <h1 style="font-size: clamp(2.3rem, 5.2vw, 3.8rem); color: var(--paper); font-weight: 700; line-height: 1.15; max-width: 860px; margin: 0 auto 20px;">
+      Konsultasi Cepat, Temukan Vendor yang <span style="color: var(--gold); font-style: italic;">Paling Aman & Pas</span>.
+    </h1>
+
+    <p style="font-size: 1.12rem; color: #C7C9E4; max-width: 720px; margin: 0 auto 34px; line-height: 1.65;">
+      Susun acaramu dalam hitungan menit. Dapatkan kurasi vendor terverifikasi, simulator porsi katering otomatis, dan proteksi transaksi 3-tahap tanpa biaya siluman.
     </p>
 
-    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-      <a href="{% url 'planner_wizard' %}" class="btn btn-primary btn-lg">
-        <i data-lucide="sparkles"></i>
-        <span>Mulai Pencarian Vendor (Wizard)</span>
+    <div style="display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin-bottom: 48px;">
+      <a href="{% url 'planner_wizard' %}" class="btn btn-berry btn-lg" style="padding: 14px 28px; font-size: 1rem; box-shadow: 0 8px 20px rgba(178, 58, 93, 0.35);">
+        <i data-lucide="compass" style="width: 18px; height: 18px;"></i>
+        <span>Mulai Konsultasi & Cari Vendor</span>
       </a>
-      <a href="{% url 'savings_list' %}" class="btn btn-secondary btn-lg" style="background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.25);">
-        <i data-lucide="piggy-bank"></i>
-        <span>Buka Tabungan Event</span>
+      <a href="https://wa.me/62881023641280?text=Halo%20Vendoraman,%20saya%20ingin%20konsultasi%20perencanaan%20acara%20dan%20rekomendasi%20vendor." target="_blank" class="btn btn-lg" style="background: #25D366; border: 1px solid #25D366; color: #ffffff; padding: 14px 24px; font-size: 1rem; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 8px 20px rgba(37, 211, 102, 0.35); text-decoration: none; border-radius: 999px;">
+        <i data-lucide="message-circle" style="width: 18px; height: 18px;"></i>
+        <span>Konsultasi WhatsApp</span>
       </a>
     </div>
 
-    <!-- Trust Pillars -->
-    <div class="trust-pillars">
-      <div class="pillar-item">
-        <div class="icon">
-          <i data-lucide="user-check"></i>
-        </div>
-        <h4>Vendor Terkurasi & Terpercaya</h4>
-        <p>Hanya vendor yang lolos audit identitas, legalitas, dan riwayat kualitas yang diizinkan melayani Anda.</p>
+    <!-- Live Social Proof Metric Strip -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; max-width: 1080px; margin: 0 auto;">
+      <div class="stat-chip">
+        <div class="stat-num">{{ events_planned_count|default:"1,850" }}+</div>
+        <div class="stat-lbl">Acara Direncanakan</div>
       </div>
-
-      <div class="pillar-item">
-        <div class="icon">
-          <i data-lucide="lock"></i>
-        </div>
-        <h4>Penampungan Dana Escrow</h4>
-        <p>Dana Anda tersimpan aman dan dicairkan bertahap (DP 30%, H-3 40%, Pelunasan 30% setelah event selesai).</p>
+      <div class="stat-chip">
+        <div class="stat-num">{{ template_buyers_count|default:"940" }}+</div>
+        <div class="stat-lbl">Pengguna Master Planner</div>
       </div>
-
-      <div class="pillar-item">
-        <div class="icon">
-          <i data-lucide="banknote"></i>
-        </div>
-        <h4>Garansi Penggantian Finansial</h4>
-        <p>Jika vendor melanggar komitmen, dana langsung dibekukan dan dikembalikan ke customer beserta sanksi bagi vendor.</p>
+      <div class="stat-chip">
+        <div class="stat-num">{{ total_vendors|default:"24" }}+</div>
+        <div class="stat-lbl">Vendor Vetted Terkurasi</div>
+      </div>
+      <div class="stat-chip">
+        <div class="stat-num">4.9 / 5.0</div>
+        <div class="stat-lbl">Rating 420+ Klien Nyata</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Dual Planner Model Comparison -->
-<section style="padding: 4.5rem 0; background: var(--bg-surface);">
-  <div class="container">
-    <div style="text-align: center; max-width: 700px; margin: 0 auto 3rem;">
-      <span class="badge badge-primary" style="margin-bottom: 0.75rem;">Model Akses Discovery</span>
-      <h2 style="font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem;">
-        Pilih Cara Anda Menjelajahi Vendor
-      </h2>
-      <p style="color: var(--text-secondary); font-size: 1.05rem;">
-        Bandingkan transparansi spesifikasi teknis tanpa biaya, atau buka identitas resmi vendor untuk komunikasi langsung.
-      </p>
-    </div>
-
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem;">
-      <!-- Free Planner Card -->
-      <div class="card" style="border: 2px solid var(--border-color); display: flex; flex-direction: column;">
-        <div style="margin-bottom: 1.5rem;">
-          <span class="badge badge-slate" style="margin-bottom: 0.75rem;">Akses Terbuka</span>
-          <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;">Free Planner</h3>
-          <p style="color: var(--text-secondary); font-size: 0.95rem;">
-            Ideal untuk riset awal, perbandingan harga pasar, dan estimasi alokasi budget event Anda.
-          </p>
-          <div style="font-size: 2rem; font-weight: 800; color: var(--text-primary); margin-top: 1rem;">
-            Rp 0 <span style="font-size: 0.9rem; font-weight: 500; color: var(--text-muted);">/ event</span>
-          </div>
-        </div>
-
-        <ul style="list-style: none; margin-bottom: 2rem; flex: 1;">
-          <li style="display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.85rem; font-size: 0.925rem;">
-            <i data-lucide="check" style="color: var(--emerald); min-width: 18px;"></i>
-            <span>Pencocokan algoritma dengan budget dan kategori event</span>
-          </li>
-          <li style="display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.85rem; font-size: 0.925rem;">
-            <i data-lucide="check" style="color: var(--emerald); min-width: 18px;"></i>
-            <span>Melihat rincian spesifikasi teknis & paket lengkap</span>
-          </li>
-          <li style="display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.85rem; font-size: 0.925rem;">
-            <i data-lucide="check" style="color: var(--emerald); min-width: 18px;"></i>
-            <span>Rating agregat & jumlah riwayat event terselesaikan</span>
-          </li>
-          <li style="display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.85rem; font-size: 0.925rem; color: var(--text-muted);">
-            <i data-lucide="x" style="color: var(--crimson); min-width: 18px;"></i>
-            <span>Nama resmi & identitas vendor disamarkan (ID Kode)</span>
-          </li>
-          <li style="display: flex; align-items: flex-start; gap: 0.75rem; font-size: 0.925rem; color: var(--text-muted);">
-            <i data-lucide="x" style="color: var(--crimson); min-width: 18px;"></i>
-            <span>Kontak WhatsApp / Telepon PIC vendor disembunyikan</span>
-          </li>
-        </ul>
-
-        <a href="{% url 'planner_wizard' %}" class="btn btn-secondary" style="width: 100%;">
-          <span>Coba Free Planner</span>
-        </a>
+<!-- Section 1: Categories & Vendor Count & Price Range -->
+<section style="padding: 75px 20px; background: var(--paper);">
+  <div class="wrap" style="padding-top: 0; padding-bottom: 0;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin-bottom: 40px;">
+      <div style="max-width: 620px;">
+        <div class="step-eyebrow">Katalog Terkurasi</div>
+        <h2 style="font-size: 2.1rem; color: var(--ink); margin-bottom: 8px;">
+          Vendor per Kategori & Kisaran Harga Nyata
+        </h2>
+        <p style="color: var(--ink-soft); font-size: 0.96rem; line-height: 1.5;">
+          Setiap kategori ditangani oleh vendor yang telah melalui audit portofolio dan legalitas. Tidak ada harga mark-up, langsung dari vendor resmi.
+        </p>
       </div>
-
-      <!-- Paid Planner Card -->
-      <div class="card" style="border: 2px solid var(--primary); background: linear-gradient(180deg, #f0f7ff 0%, #ffffff 100%); display: flex; flex-direction: column; position: relative;">
-        <div style="position: absolute; top: -14px; right: 24px;">
-          <span class="badge badge-primary">Direkomendasikan</span>
-        </div>
-
-        <div style="margin-bottom: 1.5rem;">
-          <span class="badge badge-emerald" style="margin-bottom: 0.75rem;">Akses Penuh + Escrow</span>
-          <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;">Paid Planner (Beli Planner)</h3>
-          <p style="color: var(--text-secondary); font-size: 0.95rem;">
-            Buka profil lengkap vendor resmi, konsultasi langsung, dan kunci pemesanan bergaransi finansial.
-          </p>
-          <div style="font-size: 2rem; font-weight: 800; color: var(--primary); margin-top: 1rem;">
-            Rp 150.000 <span style="font-size: 0.9rem; font-weight: 500; color: var(--text-muted);">/ unlock per event</span>
-          </div>
-        </div>
-
-        <ul style="list-style: none; margin-bottom: 2rem; flex: 1;">
-          <li style="display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.85rem; font-size: 0.925rem;">
-            <i data-lucide="check-check" style="color: var(--primary); min-width: 18px;"></i>
-            <span><strong>Seluruh fitur Free Planner disertakan</strong></span>
-          </li>
-          <li style="display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.85rem; font-size: 0.925rem;">
-            <i data-lucide="check-check" style="color: var(--primary); min-width: 18px;"></i>
-            <span><strong>Buka Nama Resmi & Profil Lengkap</strong> seluruh vendor yang cocok</span>
-          </li>
-          <li style="display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.85rem; font-size: 0.925rem;">
-            <i data-lucide="check-check" style="color: var(--primary); min-width: 18px;"></i>
-            <span><strong>Kontak Langsung PIC</strong> (WhatsApp, Telepon, Alamat Kantor)</span>
-          </li>
-          <li style="display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.85rem; font-size: 0.925rem;">
-            <i data-lucide="check-check" style="color: var(--primary); min-width: 18px;"></i>
-            <span><strong>Booking via Rekening Escrow</strong> bertahap 3-termin resmi</span>
-          </li>
-          <li style="display: flex; align-items: flex-start; gap: 0.75rem; font-size: 0.925rem;">
-            <i data-lucide="check-check" style="color: var(--primary); min-width: 18px;"></i>
-            <span><strong>Garansi Ganti Rugi Finansial 100%</strong> jika terjadi kelalaian</span>
-          </li>
-        </ul>
-
-        <a href="{% url 'planner_wizard' %}" class="btn btn-primary" style="width: 100%;">
-          <i data-lucide="unlock"></i>
-          <span>Mulai & Buka Paid Planner</span>
-        </a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Event Categories Grid -->
-<section style="padding: 4.5rem 0;">
-  <div class="container">
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem;">
       <div>
-        <span class="badge badge-emerald" style="margin-bottom: 0.5rem;">Katalog Event</span>
-        <h2 style="font-size: 2rem; font-weight: 800; letter-spacing: -0.02em;">Kategori Event Populer</h2>
+        <span style="background: var(--gold-soft); border: 1px solid var(--gold); border-radius: 999px; padding: 6px 16px; font-size: 0.85rem; font-weight: 700; color: var(--ink);">
+          <i data-lucide="tag" style="width: 14px; height: 14px; display: inline-block; vertical-align: -2px;"></i>
+          Harga Paket: Rp {{ min_global_price|intdot }} – Rp {{ max_global_price|intdot }}+
+        </span>
       </div>
-      <a href="{% url 'planner_wizard' %}" class="btn btn-secondary btn-sm">
-        <span>Semua Kategori</span>
-        <i data-lucide="arrow-right"></i>
-      </a>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
       {% for cat in categories %}
-        <a href="{% url 'planner_wizard' %}?category={{ cat.slug }}" class="card" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: flex-start; gap: 0.75rem; border-radius: var(--radius-md);">
-          <div style="width: 44px; height: 44px; border-radius: var(--radius-md); background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center;">
-            <i data-lucide="{{ cat.icon_name }}"></i>
-          </div>
+        <a href="{% url 'planner_wizard' %}?category={{ cat.slug }}" class="cat-card-rich">
           <div>
-            <h4 style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary);">{{ cat.name }}</h4>
-            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">{{ cat.description|truncatewords:10 }}</p>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: var(--paper-dim); color: var(--berry); display: flex; align-items: center; justify-content: center;">
+                <i data-lucide="{% if cat.icon_name %}{{ cat.icon_name }}{% else %}calendar{% endif %}" style="width: 24px; height: 24px;"></i>
+              </div>
+              <span style="background: var(--sage-soft); color: var(--sage); font-weight: 700; font-size: 0.82rem; padding: 4px 12px; border-radius: 999px; border: 1px solid rgba(92,122,94,0.3);">
+                {{ cat.v_count }} Vendor Terkurasi
+              </span>
+            </div>
+
+            <h3 style="font-size: 1.25rem; color: var(--ink); margin-bottom: 8px;">{{ cat.name }}</h3>
+            <p style="color: var(--ink-soft); font-size: 0.88rem; line-height: 1.5; margin-bottom: 18px;">
+              {{ cat.description|default:"Vendor terverifikasi siap mendampingi kebutuhan acara Anda dengan standar mutu tinggi." }}
+            </p>
+          </div>
+
+          <div style="border-top: 1px dashed var(--line); padding-top: 14px; margin-top: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 0.74rem; color: var(--ink-soft); text-transform: uppercase; font-weight: 600;">Kisaran Paket:</div>
+                <div style="font-size: 0.98rem; font-weight: 700; color: var(--gold-deep);">
+                  {% if cat.min_price and cat.max_price %}
+                    Rp {{ cat.min_price|intdot }} – {{ cat.max_price|intdot }}
+                  {% else %}
+                    Sesuai Negosiasi
+                  {% endif %}
+                </div>
+              </div>
+              <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--paper-dim); display: flex; align-items: center; justify-content: center; color: var(--ink);">
+                <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+              </div>
+            </div>
           </div>
         </a>
-      {% empty %}
-        <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 2.5rem;">
-          <p style="color: var(--text-muted);">Kategori belum dimuat. Jalankan seeder database.</p>
-        </div>
       {% endfor %}
     </div>
   </div>
 </section>
+
+<!-- Section 2: City Coverage -->
+<section style="padding: 70px 20px; background: #FFFFFF; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);">
+  <div class="wrap" style="padding-top: 0; padding-bottom: 0;">
+    <div style="text-align: center; max-width: 680px; margin: 0 auto 46px;">
+      <div class="step-eyebrow">Jangkauan Wilayah</div>
+      <h2 style="font-size: 2.1rem; color: var(--ink); margin-bottom: 10px;">
+        Kota & Wilayah yang Dicover Vendoraman
+      </h2>
+      <p style="color: var(--ink-soft); font-size: 0.96rem; line-height: 1.6;">
+        Didukung oleh vendor berlisensi lokal dengan koordinasi on-site dan jaminan pengembalian dana 100% aktif di seluruh kota berikut.
+      </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+      {% for city in cities_data %}
+        <div class="city-card">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+            <div>
+              <h4 style="font-size: 1.25rem; color: var(--ink); margin-bottom: 2px;">{{ city.name }}</h4>
+              <div style="font-size: 0.8rem; color: var(--gold-deep); font-weight: 600;">{{ city.region }}</div>
+            </div>
+            <span style="background: var(--berry-soft); color: var(--berry); font-weight: 700; font-size: 0.8rem; padding: 4px 10px; border-radius: 8px;">
+              {{ city.count }} Vendor Aktif
+            </span>
+          </div>
+          <p style="color: var(--ink-soft); font-size: 0.86rem; line-height: 1.5; margin-bottom: 14px;">
+            {{ city.desc }}
+          </p>
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 0.78rem; color: var(--sage); font-weight: 600;">
+            <i data-lucide="shield-check" style="width: 15px; height: 15px;"></i>
+            <span>Escrow & Garansi On-Site Terlindungi</span>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div style="margin-top: 36px; background: var(--paper-dim); border: 1px solid var(--line); border-radius: 12px; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <i data-lucide="map-pin" style="width: 24px; height: 24px; color: var(--gold-deep); flex-shrink: 0;"></i>
+        <div>
+          <strong style="color: var(--ink); font-size: 0.94rem;">Kota Anda belum tercantum?</strong>
+          <p style="color: var(--ink-soft); font-size: 0.85rem; margin: 0;">Banyak vendor di platform kami yang melayani perjalanan dinas antar-kota (Out-of-Town Event) ke seluruh nusantara.</p>
+        </div>
+      </div>
+      <a href="{% url 'planner_wizard' %}" class="btn btn-outline btn-sm">Konsultasi Lokasi Khusus</a>
+    </div>
+  </div>
+</section>
+
+<!-- Section 3: Transparent Pricing & Package Tiers -->
+<section style="padding: 75px 20px; background: var(--paper);">
+  <div class="wrap" style="padding-top: 0; padding-bottom: 0;">
+    <div style="text-align: center; max-width: 650px; margin: 0 auto 48px;">
+      <div class="step-eyebrow">Panduan Anggaran</div>
+      <h2 style="font-size: 2.1rem; color: var(--ink); margin-bottom: 8px;">
+        Rentang Anggaran & Pilihan Paket Transparan
+      </h2>
+      <p style="color: var(--ink-soft); font-size: 0.96rem; line-height: 1.5;">
+        Pilih paket yang paling pas dengan pagu anggaran Anda. Tanpa markup perantara: 100% harga riil dari mitra vendor terverifikasi.
+      </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 24px;">
+      <!-- Tier 1 -->
+      <div class="panel" style="background: #FFFFFF; border-radius: 16px; padding: 30px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 0;">
+        <div>
+          <span style="font-size: 0.78rem; font-weight: 700; color: var(--sage); text-transform: uppercase; letter-spacing: 0.5px;">Intimate & Essential</span>
+          <h3 style="font-size: 1.4rem; color: var(--ink); margin: 6px 0 12px;">Mulai Rp 3,5 Jt – 15 Jt</h3>
+          <p style="color: var(--ink-soft); font-size: 0.88rem; line-height: 1.5; margin-bottom: 20px;">
+            Solusi ideal untuk ulang tahun sweet seventeen, intimate engagement, rapat tahunan, seminar workshop 50–100 pax.
+          </p>
+          <ul style="list-style: none; padding: 0; margin: 0 0 24px; font-size: 0.86rem; color: var(--ink); display: flex; flex-direction: column; gap: 10px;">
+            <li style="display: flex; align-items: center; gap: 8px;"><i data-lucide="check" style="width: 16px; height: 16px; color: var(--sage);"></i> MC Profesional & Sound System 3000W</li>
+            <li style="display: flex; align-items: center; gap: 8px;"><i data-lucide="check" style="width: 16px; height: 16px; color: var(--sage);"></i> Backdrop Photobooth & Sweet Corner</li>
+            <li style="display: flex; align-items: center; gap: 8px;"><i data-lucide="check" style="width: 16px; height: 16px; color: var(--sage);"></i> Dokumentasi Foto 1 Fotografer + Edit</li>
+            <li style="display: flex; align-items: center; gap: 8px;"><i data-lucide="check" style="width: 16px; height: 16px; color: var(--sage);"></i> Proteksi Pembayaran Escrow 3-Tahap</li>
+          </ul>
+        </div>
+        <a href="{% url 'planner_wizard' %}?category=birthday" class="btn btn-outline" style="width: 100%;">Eksplorasi Paket Essential</a>
+      </div>
+
+      <!-- Tier 2 (Featured) -->
+      <div class="panel" style="background: #FFFFFF; border: 2px solid var(--gold); border-radius: 16px; padding: 30px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 0; position: relative; box-shadow: 0 10px 28px rgba(217,164,65,0.15);">
+        <div style="position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--gold); color: var(--ink); font-weight: 700; font-size: 0.78rem; padding: 4px 16px; border-radius: 999px; text-transform: uppercase;">
+          Paling Populer
+        </div>
+        <div>
+          <span style="font-size: 0.78rem; font-weight: 700; color: var(--gold-deep); text-transform: uppercase; letter-spacing: 0.5px;">Standard & Popular Wedding</span>
+          <h3 style="font-size: 1.4rem; color: var(--ink); margin: 6px 0 12px;">Mulai Rp 20 Jt – 65 Jt</h3>
+          <p style="color: var(--ink-soft); font-size: 0.88rem; line-height: 1.5; margin-bottom: 20px;">
+            Pilihan utama untuk resepsi pernikahan gedung, corporate gala dinner, dan festival 300–600 pax.
+          </p>
+          <ul style="list-style: none; padding: 0; margin: 0 0 24px; font-size: 0.86rem; color: var(--ink); display: flex; flex-direction: column; gap: 10px;">
+            <li style="display: flex; align-items: center; gap: 8px;"><i data-lucide="check" style="width: 16px; height: 16px; color: var(--gold-deep);"></i> Catering Prasmanan + Food Stalls 60:40</li>
+            <li style="display: flex; align-items: center; gap: 8px;"><i data-lucide="check" style="width: 16px; height: 16px; color: var(--gold-deep);"></i> Dekorasi Pelaminan Modern 10-14 Meter</li>
+            <li style="display: flex; align-items: center; gap: 8px;"><i data-lucide="check" style="width: 16px; height: 16px; color: var(--gold-deep);"></i> Tim Foto & Sinematik Video Teaser + Drone</li>
+            <li style="display: flex; align-items: center; gap: 8px;"><i data-lucide="check" style="width: 16px; height: 16px; color: var(--gold-deep);"></i> Termasuk Master Planner Excel & PDF Deck</li>
+          </ul>
+        </div>
+        <a href="{% url 'planner_wizard' %}?category=wedding" class="btn btn-gold" style="width: 100%;">Pilih Paket Terfavorit</a>
+      </div>
+
+      <!-- Tier 3 -->
+      <div class="panel" style="background: #FFFFFF; border-radius: 16px; padding: 30px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 0;">
+        <div>
+          <span style="font-size: 0.78rem; font-weight: 700; color: var(--berry); text-transform: uppercase; letter-spacing: 0.5px;">Grand Splendor & Luxury</span>
+          <h3 style="font-size: 1.4rem; color: var(--ink); margin: 6px 0 12px;">Mulai Rp 75 Jt – 120 Jt+</h3>
+          <p style="color: var(--ink-soft); font-size: 0.88rem; line-height: 1.5; margin-bottom: 20px;">
+            Produksi megah bintang lima untuk pernikahan akbar, peluncuran produk prestisius, dan konser gala 700–1.500+ pax.
+          </p>
+          <ul style="list-style: none; padding: 0; margin: 0 0 24px; font-size: 0.86rem; color: var(--ink); display: flex; flex-direction: column; gap: 10px;">
+            <li style="display: flex; align-items: center; gap: 8px;"><i data-lucide="check" style="width: 16px; height: 16px; color: var(--berry);"></i> Full Production (LED Videotron, Truss, Lighting)</li>
+            <li style="display: flex; align-items: center; gap: 8px;"><i data-lucide="check" style="width: 16px; height: 16px; color: var(--berry);"></i> Live Chamber Orchestra & Star Guest Performer</li>
+            <li style="display: flex; align-items: center; gap: 8px;"><i data-lucide="check" style="width: 16px; height: 16px; color: var(--berry);"></i> Wedding Organizer All-Day 12 Crew Berlisensi</li>
+            <li style="display: flex; align-items: center; gap: 8px;"><i data-lucide="check" style="width: 16px; height: 16px; color: var(--berry);"></i> Dedicated Personal Concierge Event Lead</li>
+          </ul>
+        </div>
+        <a href="{% url 'planner_wizard' %}?category=corporate" class="btn btn-outline" style="width: 100%;">Eksplorasi Paket Luxury</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section 4: Master Planner Template & Social Proof -->
+<section style="padding: 75px 20px; background: linear-gradient(135deg, #1B1F3B 0%, #2A1E35 100%); color: var(--paper);">
+  <div class="wrap" style="padding-top: 0; padding-bottom: 0;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; align-items: center;">
+      <div>
+        <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(217, 164, 65, 0.2); border: 1px solid var(--gold); border-radius: 999px; padding: 5px 14px; font-size: 0.82rem; font-weight: 700; color: var(--gold); margin-bottom: 18px;">
+          <i data-lucide="sparkles" style="width: 15px; height: 15px;"></i>
+          <span>Fitur Eksklusif Paid Planner</span>
+        </div>
+        <h2 style="font-size: clamp(2rem, 4vw, 2.7rem); color: var(--paper); line-height: 1.2; margin-bottom: 16px;">
+          {{ template_buyers_count|default:"940" }}+ Orang Telah Membeli & Memakai Master Planner Template
+        </h2>
+        <p style="color: #C7C9E4; font-size: 1rem; line-height: 1.65; margin-bottom: 24px;">
+          Kelola anggaran bernilai puluhan hingga ratusan juta rupiah tanpa rasa was-was. Dilengkapi formula Excel otomatis dan presentasi 16:9 yang siap diajukan ke keluarga atau dewan direksi.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 32px;">
+          <div style="display: flex; gap: 12px; align-items: flex-start;">
+            <div style="width: 28px; height: 28px; border-radius: 6px; background: var(--gold); color: var(--ink); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700;">1</div>
+            <div>
+              <strong style="color: #fff; font-size: 0.95rem;">Excel Multi-Tab (.xlsx) Berformula Live</strong>
+              <p style="color: #B7BAD6; font-size: 0.84rem; margin: 2px 0 0;">5 Sheet lengkap: Pagu varians otomatis, direktori vendor terkurasi, countdown H-Days, simulasi katering 60:40, dan checklist 20 alat.</p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 12px; align-items: flex-start;">
+            <div style="width: 28px; height: 28px; border-radius: 6px; background: var(--berry); color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700;">2</div>
+            <div>
+              <strong style="color: #fff; font-size: 0.95rem;">Landscape Presentation Deck (.pdf) 16:9</strong>
+              <p style="color: #B7BAD6; font-size: 0.84rem; margin: 2px 0 0;">7 Slide eksekutif siap presentasi proyektor tanpa perlu mendesain manual dari nol.</p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 12px; align-items: flex-start;">
+            <div style="width: 28px; height: 28px; border-radius: 6px; background: var(--sage); color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700;">3</div>
+            <div>
+              <strong style="color: #fff; font-size: 0.95rem;">Akses Kontak WhatsApp & Email PIC Langsung</strong>
+              <p style="color: #B7BAD6; font-size: 0.84rem; margin: 2px 0 0;">Sensor nomor telepon terbuka penuh, memungkinkan negosiasi dan rapat teknis langsung dengan vendor.</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+          <a href="{% url 'planner_wizard' %}" class="btn btn-gold btn-lg" style="box-shadow: 0 8px 24px rgba(217, 164, 65, 0.3);">
+            <i data-lucide="file-spreadsheet" style="width: 18px; height: 18px;"></i>
+            <span>Coba Template Planner Sekarang (Rp 49.000)</span>
+          </a>
+          <a href="https://wa.me/62881023641280?text=Halo%20Vendoraman,%20saya%20ingin%20tanya%20seputar%20Master%20Planner%20Template." target="_blank" class="btn btn-outline" style="border-color: #25D366; color: #25D366; display: inline-flex; align-items: center; gap: 8px;">
+            <i data-lucide="message-circle" style="width: 18px; height: 18px;"></i>
+            <span>Tanya via WhatsApp (+62 881-0236-41280)</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Interactive Preview Component: Excel Screenshot & Slide Deck -->
+      <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 20px; padding: 20px; backdrop-filter: blur(12px); box-shadow: 0 20px 50px rgba(0,0,0,0.5); overflow: hidden;">
+        
+        <!-- Top Mode Switcher Bar -->
+        <div style="display: flex; gap: 8px; margin-bottom: 16px; background: rgba(0, 0, 0, 0.4); padding: 5px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+          <button type="button" id="btnPreviewExcel" onclick="togglePreviewMode('excel')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 14px; border-radius: 8px; border: none; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.2s; background: #107C41; color: #ffffff; box-shadow: 0 4px 12px rgba(16, 124, 65, 0.35);">
+            <i data-lucide="file-spreadsheet" style="width: 16px; height: 16px;"></i>
+            <span>Screenshot Excel (.xlsx)</span>
+          </button>
+          <button type="button" id="btnPreviewDeck" onclick="togglePreviewMode('deck')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 14px; border-radius: 8px; border: none; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.2s; background: transparent; color: #94A3B8;">
+            <i data-lucide="presentation" style="width: 16px; height: 16px;"></i>
+            <span>Contoh Slide Deck (16:9)</span>
+          </button>
+        </div>
+
+        <!-- ================= VIEW 1: EXCEL SPREADSHEET WINDOW ================= -->
+        <div id="viewExcelPreview" style="display: block;">
+          <!-- Excel Window Header -->
+          <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px 10px 0 0; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="display: inline-block; width: 11px; height: 11px; border-radius: 50%; background: #EF4444;"></span>
+              <span style="display: inline-block; width: 11px; height: 11px; border-radius: 50%; background: #F59E0B;"></span>
+              <span style="display: inline-block; width: 11px; height: 11px; border-radius: 50%; background: #10B981;"></span>
+              <span style="font-size: 0.78rem; font-weight: 600; color: #E2E8F0; margin-left: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Vendoraman_Master_Planner_2026.xlsx</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 0.7rem; color: #94A3B8; display: flex; align-items: center; gap: 4px;">
+                <i data-lucide="cloud-check" style="width: 13px; height: 13px; color: #34D399;"></i>
+                <span>Tersimpan</span>
+              </span>
+              <span style="background: #107C41; color: #fff; font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 4px;">Formula Aktif</span>
+            </div>
+          </div>
+
+          <!-- Formula Bar -->
+          <div style="background: #0f172a; border-left: 1px solid #334155; border-right: 1px solid #334155; padding: 6px 12px; display: flex; align-items: center; gap: 8px; font-family: monospace; font-size: 0.74rem;">
+            <span style="background: #1e293b; color: #94A3B8; padding: 2px 6px; border-radius: 3px; font-weight: 700;">D18</span>
+            <span style="color: #64748B; font-weight: 700;">fx</span>
+            <span id="excelFormulaDisplay" style="color: #38BDF8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">=JIKA(TotalBelanja&gt;BudgetMaks; "LEBIH DARI BUDGET"; "SISA AMAN")</span>
+          </div>
+
+          <!-- Sheet Navigation Tabs (Top) -->
+          <div style="background: #1e293b; border-left: 1px solid #334155; border-right: 1px solid #334155; border-bottom: 1px solid #334155; padding: 4px 8px 0; display: flex; gap: 4px; overflow-x: auto;">
+            <button type="button" id="tabSheet1" onclick="switchExcelSheet('sheet1')" style="padding: 6px 12px; font-size: 0.73rem; font-weight: 700; border-radius: 6px 6px 0 0; border: none; cursor: pointer; background: #0f172a; color: #38BDF8; border-top: 2px solid #38BDF8; display: inline-flex; align-items: center; gap: 6px;">
+              <i data-lucide="wallet" style="width: 14px; height: 14px; flex-shrink: 0;"></i> 1. Budget &amp; Bayar
+            </button>
+            <button type="button" id="tabSheet2" onclick="switchExcelSheet('sheet2')" style="padding: 6px 12px; font-size: 0.73rem; font-weight: 600; border-radius: 6px 6px 0 0; border: none; cursor: pointer; background: transparent; color: #94A3B8; border-top: 2px solid transparent; display: inline-flex; align-items: center; gap: 6px;">
+              <i data-lucide="calendar-clock" style="width: 14px; height: 14px; flex-shrink: 0;"></i> 2. Jadwal Hari-H
+            </button>
+            <button type="button" id="tabSheet3" onclick="switchExcelSheet('sheet3')" style="padding: 6px 12px; font-size: 0.73rem; font-weight: 600; border-radius: 6px 6px 0 0; border: none; cursor: pointer; background: transparent; color: #94A3B8; border-top: 2px solid transparent; display: inline-flex; align-items: center; gap: 6px;">
+              <i data-lucide="utensils" style="width: 14px; height: 14px; flex-shrink: 0;"></i> 3. Hitung Makan
+            </button>
+            <button type="button" id="tabSheet4" onclick="switchExcelSheet('sheet4')" style="padding: 6px 12px; font-size: 0.73rem; font-weight: 600; border-radius: 6px 6px 0 0; border: none; cursor: pointer; background: transparent; color: #94A3B8; border-top: 2px solid transparent; display: inline-flex; align-items: center; gap: 6px;">
+              <i data-lucide="clipboard-check" style="width: 14px; height: 14px; flex-shrink: 0;"></i> 4. Daftar Barang
+            </button>
+          </div>
+
+          <!-- Sheet Content Area -->
+          <div style="background: #090D16; border: 1px solid #334155; border-top: none; border-radius: 0 0 10px 10px; padding: 14px; max-height: 340px; overflow: auto;">
+            
+            <!-- SHEET 1: PAGU & VARIANS -->
+            <div id="contentSheet1" style="display: block; min-width: 680px;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem; color: #E2E8F0; text-align: left; table-layout: fixed;">
+                <colgroup>
+                  <col style="width: 24%;">
+                  <col style="width: 19%;">
+                  <col style="width: 19%;">
+                  <col style="width: 18%;">
+                  <col style="width: 20%;">
+                </colgroup>
+                <thead>
+                  <tr style="background: #107C41; color: #fff;">
+                    <th style="padding: 10px; border: 1px solid #1e293b;">Untuk Apa</th>
+                    <th style="padding: 10px; border: 1px solid #1e293b; text-align: right;">Budget Awal</th>
+                    <th style="padding: 10px; border: 1px solid #1e293b; text-align: right;">Perkiraan Biaya</th>
+                    <th style="padding: 10px; border: 1px solid #1e293b; text-align: right;">Sisa (Hemat)</th>
+                    <th style="padding: 10px; border: 1px solid #1e293b; text-align: center;">Status Bayar</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="border-bottom: 1px solid #1e293b; background: rgba(255,255,255,0.02);">
+                    <td style="padding: 9px 10px; font-weight: 600;">Venue &amp; Grand Ballroom</td>
+                    <td style="padding: 9px 10px; text-align: right; color: #94A3B8; white-space: nowrap;">Rp 45.000.000</td>
+                    <td style="padding: 9px 10px; text-align: right; font-weight: 600; color: #38BDF8; white-space: nowrap;">Rp 42.000.000</td>
+                    <td style="padding: 9px 10px; text-align: right; color: #34D399; font-weight: 700; white-space: nowrap;">+Rp 3.000.000</td>
+                    <td style="padding: 9px 10px; text-align: center;"><span style="background: rgba(16,185,129,0.15); color: #34D399; padding: 3px 8px; border-radius: 999px; font-size: 0.72rem; white-space: nowrap; display: inline-block; line-height: 1.2;">Uang muka lunas</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #1e293b;">
+                    <td style="padding: 9px 10px; font-weight: 600;">Katering 500 Tamu</td>
+                    <td style="padding: 9px 10px; text-align: right; color: #94A3B8; white-space: nowrap;">Rp 52.000.000</td>
+                    <td style="padding: 9px 10px; text-align: right; font-weight: 600; color: #38BDF8; white-space: nowrap;">Rp 50.000.000</td>
+                    <td style="padding: 9px 10px; text-align: right; color: #34D399; font-weight: 700; white-space: nowrap;">+Rp 2.000.000</td>
+                    <td style="padding: 9px 10px; text-align: center;"><span style="background: rgba(16,185,129,0.15); color: #34D399; padding: 3px 8px; border-radius: 999px; font-size: 0.72rem; white-space: nowrap; display: inline-block; line-height: 1.2;">Menu dikunci</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #1e293b; background: rgba(255,255,255,0.02);">
+                    <td style="padding: 9px 10px; font-weight: 600;">Dekorasi &amp; Lampu</td>
+                    <td style="padding: 9px 10px; text-align: right; color: #94A3B8; white-space: nowrap;">Rp 25.000.000</td>
+                    <td style="padding: 9px 10px; text-align: right; font-weight: 600; color: #38BDF8; white-space: nowrap;">Rp 24.500.000</td>
+                    <td style="padding: 9px 10px; text-align: right; color: #34D399; font-weight: 700; white-space: nowrap;">+Rp 500.000</td>
+                    <td style="padding: 9px 10px; text-align: center;"><span style="background: rgba(16,185,129,0.15); color: #34D399; padding: 3px 8px; border-radius: 999px; font-size: 0.72rem; white-space: nowrap; display: inline-block; line-height: 1.2;">Desain oke</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #1e293b;">
+                    <td style="padding: 9px 10px; font-weight: 600;">Foto &amp; Video</td>
+                    <td style="padding: 9px 10px; text-align: right; color: #94A3B8; white-space: nowrap;">Rp 12.000.000</td>
+                    <td style="padding: 9px 10px; text-align: right; font-weight: 600; color: #38BDF8; white-space: nowrap;">Rp 11.500.000</td>
+                    <td style="padding: 9px 10px; text-align: right; color: #34D399; font-weight: 700; white-space: nowrap;">+Rp 500.000</td>
+                    <td style="padding: 9px 10px; text-align: center;"><span style="background: rgba(16,185,129,0.15); color: #34D399; padding: 3px 8px; border-radius: 999px; font-size: 0.72rem; white-space: nowrap; display: inline-block; line-height: 1.2;">Sudah kontrak</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #1e293b; background: rgba(255,255,255,0.02);">
+                    <td style="padding: 9px 10px; font-weight: 600;">Suara &amp; Genset</td>
+                    <td style="padding: 9px 10px; text-align: right; color: #94A3B8; white-space: nowrap;">Rp 8.000.000</td>
+                    <td style="padding: 9px 10px; text-align: right; font-weight: 600; color: #38BDF8; white-space: nowrap;">Rp 7.500.000</td>
+                    <td style="padding: 9px 10px; text-align: right; color: #34D399; font-weight: 700; white-space: nowrap;">+Rp 500.000</td>
+                    <td style="padding: 9px 10px; text-align: center;"><span style="background: rgba(16,185,129,0.15); color: #34D399; padding: 3px 8px; border-radius: 999px; font-size: 0.72rem; white-space: nowrap; display: inline-block; line-height: 1.2;">Siap</span></td>
+                  </tr>
+                  <tr style="background: #1e293b; font-weight: 700; border-top: 2px solid #107C41;">
+                    <td style="padding: 10px; color: #FCD34D;">TOTAL (=JUMLAH OTOMATIS)</td>
+                    <td style="padding: 10px; text-align: right; color: #fff; white-space: nowrap;">Rp 150.000.000</td>
+                    <td style="padding: 10px; text-align: right; color: #38BDF8; white-space: nowrap;">Rp 142.500.000</td>
+                    <td style="padding: 10px; text-align: right; color: #34D399; white-space: nowrap;">+Rp 7.500.000</td>
+                    <td style="padding: 10px; text-align: center; color: #34D399;">SISA AMAN</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- SHEET 2: RUNDOWN 24-JAM (UPGRADED 24 SESSIONS OPERATIONAL FLOW) -->
+            <div id="contentSheet2" style="display: none;">
+              <div style="font-size: 0.7rem; color: #38BDF8; margin-bottom: 6px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="calendar-clock" style="width: 14px; height: 14px; flex-shrink: 0;"></i> Jadwal Hari-H dari pagi sampai sore:
+              </div>
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.72rem; color: #E2E8F0; text-align: left;">
+                <thead>
+                  <tr style="background: #1e293b; color: #F8FAFC;">
+                    <th style="padding: 5px 6px; border: 1px solid #334155;">Waktu (WIB)</th>
+                    <th style="padding: 5px 6px; border: 1px solid #334155;">Fase &amp; Sesi Acara</th>
+                    <th style="padding: 5px 6px; border: 1px solid #334155;">Lokasi</th>
+                    <th style="padding: 5px 6px; border: 1px solid #334155;">PIC Utama</th>
+                    <th style="padding: 5px 6px; border: 1px solid #334155; text-align: center;">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="border-bottom: 1px solid #1e293b;">
+                    <td style="padding: 5px 6px; font-family: monospace; color: #FCD34D;">04:30 - 05:30</td>
+                    <td style="padding: 5px 6px; font-weight: 600;">Pasang dekor, cek suara &amp; lampu</td>
+                    <td style="padding: 5px 6px; color: #94A3B8;">Gedung</td>
+                    <td style="padding: 5px 6px;">Tim EO</td>
+                    <td style="padding: 5px 6px; text-align: center;"><span style="color: #34D399; font-weight: 700;">Selesai</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #1e293b; background: rgba(255,255,255,0.02);">
+                    <td style="padding: 5px 6px; font-family: monospace; color: #FCD34D;">05:30 - 07:30</td>
+                    <td style="padding: 5px 6px; font-weight: 600;">Rias &amp; siap-siap</td>
+                    <td style="padding: 5px 6px; color: #94A3B8;">Ruang rias</td>
+                    <td style="padding: 5px 6px;">Tim rias</td>
+                    <td style="padding: 5px 6px; text-align: center;"><span style="color: #34D399; font-weight: 700;">Selesai</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #1e293b;">
+                    <td style="padding: 5px 6px; font-family: monospace; color: #FCD34D;">08:00 - 09:30</td>
+                    <td style="padding: 5px 6px; font-weight: 600;">Acara inti &amp; sambutan</td>
+                    <td style="padding: 5px 6px; color: #94A3B8;">Panggung utama</td>
+                    <td style="padding: 5px 6px;">MC &amp; EO</td>
+                    <td style="padding: 5px 6px; text-align: center;"><span style="color: #34D399; font-weight: 700;">Selesai</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #1e293b; background: rgba(255,255,255,0.02);">
+                    <td style="padding: 5px 6px; font-family: monospace; color: #FCD34D;">10:45 - 11:30</td>
+                    <td style="padding: 5px 6px; font-weight: 600;">Tamu masuk &amp; acara dibuka</td>
+                    <td style="padding: 5px 6px; color: #94A3B8;">Pintu &amp; panggung</td>
+                    <td style="padding: 5px 6px;">MC &amp; panitia</td>
+                    <td style="padding: 5px 6px; text-align: center;"><span style="color: #60A5FA; font-weight: 700;">Berjalan</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #1e293b;">
+                    <td style="padding: 5px 6px; font-family: monospace; color: #FCD34D;">11:45 - 13:15</td>
+                    <td style="padding: 5px 6px; font-weight: 600;">Makan bersama &amp; foto tamu</td>
+                    <td style="padding: 5px 6px; color: #94A3B8;">Ruang makan</td>
+                    <td style="padding: 5px 6px;">Katering &amp; Fotografer</td>
+                    <td style="padding: 5px 6px; text-align: center;"><span style="color: #FCD34D; font-weight: 700;">Ready</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #1e293b; background: rgba(255,255,255,0.02);">
+                    <td style="padding: 5px 6px; font-family: monospace; color: #FCD34D;">14:00 - 16:00</td>
+                    <td style="padding: 5px 6px; font-weight: 600;">Penutupan &amp; beres-beres</td>
+                    <td style="padding: 5px 6px; color: #94A3B8;">Gedung</td>
+                    <td style="padding: 5px 6px;">EO &amp; vendor</td>
+                    <td style="padding: 5px 6px; text-align: center;"><span style="color: #34D399; font-weight: 700;">Aman</span></td>
+                  </tr>
+                </tbody>
+              </table>
+              <div style="font-size: 0.68rem; color: #94A3B8; margin-top: 6px; text-align: right;">
+                * Jadwal lengkap per jam tersedia di file unduhan (.xlsx).
+              </div>
+            </div>
+
+            <!-- SHEET 3: KALKULATOR KATERING -->
+            <div id="contentSheet3" style="display: none;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid #334155; border-radius: 6px; padding: 8px;">
+                  <div style="font-size: 0.67rem; color: #94A3B8;">JUMLAH UNDANGAN</div>
+                  <div style="font-size: 1rem; font-weight: 700; color: #FCD34D;">250 undangan (= 500 tamu)</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid #334155; border-radius: 6px; padding: 8px;">
+                  <div style="font-size: 0.67rem; color: #94A3B8;">CADANGAN PANITIA</div>
+                  <div style="font-size: 1rem; font-weight: 700; color: #34D399;">+10% (= 550 porsi)</div>
+                </div>
+              </div>
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.72rem; color: #E2E8F0;">
+                <tr style="border-bottom: 1px solid #1e293b;">
+                  <td style="padding: 6px; font-weight: 600;">Makan utama (60%):</td>
+                  <td style="padding: 6px; color: #38BDF8; font-family: monospace;">= 550 x 60% = 330 porsi</td>
+                  <td style="padding: 6px; text-align: right; color: #34D399; font-weight: 700;">Rp 29.700.000</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #1e293b;">
+                  <td style="padding: 6px; font-weight: 600;">Stall / gubukan (40%):</td>
+                  <td style="padding: 6px; color: #38BDF8; font-family: monospace;">= 550 x 40% = 220 porsi</td>
+                  <td style="padding: 6px; text-align: right; color: #34D399; font-weight: 700;">Rp 14.300.000</td>
+                </tr>
+                <tr style="background: #1e293b; font-weight: 700;">
+                  <td style="padding: 6px; color: #FCD34D;">TOTAL BIAYA MAKAN</td>
+                  <td style="padding: 6px; color: #94A3B8; font-size: 0.68rem;">Porsi aman, tidak kurang</td>
+                  <td style="padding: 6px; text-align: right; color: #FCD34D; font-size: 0.85rem;">Rp 44.000.000</td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- SHEET 4: CHECKLIST 20 LOGISTIK -->
+            <div id="contentSheet4" style="display: none;">
+              <div style="font-size: 0.7rem; color: #34D399; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="check-circle-2" style="width: 14px; height: 14px; flex-shrink: 0;"></i> 20 barang dicek &amp; siap dipakai:
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.72rem;">
+                <div style="padding: 4px 6px; background: rgba(255,255,255,0.02); border-radius: 4px; border-left: 2px solid #34D399;">
+                  Genset cadangan <span style="color:#34D399; font-weight:700;">[Siap]</span>
+                </div>
+                <div style="padding: 4px 6px; background: rgba(255,255,255,0.02); border-radius: 4px; border-left: 2px solid #34D399;">
+                  4 mic + baterai <span style="color:#34D399; font-weight:700;">[Siap]</span>
+                </div>
+                <div style="padding: 4px 6px; background: rgba(255,255,255,0.02); border-radius: 4px; border-left: 2px solid #34D399;">
+                  Kotak angpao digembok <span style="color:#34D399; font-weight:700;">[Aman]</span>
+                </div>
+                <div style="padding: 4px 6px; background: rgba(255,255,255,0.02); border-radius: 4px; border-left: 2px solid #34D399;">
+                  Meja tamu &amp; bunga <span style="color:#34D399; font-weight:700;">[Siap]</span>
+                </div>
+                <div style="padding: 4px 6px; background: rgba(255,255,255,0.02); border-radius: 4px; border-left: 2px solid #34D399;">
+                  P3K darurat <span style="color:#34D399; font-weight:700;">[Siap]</span>
+                </div>
+                <div style="padding: 4px 6px; background: rgba(255,255,255,0.02); border-radius: 4px; border-left: 2px solid #34D399;">
+                  HT panitia aktif <span style="color:#34D399; font-weight:700;">[Siap]</span>
+                </div>
+              </div>
+              <div style="font-size: 0.68rem; color: #94A3B8; margin-top: 6px; text-align: right;">
+                + 14 barang lainnya ada di template.
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ================= VIEW 2: 16:9 SLIDE PRESENTATION DECK ================= -->
+        <div id="viewDeckPreview" style="display: none;">
+          <!-- Slide Navigation Bar -->
+          <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; border: 1px solid #334155; border-radius: 10px 10px 0 0; padding: 8px 14px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 0.76rem; font-weight: 700; color: #FCD34D;">16:9 EXECUTIVE PRESENTATION</span>
+              <span id="slideIndicatorBadge" style="background: rgba(255,255,255,0.1); color: #fff; font-size: 0.68rem; padding: 2px 8px; border-radius: 4px;">Slide 1 dari 4</span>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <button type="button" onclick="navigateDeckSlide(-1)" style="background: #1e293b; border: 1px solid #475569; color: #fff; border-radius: 4px; padding: 3px 8px; font-size: 0.72rem; cursor: pointer;">&lt; Prev</button>
+              <button type="button" onclick="navigateDeckSlide(1)" style="background: #D9A441; border: none; color: #1B1F3B; font-weight: 700; border-radius: 4px; padding: 3px 8px; font-size: 0.72rem; cursor: pointer;">Next &gt;</button>
+            </div>
+          </div>
+
+          <!-- Slide Frame (16:9 Aspect Ratio) -->
+          <div style="background: linear-gradient(145deg, #0B0F19 0%, #172033 100%); border: 1px solid #334155; border-top: none; border-radius: 0 0 10px 10px; padding: 20px; min-height: 280px; display: flex; flex-direction: column; justify-content: center; position: relative;">
+            
+            <!-- SLIDE 1: COVER -->
+            <div id="deckSlide1" class="deck-slide-item" style="display: block;">
+              <div style="font-size: 0.72rem; color: #FCD34D; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px;">
+                CONTOH RENCANA BUDGET &amp; ACARA
+              </div>
+              <h3 style="font-size: 1.4rem; color: #ffffff; margin: 0 0 8px; font-weight: 800; line-height: 1.2;">
+                Rencana Acara &amp; Budget 2026
+              </h3>
+              <p style="color: #94A3B8; font-size: 0.84rem; margin: 0 0 16px;">
+                Contoh: acara 500 tamu di gedung Jakarta
+              </p>
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px; text-align: center;">
+                  <div style="font-size: 0.65rem; color: #94A3B8;">BUDGET MAKSIMAL</div>
+                  <div style="font-size: 0.95rem; font-weight: 700; color: #FCD34D;">Rp 150.000.000</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px; text-align: center;">
+                  <div style="font-size: 0.65rem; color: #94A3B8;">JUMLAH TAMU</div>
+                  <div style="font-size: 0.95rem; font-weight: 700; color: #38BDF8;">500 tamu</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px; text-align: center;">
+                  <div style="font-size: 0.65rem; color: #94A3B8;">UANG AMAN</div>
+                  <div style="font-size: 0.95rem; font-weight: 700; color: #34D399;">100% ditahan aman</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SLIDE 2: PAGU & VARIANS -->
+            <div id="deckSlide2" class="deck-slide-item" style="display: none;">
+              <div style="font-size: 0.72rem; color: #38BDF8; font-weight: 700; letter-spacing: 1px; margin-bottom: 6px;">
+                SLIDE 2: PEMBAGIAN BUDGET &amp; SISA HEMAT
+              </div>
+              <h4 style="font-size: 1.15rem; color: #fff; margin: 0 0 12px;">Uang untuk apa saja &amp; sisanya</h4>
+              <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.75rem;">
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 4px;">
+                  <span style="color:#C7C9E4;">Katering &amp; Jamuan (33%):</span>
+                  <strong style="color:#fff;">Rp 50.000.000 (Hemat Rp 2.000.000)</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 4px;">
+                  <span style="color:#C7C9E4;">Venue Ballroom &amp; Hotel (28%):</span>
+                  <strong style="color:#fff;">Rp 42.000.000 (Hemat Rp 3.000.000)</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 4px;">
+                  <span style="color:#C7C9E4;">Dekorasi, Pelaminan &amp; Sound (22%):</span>
+                  <strong style="color:#fff;">Rp 32.000.000 (Hemat Rp 1.000.000)</strong>
+                </div>
+                <div style="background: rgba(52, 211, 153, 0.15); border: 1px solid rgba(52, 211, 153, 0.3); border-radius: 6px; padding: 8px; display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                  <span style="color:#34D399; font-weight: 700;">Total sisa hemat:</span>
+                  <span style="color:#34D399; font-weight: 800; font-size: 0.95rem;">+Rp 7.500.000 (aman)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- SLIDE 3: MASTER RUNDOWN -->
+            <div id="deckSlide3" class="deck-slide-item" style="display: none;">
+              <div style="font-size: 0.72rem; color: #FCD34D; font-weight: 700; letter-spacing: 1px; margin-bottom: 6px;">
+                SLIDE 3: JADWAL HARI-H
+              </div>
+              <h4 style="font-size: 1.15rem; color: #fff; margin: 0 0 10px;">Jadwal dari pagi sampai sore</h4>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.72rem;">
+                <div style="background: rgba(255,255,255,0.04); padding: 8px; border-radius: 6px; border-left: 3px solid #38BDF8;">
+                  <strong style="color:#38BDF8;">04:30 - 08:00</strong>
+                  <div style="color:#fff; font-weight:600;">Persiapan, Loading &amp; Rias</div>
+                  <div style="color:#94A3B8; font-size:0.68rem;">WO, MUA, Sound, Dekorasi</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.04); padding: 8px; border-radius: 6px; border-left: 3px solid #34D399;">
+                  <strong style="color:#34D399;">08:00 - 10:30</strong>
+                  <div style="color:#fff; font-weight:600;">Acara inti &amp; sambutan</div>
+                  <div style="color:#94A3B8; font-size:0.68rem;">MC, tamu, foto</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.04); padding: 8px; border-radius: 6px; border-left: 3px solid #FCD34D;">
+                  <strong style="color:#FCD34D;">10:45 - 13:30</strong>
+                  <div style="color:#fff; font-weight:600;">Makan &amp; hiburan</div>
+                  <div style="color:#94A3B8; font-size:0.68rem;">MC, musik, 500 tamu</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.04); padding: 8px; border-radius: 6px; border-left: 3px solid #A78BFA;">
+                  <strong style="color:#A78BFA;">13:30 - 16:30</strong>
+                  <div style="color:#fff; font-weight:600;">Penutupan &amp; beres-beres</div>
+                  <div style="color:#94A3B8; font-size:0.68rem;">Bongkar alat &amp; serah terima</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SLIDE 4: KATERING & ESCROW -->
+            <div id="deckSlide4" class="deck-slide-item" style="display: none;">
+              <div style="font-size: 0.72rem; color: #34D399; font-weight: 700; letter-spacing: 1px; margin-bottom: 6px;">
+                SLIDE 4: MAKAN &amp; UANG AMAN
+              </div>
+              <h4 style="font-size: 1.15rem; color: #fff; margin: 0 0 10px;">Porsi cukup &amp; bayar aman</h4>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 10px;">
+                  <div style="font-size: 0.75rem; font-weight: 700; color: #FCD34D; margin-bottom: 4px;">Makan 60:40 + cadangan 10%</div>
+                  <p style="font-size: 0.7rem; color: #CBD5E1; margin: 0; line-height: 1.4;">
+                    60% makan utama + 40% stall + 10% cadangan. Tamu tidak kekurangan porsi.
+                  </p>
+                </div>
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 10px;">
+                  <div style="font-size: 0.75rem; font-weight: 700; color: #34D399; margin-bottom: 4px;">Uang ditahan aman 100%</div>
+                  <p style="font-size: 0.7rem; color: #CBD5E1; margin: 0; line-height: 1.4;">
+                    Uangmu disimpan aman dan baru diteruskan ke vendor kalau kamu sudah oke.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Footer Reassurance Tag -->
+        <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: #94A3B8;">
+          <span style="display: flex; align-items: center; gap: 6px;">
+            <i data-lucide="check-circle-2" style="width: 15px; height: 15px; color: var(--gold);"></i>
+            Format asli .xlsx (Excel/Sheets) &amp; .pdf (Slide 16:9)
+          </span>
+          <a href="{% url 'planner_wizard' %}" style="color: var(--gold); font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+            Unduh Template <i data-lucide="arrow-right" style="width: 15px; height: 15px;"></i>
+          </a>
+        </div>
+
+      </div>
+
+      <script>
+        function togglePreviewMode(mode) {
+          const btnExcel = document.getElementById('btnPreviewExcel');
+          const btnDeck = document.getElementById('btnPreviewDeck');
+          const viewExcel = document.getElementById('viewExcelPreview');
+          const viewDeck = document.getElementById('viewDeckPreview');
+
+          if (mode === 'excel') {
+            viewExcel.style.display = 'block';
+            viewDeck.style.display = 'none';
+            btnExcel.style.background = '#107C41';
+            btnExcel.style.color = '#ffffff';
+            btnExcel.style.boxShadow = '0 4px 12px rgba(16, 124, 65, 0.35)';
+            btnDeck.style.background = 'transparent';
+            btnDeck.style.color = '#94A3B8';
+            btnDeck.style.boxShadow = 'none';
+          } else {
+            viewExcel.style.display = 'none';
+            viewDeck.style.display = 'block';
+            btnDeck.style.background = '#D9A441';
+            btnDeck.style.color = '#1B1F3B';
+            btnDeck.style.boxShadow = '0 4px 12px rgba(217, 164, 65, 0.35)';
+            btnExcel.style.background = 'transparent';
+            btnExcel.style.color = '#94A3B8';
+            btnExcel.style.boxShadow = 'none';
+          }
+          if (window.lucide) lucide.createIcons();
+        }
+
+        function switchExcelSheet(sheetId) {
+          const sheets = ['sheet1', 'sheet2', 'sheet3', 'sheet4'];
+          const formulas = {
+            'sheet1': '=IF(SUM(E4:E17)>Pagu; "OVER BUDGET"; "SURPLUS / AMAN")',
+            'sheet2': '=XLOOKUP(CurrentTime; C4:C27; E4:E27; "Sesi Belum Mulai")',
+            'sheet3': '=ROUNDUP((Pax * 1.10) * 0.60; 0) & " Porsi Prasmanan"',
+            'sheet4': '=COUNTIF(StatusRange; "Ready") / COUNTA(ItemsRange)'
+          };
+
+          sheets.forEach(s => {
+            const content = document.getElementById('content' + s.charAt(0).toUpperCase() + s.slice(1));
+            const tab = document.getElementById('tab' + s.charAt(0).toUpperCase() + s.slice(1));
+            if (content && tab) {
+              if (s === sheetId) {
+                content.style.display = 'block';
+                tab.style.background = '#0f172a';
+                tab.style.color = '#38BDF8';
+                tab.style.borderTop = '2px solid #38BDF8';
+              } else {
+                content.style.display = 'none';
+                tab.style.background = 'transparent';
+                tab.style.color = '#94A3B8';
+                tab.style.borderTop = '2px solid transparent';
+              }
+            }
+          });
+
+          const formulaEl = document.getElementById('excelFormulaDisplay');
+          if (formulaEl && formulas[sheetId]) {
+            formulaEl.textContent = formulas[sheetId];
+          }
+          if (window.lucide) lucide.createIcons();
+        }
+
+        let currentDeckSlide = 1;
+        const totalDeckSlides = 4;
+
+        function navigateDeckSlide(direction) {
+          currentDeckSlide += direction;
+          if (currentDeckSlide < 1) currentDeckSlide = totalDeckSlides;
+          if (currentDeckSlide > totalDeckSlides) currentDeckSlide = 1;
+
+          for (let i = 1; i <= totalDeckSlides; i++) {
+            const slide = document.getElementById('deckSlide' + i);
+            if (slide) slide.style.display = (i === currentDeckSlide) ? 'block' : 'none';
+          }
+
+          const badge = document.getElementById('slideIndicatorBadge');
+          if (badge) badge.textContent = `Slide ${currentDeckSlide} dari ${totalDeckSlides}`;
+          if (window.lucide) lucide.createIcons();
+        }
+      </script>
+    </div>
+  </div>
+</section>
+
+<!-- Section 5: Client Reviews & Testimonials -->
+<section style="padding: 75px 20px; background: var(--paper);">
+  <div class="wrap" style="padding-top: 0; padding-bottom: 0;">
+    <div style="text-align: center; max-width: 680px; margin: 0 auto 48px;">
+      <div class="step-eyebrow">Pengalaman Klien</div>
+      <h2 style="font-size: 2.1rem; color: var(--ink); margin-bottom: 10px;">
+        Kisah Sukses & Ulasan Nyata Penyelenggara Acara
+      </h2>
+      <p style="color: var(--ink-soft); font-size: 0.96rem; line-height: 1.6;">
+        Dari pernikahan megah hingga rapat korporasi, kepuasan dan keamanan dana klien adalah prioritas nomor satu kami.
+      </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 24px;">
+      {% for rev in reviews %}
+        <div class="review-card">
+          <div>
+            <!-- Star Rating & Badge -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <div style="display: flex; gap: 4px; color: var(--gold);">
+                <i data-lucide="star" style="width: 16px; height: 16px; fill: var(--gold);"></i>
+                <i data-lucide="star" style="width: 16px; height: 16px; fill: var(--gold);"></i>
+                <i data-lucide="star" style="width: 16px; height: 16px; fill: var(--gold);"></i>
+                <i data-lucide="star" style="width: 16px; height: 16px; fill: var(--gold);"></i>
+                <i data-lucide="star" style="width: 16px; height: 16px; fill: var(--gold);"></i>
+              </div>
+              <span style="font-size: 0.75rem; background: var(--sage-soft); color: var(--sage); font-weight: 700; padding: 3px 8px; border-radius: 999px; display: inline-flex; align-items: center; gap: 4px;">
+                <i data-lucide="badge-check" style="width: 14px; height: 14px; flex-shrink: 0;"></i> Verified Event
+              </span>
+            </div>
+
+            <h4 style="font-size: 1.08rem; color: var(--ink); margin-bottom: 10px; line-height: 1.4;">
+              "{{ rev.title }}"
+            </h4>
+
+            <p style="color: var(--ink-soft); font-size: 0.88rem; line-height: 1.6; margin-bottom: 20px;">
+              "{{ rev.quote }}"
+            </p>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 12px; border-top: 1px solid var(--line); padding-top: 16px;">
+            <div style="width: 42px; height: 42px; border-radius: 50%; background: {{ rev.color }}; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0;">
+              {{ rev.avatar_initials }}
+            </div>
+            <div>
+              <div style="font-weight: 700; color: var(--ink); font-size: 0.92rem;">{{ rev.name }}</div>
+              <div style="font-size: 0.78rem; color: var(--ink-soft);">{{ rev.event_type }} &bull; {{ rev.city }}</div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Rating Summary Box -->
+    <div style="margin-top: 36px; background: #FFFFFF; border: 1.5px solid var(--line); border-radius: 14px; padding: 20px 28px; display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 20px;">
+      <div style="text-align: center;">
+        <div style="font-family: 'Fraunces', serif; font-size: 2rem; color: var(--ink); font-weight: 700;">4.95 / 5.0</div>
+        <div style="font-size: 0.8rem; color: var(--ink-soft);">Rata-rata Skor Klien</div>
+      </div>
+      <div style="height: 40px; width: 1px; background: var(--line);" class="hide-mobile"></div>
+      <div style="text-align: center;">
+        <div style="font-family: 'Fraunces', serif; font-size: 2rem; color: var(--gold-deep); font-weight: 700;">99.4%</div>
+        <div style="font-size: 0.8rem; color: var(--ink-soft);">Tingkat Kepuasan Acara</div>
+      </div>
+      <div style="height: 40px; width: 1px; background: var(--line);" class="hide-mobile"></div>
+      <div style="text-align: center;">
+        <div style="font-family: 'Fraunces', serif; font-size: 2rem; color: var(--sage); font-weight: 700;">100%</div>
+        <div style="font-size: 0.8rem; color: var(--ink-soft);">Jaminan Escrow Dicairkan Tepat Waktu</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section 6: Frequently Asked Questions (FAQ) -->
+<section style="padding: 75px 20px; background: #FFFFFF; border-top: 1px solid var(--line);">
+  <div class="wrap-narrow" style="padding-top: 0; padding-bottom: 0;">
+    <div style="text-align: center; max-width: 650px; margin: 0 auto 46px;">
+      <div class="step-eyebrow">Tanya Jawab</div>
+      <h2 style="font-size: 2.1rem; color: var(--ink); margin-bottom: 10px;">
+        Pertanyaan yang Sering Diajukan (FAQ)
+      </h2>
+      <p style="color: var(--ink-soft); font-size: 0.96rem; line-height: 1.6;">
+        Semua informasi penting tentang cara kerja Vendoraman, proteksi pembayaran, dan manfaat template planner kami.
+      </p>
+    </div>
+
+    <div class="faq-accordion">
+      {% for item in faqs %}
+        <div class="faq-item {% if forloop.first %}active{% endif %}" onclick="toggleFaq(this)">
+          <div class="faq-question">
+            <span>{{ item.q }}</span>
+            <i data-lucide="chevron-down" class="faq-icon" style="width: 20px; height: 20px;"></i>
+          </div>
+          <div class="faq-answer">
+            {{ item.a }}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div style="text-align: center; margin-top: 36px;">
+      <p style="font-size: 0.92rem; color: var(--ink-soft); margin-bottom: 14px;">
+        Punya pertanyaan lain yang belum terjawab di sini?
+      </p>
+      <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+        <a href="https://wa.me/62881023641280?text=Halo%20Vendoraman,%20saya%20mau%20tanya%20seputar%20layanan%20dan%20rekomendasi%20vendor." target="_blank" class="btn btn-gold btn-sm" style="background: #25D366; border-color: #25D366; color: #ffffff; display: inline-flex; align-items: center; gap: 6px;">
+          <i data-lucide="message-circle" style="width: 16px; height: 16px;"></i>
+          <span>Chat WhatsApp (+62 881-0236-41280)</span>
+        </a>
+        <a href="mailto:support@vendoraman.id" class="btn btn-outline btn-sm">
+          <i data-lucide="mail" style="width: 16px; height: 16px;"></i>
+          <span>Email: support@vendoraman.id</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section 7: Vendor Partnership Callout -->
+<section style="padding: 60px 20px; background: var(--paper-dim); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);">
+  <div class="wrap-narrow" style="padding-top: 0; padding-bottom: 0;">
+    <div class="panel" style="margin-bottom: 0; border-color: var(--gold); border-left: 5px solid var(--gold);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+        <div style="max-width: 540px;">
+          <div style="font-size: 0.8rem; font-weight: 700; color: var(--gold-deep); text-transform: uppercase; margin-bottom: 4px;">
+            Untuk Pemilik Usaha & Vendor
+          </div>
+          <h3 style="font-size: 1.45rem; color: var(--ink); margin-bottom: 8px;">
+            Tingkatkan Booking Acaramu Bersama Vendoraman
+          </h3>
+          <p style="color: var(--ink-soft); font-size: 0.9rem; line-height: 1.5;">
+            Dapatkan calon customer yang relevan dan terverifikasi di kotamu. Pendaftaran 100% gratis, kami hanya menerapkan sistem komisi platform 10% jika transaksi berhasil selesai.
+          </p>
+        </div>
+        <div>
+          <a href="{% url 'register_vendor' %}" class="btn btn-gold btn-lg">
+            <i data-lucide="store" style="width: 18px; height: 18px;"></i>
+            <span>Daftar Sebagai Mitra Vendor</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  function toggleFaq(element) {
+    // Toggle active class on the clicked FAQ item
+    const isActive = element.classList.contains('active');
+    
+    // Optional: close other items for clean accordion effect
+    document.querySelectorAll('.faq-item').forEach(item => {
+      item.classList.remove('active');
+    });
+
+    if (!isActive) {
+      element.classList.add('active');
+    }
+  }
+</script>
 {% endblock %}

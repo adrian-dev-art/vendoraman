@@ -1,271 +1,1077 @@
 {% extends 'base.html' %}
 
-{% block title %}Rekomendasi Vendor: {{ plan.title }} - Vendorama{% endblock %}
+{% block title %}Master Event Planner: {{ plan.title }} - Vendoraman{% endblock %}
 
 {% block content %}
-<div class="container" style="padding: 3rem 0;">
-  
-  <!-- Event Brief Header -->
-  <div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; border: none;">
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem;">
+<div class="wrap">
+
+  <!-- Results Head -->
+  <div class="results-head">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
       <div>
-        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-          <span class="badge badge-emerald">
-            <i data-lucide="check-circle-2"></i>
-            <span>Rencana Event Tersimpan</span>
-          </span>
-          <span class="badge {% if is_unlocked %}badge-primary{% else %}badge-slate{% endif %}">
-            {% if is_unlocked %}Akses Paid Planner Aktif{% else %}Mode Free Planner{% endif %}
-          </span>
-        </div>
-        <h1 style="font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.5rem;">
-          {{ plan.title }}
-        </h1>
-        <div style="display: flex; gap: 1.5rem; color: #cbd5e1; font-size: 0.925rem; flex-wrap: wrap;">
-          <span style="display: flex; align-items: center; gap: 0.4rem;">
-            <i data-lucide="calendar" style="width: 16px; height: 16px; color: #38bdf8;"></i>
-            {{ plan.event_date|date:"d F Y" }}
-          </span>
-          <span style="display: flex; align-items: center; gap: 0.4rem;">
-            <i data-lucide="map-pin" style="width: 16px; height: 16px; color: #38bdf8;"></i>
-            {{ plan.city }}
-          </span>
-          <span style="display: flex; align-items: center; gap: 0.4rem;">
-            <i data-lucide="users" style="width: 16px; height: 16px; color: #38bdf8;"></i>
-            {{ plan.estimated_pax }} Tamu
-          </span>
-          <span style="display: flex; align-items: center; gap: 0.4rem;">
-            <i data-lucide="wallet" style="width: 16px; height: 16px; color: #38bdf8;"></i>
-            Budget: Rp {{ plan.budget_min|floatformat:0 }} - Rp {{ plan.budget_max|floatformat:0 }}
-          </span>
+        <h2>{{ plan.title }}</h2>
+        <div class="meta" id="resultsMeta">
+          <span><b>{{ plan.event_category.name|default:"Event" }}</b></span>
+          <span>Anggaran <b>Rp {{ plan.budget_min|intdot }} – {{ plan.budget_max|intdot }}</b></span>
+          <span>Lokasi <b>{{ plan.city }}</b></span>
+          <span><b>{{ plan.estimated_pax }}</b> tamu</span>
+          <span>Tanggal <b>{{ plan.event_date|date:"d M Y" }}</b></span>
+          {% if planner_data %}
+            <span style="background: var(--gold-soft); color: var(--ink); padding: 2px 8px; border-radius: 999px; font-weight: 700;">
+              <i data-lucide="clock" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle;"></i>
+              H-{{ planner_data.days_left }} Hari Menuju Acara
+            </span>
+          {% endif %}
         </div>
       </div>
-
-      <!-- Action Button or Vault CTA -->
-      <div style="display: flex; gap: 0.75rem; align-items: center;">
-        <a href="{% url 'savings_list' %}" class="btn btn-secondary btn-sm" style="background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.2);">
-          <i data-lucide="piggy-bank"></i>
-          <span>Hubungkan ke Tabungan</span>
+      <div>
+        <a href="{% url 'planner_wizard' %}" class="edit-btn" style="display: inline-flex; align-items: center; gap: 6px;">
+          <i data-lucide="edit-3" style="width: 14px; height: 14px;"></i>
+          Ubah data konsultasi
         </a>
       </div>
     </div>
   </div>
 
-  <!-- Dual Planner Notice & Unlock Banner -->
-  {% if not is_unlocked %}
-    <div class="card" style="border: 2px solid var(--primary); background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%); margin-bottom: 2.5rem; padding: 2rem;">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
-        <div style="max-width: 700px;">
-          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-            <span class="badge badge-primary">
-              <i data-lucide="lock"></i>
-              <span>Anda Berada di Free Planner</span>
+  <!-- Paid Planner Unlocked: Export Toolbar -->
+  {% if is_unlocked %}
+    <div class="panel" style="border: 1.5px solid var(--gold); background: linear-gradient(135deg, #FAF8F2 0%, #F5EFE0 100%); padding: 18px 22px; margin-bottom: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+            <span style="background: var(--gold); color: var(--ink); font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
+              Paid Planner Aktif
+            </span>
+            <span style="font-size: 0.85rem; color: var(--ink-soft); font-weight: 500;">
+              Paket Ekspor Lengkap Siap Diunduh
             </span>
           </div>
-          <h3 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--text-primary);">
-            Buka Profil Lengkap & Kontak Resmi Seluruh Vendor
+          <h3 style="font-size: 1.2rem; color: var(--ink); margin-bottom: 2px;">
+            Event Kit: Master Excel & Executive Presentation Deck
           </h3>
-          <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5;">
-            Pada mode Free Planner, nama dan kontak vendor disamarkan demi menjaga kepatuhan sistem. Aktifkan <strong>Paid Planner</strong> hanya dengan <strong>Rp 150.000 (sekali bayar per event)</strong> untuk membuka seluruh identitas resmi, kontak PIC WhatsApp, serta mendapatkan hak booking dengan <strong>Garansi Finansial Escrow 100%</strong>.
+          <p style="font-size: 0.86rem; color: var(--ink-soft);">
+            File Excel (.xlsx) dilengkapi formula otomatis, conditional formatting, live countdown, simulator katering, dan checklist logistik 20 item fisik.
           </p>
         </div>
 
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <a href="{% url 'export_planner_excel' plan_id=plan.id %}" class="btn btn-outline" style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.88rem; font-weight: 600;">
+            <i data-lucide="file-spreadsheet" style="width: 16px; height: 16px; color: var(--sage);"></i>
+            <span>Unduh Excel (.xlsx)</span>
+          </a>
+          <a href="{% url 'export_planner_pdf' plan_id=plan.id %}" class="btn btn-outline" style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.88rem; font-weight: 600;">
+            <i data-lucide="file-text" style="width: 16px; height: 16px; color: var(--berry);"></i>
+            <span>Unduh PDF Deck (.pdf)</span>
+          </a>
+          <a href="{% url 'planner_deck' plan_id=plan.id %}" target="_blank" class="btn btn-berry" style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.88rem; font-weight: 600;">
+            <i data-lucide="presentation" style="width: 16px; height: 16px;"></i>
+            <span>Buka Slide Deck</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <!-- Free Planner Notice Banner with Export Teaser -->
+    <div class="panel" style="border: 2px solid var(--gold); background: var(--gold-soft); padding: 22px 24px; margin-bottom: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div style="max-width: 680px;">
+          <div style="font-size: 0.8rem; font-weight: 700; color: var(--gold-deep); text-transform: uppercase; margin-bottom: 4px;">
+            Akses Free Planner Aktif
+          </div>
+          <h3 style="font-size: 1.25rem; margin-bottom: 6px; color: var(--ink);">
+            Buka Profil Lengkap, Kontak Langsung PIC & Ekspor Master Event Kit
+          </h3>
+          <p style="font-size: 0.88rem; color: var(--ink-soft); line-height: 1.5; margin-bottom: 8px;">
+            Pada mode Free Planner, nama resmi dan kontak vendor disamarkan. Aktifkan <strong>Paid Planner</strong> hanya dengan <strong>Rp 150.000 (sekali bayar per event)</strong> untuk membuka:
+          </p>
+          <div style="display: flex; flex-wrap: wrap; gap: 12px; font-size: 0.82rem; color: var(--ink); font-weight: 600;">
+            <span style="display: inline-flex; align-items: center; gap: 5px;"><i data-lucide="check-circle-2" style="width: 14px; height: 14px; color: var(--sage);"></i> WhatsApp PIC & Profil Resmi</span>
+            <span style="display: inline-flex; align-items: center; gap: 5px;"><i data-lucide="check-circle-2" style="width: 14px; height: 14px; color: var(--sage);"></i> Ekspor Excel Multi-Tab Interaktif (Formula & Simulator)</span>
+            <span style="display: inline-flex; align-items: center; gap: 5px;"><i data-lucide="check-circle-2" style="width: 14px; height: 14px; color: var(--sage);"></i> Executive PDF Deck 16:9 Siap Presentasi Keluarga</span>
+          </div>
+        </div>
         <div>
           <form action="{% url 'unlock_planner' plan_id=plan.id %}" method="post">
             {% csrf_token %}
-            <button type="submit" class="btn btn-primary btn-lg" style="box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);">
-              <i data-lucide="unlock"></i>
-              <span>Beli Planner (Rp 150.000)</span>
+            <button type="submit" class="btn btn-gold btn-lg">
+              <i data-lucide="unlock" style="width: 18px; height: 18px;"></i>
+              Buka Planner (Rp {{ planner_fee|intdot }})
             </button>
           </form>
         </div>
       </div>
     </div>
-  {% else %}
-    <div class="card" style="border: 1px solid var(--emerald-border); background: var(--emerald-light); margin-bottom: 2.5rem; padding: 1.25rem 1.75rem;">
-      <div style="display: flex; align-items: center; gap: 0.75rem; color: var(--emerald);">
-        <i data-lucide="shield-check" style="width: 24px; height: 24px;"></i>
-        <div>
-          <div style="font-weight: 700; font-size: 1rem;">Akses Paid Planner Aktif</div>
-          <div style="font-size: 0.875rem; color: #065f46;">
-            Seluruh identitas resmi, nomor WhatsApp PIC, dan tombol pemesanan bergaransi Escrow telah terbuka untuk event ini.
-          </div>
-        </div>
-      </div>
-    </div>
   {% endif %}
 
-  <!-- Budget Allocation Recommendation -->
-  <div class="card" style="margin-bottom: 2.5rem;">
-    <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-      <i data-lucide="pie-chart" style="color: var(--primary);"></i>
-      <span>Rekomendasi Proporsi Alokasi Budget Anda</span>
-    </h3>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-      {% for name, amount in budget_allocations.items %}
-        <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-md);">
-          <div style="font-size: 0.825rem; color: var(--text-secondary); font-weight: 600;">{{ name }}</div>
-          <div style="font-size: 1.2rem; font-weight: 800; color: var(--text-primary); margin-top: 0.25rem;">
-            Rp {{ amount|floatformat:0 }}
+  <!-- Master Interactive Navigation Tabs -->
+  <div class="planner-nav-tabs">
+    <button class="nav-tab-btn active" data-target="tab-vendors">
+      <i data-lucide="store" style="width: 17px; height: 17px;"></i>
+      <span>Direktori Vendor ({{ vendors|length }})</span>
+    </button>
+    <button class="nav-tab-btn" data-target="tab-budget">
+      <i data-lucide="wallet" style="width: 17px; height: 17px;"></i>
+      <span>Budget & Pembayaran</span>
+    </button>
+    <button class="nav-tab-btn" data-target="tab-catering">
+      <i data-lucide="utensils" style="width: 17px; height: 17px;"></i>
+      <span>Hitung Katering</span>
+    </button>
+    <button class="nav-tab-btn" data-target="tab-timeline">
+      <i data-lucide="calendar-clock" style="width: 17px; height: 17px;"></i>
+      <span>Jadwal & Hitung Mundur</span>
+    </button>
+    <button class="nav-tab-btn" data-target="tab-logistics">
+      <i data-lucide="clipboard-check" style="width: 17px; height: 17px;"></i>
+      <span>Daftar Barang (20 Item)</span>
+    </button>
+  </div>
+
+  <!-- TAB 1: DIREKTORI VENDOR -->
+  <div class="tab-pane active" id="tab-vendors">
+    <!-- Filter & Sort Bar -->
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-pill selected" data-cat="all">Semua Kategori</button>
+      {% for cat in categories %}
+        <button class="filter-pill" data-cat="{{ cat.slug }}">{{ cat.name }}</button>
+      {% endfor %}
+    </div>
+
+    <div class="sort-row">
+      <span id="resultCount" style="font-weight: 600; color: var(--ink);">
+        {{ vendors|length }} vendor terkurasi ditemukan
+      </span>
+      <select id="sortSelect" aria-label="Urutkan Vendor">
+        <option value="match">Urutkan: paling cocok</option>
+        <option value="rating">Rating tertinggi</option>
+        <option value="events">Paling berpengalaman</option>
+      </select>
+    </div>
+
+    <!-- Vendor Grid -->
+    <div class="vendor-grid" id="vendorGridContainer">
+      {% for vendor in vendors %}
+        <div class="vendor-card" data-cat="{{ vendor.category.slug|default:'all' }}" data-rating="{{ vendor.rating }}" data-events="{{ vendor.total_completed_events }}">
+          <div class="vendor-top">
+            <div>
+              {% if is_unlocked %}
+                <div class="vendor-name">{{ vendor.business_name }}</div>
+                <div class="vendor-loc">{{ vendor.category.name }} &bull; {{ vendor.city }}</div>
+              {% else %}
+                <div class="vendor-name">Vendor Terverifikasi #{{ vendor.anonymized_code }}</div>
+                <div class="vendor-loc">{{ vendor.category.name }} &bull; {{ vendor.city }}</div>
+              {% endif %}
+            </div>
+            <span class="match-badge">Cocok kuat</span>
           </div>
+
+          <!-- Price Range or Starting Price -->
+          {% with first_pkg=vendor.packages.first %}
+            <div class="vendor-price">
+              {% if first_pkg %}
+                Rp {{ first_pkg.price|intdot }} <span>(Mulai dari paket {{ first_pkg.name }})</span>
+              {% else %}
+                Harga Menyesuaikan <span>(Hubungi vendor)</span>
+              {% endif %}
+            </div>
+          {% endwith %}
+
+          <div class="vendor-desc">
+            {{ vendor.description|truncatewords:24 }}
+          </div>
+
+          <div class="vendor-stats">
+            <span class="v-stat"><i data-lucide="star" style="width: 14px; height: 14px; color: var(--gold);"></i> <b>{{ vendor.rating }}</b> rating</span>
+            <span class="v-stat"><i data-lucide="calendar" style="width: 14px; height: 14px; color: var(--ink-soft);"></i> <b>{{ vendor.total_completed_events }}</b> event selesai</span>
+          </div>
+
+          {% if is_unlocked %}
+            <div class="unlocked-contact-box" style="background: var(--paper-dim); border-radius: 8px; padding: 10px 14px; margin: 12px 0; font-size: 0.85rem;">
+              <div style="font-weight: 600; color: var(--ink); margin-bottom: 2px;">
+                PIC: {{ vendor.pic_name }}
+              </div>
+              <div style="color: var(--berry); font-weight: 700;">
+                <i data-lucide="message-circle" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></i>
+                <a href="https://wa.me/{{ vendor.contact_phone }}" target="_blank" style="color: var(--berry); text-decoration: none;">
+                  WhatsApp: {{ vendor.contact_phone }}
+                </a>
+              </div>
+            </div>
+          {% else %}
+            <div class="locked-hint" style="font-size: 0.8rem; color: var(--ink-soft); font-style: italic; margin: 8px 0;">
+              Nama resmi, portofolio & kontak langsung PIC terbuka di Paid Planner.
+            </div>
+          {% endif %}
+
+          <div class="vendor-foot">
+            <a href="{% url 'vendor_detail' plan_id=plan.id vendor_id=vendor.id %}" class="btn-detail">
+              Lihat paket & ulasan
+            </a>
+            {% if is_unlocked %}
+              <a href="https://wa.me/{{ vendor.contact_phone }}" target="_blank" class="btn btn-sm btn-gold" style="display: inline-flex; align-items: center; gap: 4px;">
+                <i data-lucide="phone" style="width: 14px; height: 14px;"></i> Hubungi PIC
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      {% empty %}
+        <div style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--ink-soft);">
+          Belum ada vendor terverifikasi yang cocok dengan kriteria filter di kota ini.
         </div>
       {% endfor %}
     </div>
   </div>
 
-  <!-- Vendors Matching List -->
-  <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
-    <div>
-      <h2 style="font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em;">
-        Vendor Terkurasi yang Sesuai ({{ vendors|length }})
-      </h2>
-      <p style="font-size: 0.9rem; color: var(--text-secondary);">
-        Hanya menampilkan vendor yang telah lolos verifikasi ketat tim Vendorama.
+  <!-- TAB 2: ANGGARAN & ESCROW -->
+  <div class="tab-pane" id="tab-budget" style="display: none;">
+    <!-- 6 Executive KPI Cards -->
+    <div class="kpi-deck-grid">
+      <div class="kpi-stat-card">
+        <div class="label">Batas Budget Maksimal</div>
+        <div class="val">Rp {{ planner_data.pagu_max|intdot }}</div>
+        <div class="sub">Paling banyak yang bisa kamu belanjakan</div>
+      </div>
+      <div class="kpi-stat-card">
+        <div class="label">Perkiraan Total Belanja</div>
+        <div class="val" style="color: var(--ink);">Rp {{ planner_data.realisasi_total|intdot }}</div>
+        <div class="sub">Total semua vendor yang kamu pilih</div>
+      </div>
+      <div class="kpi-stat-card" style="background: var(--sage-soft); border-color: var(--sage);">
+        <div class="label" style="color: var(--sage);">Sisa Uang Kamu</div>
+        <div class="val" style="color: var(--sage);">Rp {{ planner_data.variance|intdot }}</div>
+        <div class="sub" style="color: var(--sage); font-weight: 600;">Uang yang belum kepakai — aman</div>
+      </div>
+      <div class="kpi-stat-card">
+        <div class="label">Budget Terpakai</div>
+        <div class="val">{{ planner_data.serapan_pct }}%</div>
+        <div class="sub">Berapa persen budget yang kepakai</div>
+      </div>
+      <div class="kpi-stat-card">
+        <div class="label">Biaya Per Tamu</div>
+        <div class="val">Rp {{ planner_data.cost_per_pax|intdot }}</div>
+        <div class="sub">Rata-rata biaya untuk 1 tamu</div>
+      </div>
+      <div class="kpi-stat-card">
+        <div class="label">Uang Muka Dibayar (30%)</div>
+        <div class="val" style="color: var(--gold-deep);">Rp {{ planner_data.dana_terbayar|intdot }}</div>
+        <div class="sub">Sisa yang belum dibayar: Rp {{ planner_data.sisa_kewajiban|intdot }}</div>
+      </div>
+    </div>
+
+    <!-- Master Budget Table -->
+    <div class="panel" style="padding: 24px; margin-bottom: 24px;">
+      <h3 style="font-size: 1.25rem; color: var(--ink); margin-bottom: 6px;">
+        Rincian Budget per Kategori
+      </h3>
+      <p style="font-size: 0.88rem; color: var(--ink-soft); margin-bottom: 18px;">
+        Budget dibagi per kebutuhan. Cara bayar: 30% uang muka saat booking, 40% saat persiapan (H-3), 30% pelunasan di hari-H. Uangmu ditahan aman dan baru diteruskan ke vendor kalau kamu setuju.
       </p>
+
+      <div style="overflow-x: auto;">
+        <table class="data-table" style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background: var(--ink); color: #fff; font-size: 0.82rem; text-transform: uppercase;">
+              <th style="padding: 12px 14px; text-align: left;">Untuk Apa</th>
+              <th style="padding: 12px 14px; text-align: center;">Bagian (%)</th>
+              <th style="padding: 12px 14px; text-align: right;">Budget Awal</th>
+              <th style="padding: 12px 14px; text-align: right;">Perkiraan Biaya</th>
+              <th style="padding: 12px 14px; text-align: center;">Hemat?</th>
+              <th style="padding: 12px 14px; text-align: right;">Bayar 1 (30%)</th>
+              <th style="padding: 12px 14px; text-align: right;">Bayar 2 (40%)</th>
+              <th style="padding: 12px 14px; text-align: right;">Bayar 3 (30%)</th>
+              <th style="padding: 12px 14px; text-align: center;">Status Bayar</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in planner_data.financial_breakdown %}
+              <tr style="border-bottom: 1px solid var(--line); font-size: 0.88rem;">
+                <td style="padding: 14px;"><strong>{{ item.name }}</strong></td>
+                <td style="padding: 14px; text-align: center;">{{ item.pct }}%</td>
+                <td style="padding: 14px; text-align: right;">Rp {{ item.plan|intdot }}</td>
+                <td style="padding: 14px; text-align: right; font-weight: 700; color: var(--berry);">Rp {{ item.actual|intdot }}</td>
+                <td style="padding: 14px; text-align: center;">
+                  <span class="badge-vetted" style="background: var(--sage-soft); color: var(--sage); font-size: 0.76rem;">
+                    Sesuai Target
+                  </span>
+                </td>
+                <td style="padding: 14px; text-align: right;">Rp {{ item.dp|intdot }}</td>
+                <td style="padding: 14px; text-align: right;">Rp {{ item.mid|intdot }}</td>
+                <td style="padding: 14px; text-align: right;">Rp {{ item.fin|intdot }}</td>
+                <td style="padding: 14px; text-align: center;">
+                  <span style="display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; background: var(--paper-dim); color: var(--ink);">
+                    {{ item.status }}
+                  </span>
+                </td>
+              </tr>
+            {% endfor %}
+            <tr style="background: var(--paper-dim); font-weight: 700; font-size: 0.92rem;">
+              <td style="padding: 14px;">TOTAL KESELURUHAN</td>
+              <td style="padding: 14px; text-align: center;">100%</td>
+              <td style="padding: 14px; text-align: right;">Rp {{ planner_data.pagu_max|intdot }}</td>
+              <td style="padding: 14px; text-align: right; color: var(--ink);">Rp {{ planner_data.realisasi_total|intdot }}</td>
+              <td style="padding: 14px; text-align: center; color: var(--sage);">TOTAL SURPLUS</td>
+              <td style="padding: 14px; text-align: right;">Rp {{ planner_data.dana_terbayar|intdot }}</td>
+              <td style="padding: 14px; text-align: right;">-</td>
+              <td style="padding: 14px; text-align: right;">-</td>
+              <td style="padding: 14px; text-align: center; color: var(--sage);">100% Escrow</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-    {% for vendor in vendors %}
-      <div class="card {% if not is_unlocked %}masked-vendor-card{% endif %}">
-        <div class="card-header">
+  <!-- TAB 3: KALKULATOR KATERING INTERAKTIF -->
+  <div class="tab-pane" id="tab-catering" style="display: none;">
+    <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; margin-bottom: 24px;">
+      <!-- Simulator Form Column -->
+      <div class="panel" style="padding: 24px;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+          <span style="background: var(--berry-soft); color: var(--berry); font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 6px;">
+            Simulator Real-Time
+          </span>
+          <span style="font-size: 0.85rem; color: var(--ink-soft); font-weight: 600;">
+            Ubah Angka & Formula Bergerak Otomatis
+          </span>
+        </div>
+        <h3 style="font-size: 1.25rem; color: var(--ink); margin-bottom: 16px;">
+          Parameter Kehadiran Tamu Undangan
+        </h3>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
           <div>
-            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
-              <span class="badge badge-emerald">
-                <i data-lucide="badge-check"></i>
-                <span>Vetted by Vendorama</span>
-              </span>
-              <span class="badge badge-slate">{{ vendor.category.name }}</span>
-              <span class="badge badge-primary">{{ vendor.city }}</span>
-            </div>
-
-            <!-- Business Name: Masked if Free, Full if Paid -->
-            {% if is_unlocked %}
-              <h3 style="font-size: 1.5rem; font-weight: 800; color: var(--text-primary);">
-                {{ vendor.business_name }}
-              </h3>
-              <div style="display: flex; gap: 1rem; font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">
-                <span style="display: flex; align-items: center; gap: 0.35rem;">
-                  <i data-lucide="user" style="width: 14px; height: 14px;"></i>
-                  PIC: {{ vendor.pic_name }}
-                </span>
-                <span style="display: flex; align-items: center; gap: 0.35rem;">
-                  <i data-lucide="phone" style="width: 14px; height: 14px; color: var(--emerald);"></i>
-                  {{ vendor.contact_phone }}
-                </span>
-                <span style="display: flex; align-items: center; gap: 0.35rem;">
-                  <i data-lucide="mail" style="width: 14px; height: 14px;"></i>
-                  {{ vendor.contact_email }}
-                </span>
-              </div>
-            {% else %}
-              <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--text-primary);">
-                Vendor Terverifikasi #{{ vendor.anonymized_code }}
-              </h3>
-              <div style="display: flex; gap: 1rem; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">
-                <span>Kontak: <span class="blurred-field">0812-XXXX-XXXX</span></span>
-                <span>PIC: <span class="blurred-field">Nama PIC Dirahasiakan</span></span>
-                <span>Alamat: <span class="blurred-field">Alamat Lengkap Studio</span></span>
-              </div>
-            {% endif %}
+            <label style="display: block; font-size: 0.84rem; font-weight: 600; color: var(--ink); margin-bottom: 6px;">
+              Jumlah Undangan Fisik (Lembar Cetak)
+            </label>
+            <input type="number" id="inputPhysInv" value="{{ planner_data.catering.phys_inv }}" min="0" step="10" class="form-control" style="width: 100%; padding: 10px 14px; border: 1.5px solid var(--gold); border-radius: 8px; font-weight: 700; background: #FFFDF8;">
+            <small style="font-size: 0.75rem; color: var(--ink-soft);">Dikalikan rasio rata-rata 2 orang hadir per lembar</small>
           </div>
 
-          <!-- Rating & Stats -->
-          <div style="text-align: right;">
-            <div style="display: flex; align-items: center; gap: 0.35rem; justify-content: flex-end; font-weight: 800; font-size: 1.15rem; color: var(--text-primary);">
-              <i data-lucide="star" style="width: 18px; height: 18px; fill: #f59e0b; color: #f59e0b;"></i>
-              <span>{{ vendor.rating }}</span>
-              <span style="font-size: 0.85rem; font-weight: 500; color: var(--text-muted);">/ 5.0</span>
+          <div>
+            <label style="display: block; font-size: 0.84rem; font-weight: 600; color: var(--ink); margin-bottom: 6px;">
+              Jumlah Undangan Digital / Broadcast E-Invitation
+            </label>
+            <input type="number" id="inputDigInv" value="{{ planner_data.catering.dig_inv }}" min="0" step="10" class="form-control" style="width: 100%; padding: 10px 14px; border: 1.5px solid var(--gold); border-radius: 8px; font-weight: 700; background: #FFFDF8;">
+            <small style="font-size: 0.75rem; color: var(--ink-soft);">Dikalikan rasio rata-rata kehadiran 1.5 orang per tautan</small>
+          </div>
+
+          <div>
+            <label style="display: flex; justify-content: space-between; font-size: 0.84rem; font-weight: 600; color: var(--ink); margin-bottom: 6px;">
+              <span>Buffer Cadangan Panitia & Kru Lapangan (%)</span>
+              <span id="labelBufferPct" style="color: var(--berry); font-weight: 700;">10%</span>
+            </label>
+            <input type="range" id="inputBufferPct" min="5" max="25" step="1" value="10" style="width: 100%; cursor: pointer;">
+            <small style="font-size: 0.75rem; color: var(--ink-soft);">Standar aman Wedding Organizer adalah 10% dari tamu hadir</small>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 8px; border-top: 1px solid var(--line); padding-top: 14px;">
+            <div>
+              <label style="display: block; font-size: 0.82rem; font-weight: 600; color: var(--ink); margin-bottom: 4px;">
+                Harga Paket Prasmanan/Pax (Rp)
+              </label>
+              <input type="number" id="inputBuffetPrice" value="95000" step="5000" class="form-control" style="width: 100%; padding: 8px 12px; border: 1.5px solid var(--line); border-radius: 8px; font-weight: 700;">
             </div>
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">
-              {{ vendor.total_completed_events }} Event Terselesaikan
+            <div>
+              <label style="display: block; font-size: 0.82rem; font-weight: 600; color: var(--ink); margin-bottom: 4px;">
+                Harga Rata-rata Stall/Porsi (Rp)
+              </label>
+              <input type="number" id="inputStallPrice" value="25000" step="2500" class="form-control" style="width: 100%; padding: 8px 12px; border: 1.5px solid var(--line); border-radius: 8px; font-weight: 700;">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Calculation Results Column -->
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="panel" style="background: linear-gradient(135deg, #1B1F3B 0%, #2A3056 100%); color: #fff; padding: 24px;">
+          <div style="font-size: 0.8rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+            TOTAL PAKET MAKANAN YANG DIBUTUHKAN
+          </div>
+          <div style="font-family: 'Fraunces', serif; font-size: 2.5rem; font-weight: 700; color: #fff; line-height: 1.1;" id="calcTotalPorsi">
+            {{ planner_data.catering.total_porsi }} Pax
+          </div>
+          <div style="font-size: 0.85rem; color: #B7BAD6; margin-top: 6px;" id="calcTamuDetail">
+            Pesan untuk ({{ planner_data.catering.tamu_calc }} tamu + {{ planner_data.catering.buffer_pax }} cadangan)
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="panel" style="padding: 16px;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--ink-soft); text-transform: uppercase;">PRASMANAN (60%)</div>
+            <div style="font-size: 1.35rem; font-weight: 700; color: var(--ink); margin: 4px 0;" id="calcBuffetPortions">
+              {{ planner_data.catering.buffet_portions }} Porsi
+            </div>
+            <div style="font-size: 0.78rem; color: var(--ink-soft);" id="calcBuffetCost">
+              Rp {{ planner_data.catering.subtotal_buffet|intdot }}
+            </div>
+          </div>
+
+          <div class="panel" style="padding: 16px;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--ink-soft); text-transform: uppercase;">GUBUKAN / STALL (40% x 4)</div>
+            <div style="font-size: 1.35rem; font-weight: 700; color: var(--ink); margin: 4px 0;" id="calcStallPortions">
+              {{ planner_data.catering.stall_portions }} Porsi
+            </div>
+            <div style="font-size: 0.78rem; color: var(--ink-soft);" id="calcStallCost">
+              Rp {{ planner_data.catering.subtotal_stall|intdot }}
             </div>
           </div>
         </div>
 
-        <!-- Description -->
-        <p style="color: var(--text-secondary); font-size: 0.925rem; margin-bottom: 1.25rem; line-height: 1.6;">
-          {{ vendor.description }}
-        </p>
-
-        <!-- Packages List -->
-        <div style="border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
-          <div style="font-size: 0.875rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.75rem;">
-            Paket & Spesifikasi yang Tersedia:
-          </div>
-
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
-            {% for pkg in vendor.packages.all %}
-              <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem; background: var(--bg-surface);">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-                  <div style="font-weight: 700; font-size: 1rem; color: var(--text-primary);">{{ pkg.name }}</div>
-                  <span class="badge badge-slate">{{ pkg.pax_capacity }} Pax</span>
-                </div>
-                <div style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 0.75rem;">
-                  Rp {{ pkg.price|floatformat:0 }}
-                </div>
-                
-                <div style="font-size: 0.825rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 1rem;">
-                  <strong>Spesifikasi:</strong>
-                  <ul style="margin: 0.35rem 0 0 1rem;">
-                    {% for spec in pkg.get_spec_list %}
-                      <li>{{ spec }}</li>
-                    {% endfor %}
-                  </ul>
-                </div>
-
-                {% if is_unlocked %}
-                  <a href="{% url 'escrow_checkout' %}?package_id={{ pkg.id }}&plan_id={{ plan.id }}" class="btn btn-emerald btn-sm" style="width: 100%;">
-                    <i data-lucide="shield-check"></i>
-                    <span>Booking via Escrow (3 Termin)</span>
-                  </a>
-                {% else %}
-                  <a href="{% url 'vendor_detail' plan_id=plan.id vendor_id=vendor.id %}" class="btn btn-secondary btn-sm" style="width: 100%;">
-                    <i data-lucide="eye"></i>
-                    <span>Lihat Rincian Spesifikasi</span>
-                  </a>
-                {% endif %}
+        <div class="panel" style="padding: 18px; background: var(--sage-soft); border-color: var(--sage);">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 0.78rem; font-weight: 700; color: var(--sage); text-transform: uppercase;">TOTAL BIAYA MAKANAN</div>
+              <div style="font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 700; color: var(--sage);" id="calcTotalFoodCost">
+                Rp {{ planner_data.catering.total_food_cost|intdot }}
               </div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 0.75rem; color: var(--ink-soft); text-transform: uppercase;">BIAYA MAKAN PER TAMU</div>
+              <div style="font-size: 1.15rem; font-weight: 700; color: var(--ink);" id="calcCostPerPax">
+                Rp {{ planner_data.catering.food_cost_per_pax|intdot }} / Tamu
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sensitivity Matrix & Facilities -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+      <!-- Sensitivity Scenarios Table -->
+      <div class="panel" style="padding: 20px;">
+        <h4 style="font-size: 1.1rem; color: var(--ink); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+          <i data-lucide="sliders-horizontal" style="width: 16px; height: 16px; color: var(--gold-deep);"></i>
+          Analisis: kalau tamu lebih sedikit / lebih banyak (3 contoh)
+        </h4>
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+          <thead>
+            <tr style="border-bottom: 2px solid var(--line); text-align: left; color: var(--ink-soft); font-size: 0.78rem;">
+              <th style="padding: 8px 6px;">Skenario</th>
+              <th style="padding: 8px 6px; text-align: center;">Tamu</th>
+              <th style="padding: 8px 6px; text-align: right;">Total Biaya</th>
+            </tr>
+          </thead>
+          <tbody id="sensitivityTableBody">
+            {% for s in planner_data.catering.scenarios %}
+              <tr style="border-bottom: 1px solid var(--line);">
+                <td style="padding: 10px 6px;">
+                  <strong>{{ s.name }}</strong>
+                  <div style="font-size: 0.75rem; color: var(--ink-soft);">{{ s.desc }}</div>
+                </td>
+                <td style="padding: 10px 6px; text-align: center; font-weight: 700;">{{ s.pax }} Pax</td>
+                <td style="padding: 10px 6px; text-align: right; font-weight: 700; color: var(--berry);">Rp {{ s.cost|intdot }}</td>
+              </tr>
             {% endfor %}
-          </div>
-        </div>
-
-        <!-- Bottom Actions -->
-        <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px dashed var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-          <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--emerald);">
-            <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i>
-            <span>Transaksi Dilindungi Rekening Bersama Escrow Vendorama</span>
-          </div>
-
-          {% if not is_unlocked %}
-            <form action="{% url 'unlock_planner' plan_id=plan.id %}" method="post">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-primary btn-sm">
-                <i data-lucide="unlock"></i>
-                <span>Beli Planner untuk Buka Profil & Kontak</span>
-              </button>
-            </form>
-          {% else %}
-            <a href="{% url 'vendor_detail' plan_id=plan.id vendor_id=vendor.id %}" class="btn btn-secondary btn-sm">
-              <i data-lucide="external-link"></i>
-              <span>Profil Lengkap & Portofolio</span>
-            </a>
-          {% endif %}
-        </div>
+          </tbody>
+        </table>
       </div>
-    {% empty %}
-      <div class="card" style="text-align: center; padding: 3rem;">
-        <i data-lucide="search-x" style="width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 1rem;"></i>
-        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Tidak Ada Vendor yang Cocok</h3>
-        <p style="color: var(--text-secondary); font-size: 0.925rem; margin-bottom: 1.5rem;">
-          Coba sesuaikan rentang budget atau ubah kategori layanan event Anda.
-        </p>
-        <a href="{% url 'planner_wizard' %}" class="btn btn-primary">
-          <i data-lucide="refresh-cw"></i>
-          <span>Ulangi Pencarian Wizard</span>
-        </a>
+
+      <!-- Facilities & Logistics Table -->
+      <div class="panel" style="padding: 20px;">
+        <h4 style="font-size: 1.1rem; color: var(--ink); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+          <i data-lucide="layout-grid" style="width: 16px; height: 16px; color: var(--sage);"></i>
+          Estimasi Kebutuhan Kursi, Meja & Parkir
+        </h4>
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+          <thead>
+            <tr style="border-bottom: 2px solid var(--line); text-align: left; color: var(--ink-soft); font-size: 0.78rem;">
+              <th style="padding: 8px 6px;">Kebutuhan Fasilitas</th>
+              <th style="padding: 8px 6px; text-align: center;">Kuantitas</th>
+              <th style="padding: 8px 6px; text-align: left;">Keterangan</th>
+            </tr>
+          </thead>
+          <tbody id="facilitiesTableBody">
+            {% for f in planner_data.catering.facilities %}
+              <tr style="border-bottom: 1px solid var(--line);">
+                <td style="padding: 10px 6px;"><strong>{{ f.item }}</strong></td>
+                <td style="padding: 10px 6px; text-align: center; font-weight: 700; color: var(--ink);">{{ f.qty }} {{ f.unit }}</td>
+                <td style="padding: 10px 6px; font-size: 0.78rem; color: var(--ink-soft);">{{ f.note }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
-    {% endfor %}
+    </div>
   </div>
+
+  <!-- TAB 4: TARGET TIMELINE & COUNTDOWN -->
+  <div class="tab-pane" id="tab-timeline" style="display: none;">
+    <!-- Countdown Header Card -->
+    <div class="panel" style="background: linear-gradient(135deg, #1B1F3B 0%, #2A3056 100%); color: #fff; padding: 26px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+      <div>
+          <div style="font-size: 0.82rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+           Hitung mundur acara
+         </div>
+        <h3 style="font-size: 1.8rem; color: #fff; font-family: 'Fraunces', serif;">
+          {{ planner_data.days_left }} Hari Menuju Hari-H
+        </h3>
+        <p style="color: #B7BAD6; font-size: 0.88rem; margin-top: 4px;">
+          Tanggal Acara: <strong>{{ plan.event_date|date:"l, d F Y" }}</strong> &bull; Lokasi: <strong>{{ plan.city }}</strong>
+        </p>
+      </div>
+      <div style="text-align: right;">
+        <span class="badge-vetted" style="background: rgba(92, 122, 94, 0.3); color: #8BE490; font-size: 0.9rem; padding: 8px 16px;">
+          Persiapan Terstruktur
+        </span>
+      </div>
+    </div>
+
+    <!-- Multi-tier Sections -->
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+      <!-- 1. Target Bulanan -->
+      <div class="panel" style="padding: 24px;">
+        <h3 style="font-size: 1.2rem; color: var(--ink); margin-bottom: 4px;">
+          1. Apa yang harus selesai tiap bulan (6 sampai 2 bulan sebelum acara)
+        </h3>
+        <p style="font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 16px;">Langkah awal: kunci gedung, pilih vendor, tentukan tema acara.</p>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          {% for t in planner_data.timeline.monthly %}
+            <div style="background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+              <div style="max-width: 750px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                  <span style="background: var(--ink); color: #fff; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 4px;">{{ t.code }}</span>
+                  <span style="font-size: 0.82rem; color: var(--ink-soft);">{{ t.period }} &bull; PIC: <strong>{{ t.pic }}</strong></span>
+                </div>
+                <div style="font-size: 0.95rem; font-weight: 700; color: var(--ink); margin-bottom: 2px;">{{ t.title }}</div>
+                <div style="font-size: 0.84rem; color: var(--ink-soft);">{{ t.desc }}</div>
+              </div>
+              <div>
+                <span class="badge-vetted" style="font-size: 0.8rem; {% if t.status == 'Selesai' %}background: var(--sage-soft); color: var(--sage);{% elif t.status == 'Dalam Proses' %}background: var(--gold-soft); color: var(--gold-deep);{% else %}background: var(--paper-dim); color: var(--ink-soft);{% endif %}">
+                  {{ t.status }}
+                </span>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- 2. Target Mingguan -->
+      <div class="panel" style="padding: 24px;">
+        <h3 style="font-size: 1.2rem; color: var(--ink); margin-bottom: 4px;">
+          2. Apa yang harus selesai tiap minggu (4 minggu terakhir)
+        </h3>
+        <p style="font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 16px;">Ketemu semua vendor, hitung tamu yang pasti datang, kunci jumlah porsi katering.</p>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          {% for t in planner_data.timeline.weekly %}
+            <div style="background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+              <div style="max-width: 750px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                  <span style="background: var(--gold-deep); color: #fff; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 4px;">{{ t.code }}</span>
+                  <span style="font-size: 0.82rem; color: var(--ink-soft);">{{ t.period }} &bull; PIC: <strong>{{ t.pic }}</strong></span>
+                </div>
+                <div style="font-size: 0.95rem; font-weight: 700; color: var(--ink); margin-bottom: 2px;">{{ t.title }}</div>
+                <div style="font-size: 0.84rem; color: var(--ink-soft);">{{ t.desc }}</div>
+              </div>
+              <div>
+                <span class="badge-vetted" style="font-size: 0.8rem; background: var(--paper-dim); color: var(--ink-soft);">
+                  {{ t.status }}
+                </span>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- 3. Target Harian -->
+      <div class="panel" style="padding: 24px;">
+        <h3 style="font-size: 1.2rem; color: var(--ink); margin-bottom: 4px;">
+          3. Apa yang harus selesai tiap hari (7 sampai 1 hari sebelum acara)
+        </h3>
+        <p style="font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 16px;">Cek barang, latihan di gedung, dan masukkan dekorasi.</p>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          {% for t in planner_data.timeline.daily %}
+            <div style="background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+              <div style="max-width: 750px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                  <span style="background: var(--berry); color: #fff; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 4px;">{{ t.code }}</span>
+                  <span style="font-size: 0.82rem; color: var(--ink-soft);">{{ t.period }} &bull; PIC: <strong>{{ t.pic }}</strong></span>
+                </div>
+                <div style="font-size: 0.95rem; font-weight: 700; color: var(--ink); margin-bottom: 2px;">{{ t.title }}</div>
+                <div style="font-size: 0.84rem; color: var(--ink-soft);">{{ t.desc }}</div>
+              </div>
+              <div>
+                <span class="badge-vetted" style="font-size: 0.8rem; background: var(--paper-dim); color: var(--ink-soft);">
+                  {{ t.status }}
+                </span>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- 4. Master Rundown Hari-H -->
+      <div class="panel" style="padding: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+          <div>
+            <h3 style="font-size: 1.25rem; color: var(--ink); margin-bottom: 4px;">
+              4. Jadwal lengkap di hari-H (24 acara dari pagi sampai sore)
+            </h3>
+            <p style="font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 0;">
+              Jadwal detail dari jam 04.30 pagi sampai beres-beres jam 16.30.
+            </p>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="rundownPhaseFilters">
+            <button type="button" class="btn btn-sm btn-berry" onclick="filterRundown('all', this)" style="padding: 4px 12px; font-size: 0.78rem;">Semua Fase (24)</button>
+            <button type="button" class="btn btn-sm btn-outline" onclick="filterRundown('F1', this)" style="padding: 4px 10px; font-size: 0.78rem;">Subuh & Loading</button>
+            <button type="button" class="btn btn-sm btn-outline" onclick="filterRundown('F3', this)" style="padding: 4px 10px; font-size: 0.78rem;">Akad Sakral</button>
+            <button type="button" class="btn btn-sm btn-outline" onclick="filterRundown('F5', this)" style="padding: 4px 10px; font-size: 0.78rem;">Kirab Resepsi</button>
+            <button type="button" class="btn btn-sm btn-outline" onclick="filterRundown('F6', this)" style="padding: 4px 10px; font-size: 0.78rem;">Prasmanan & Foto</button>
+            <button type="button" class="btn btn-sm btn-outline" onclick="filterRundown('F8', this)" style="padding: 4px 10px; font-size: 0.78rem;">Teardown & Escrow</button>
+          </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.86rem;" id="rundownTable">
+            <thead>
+              <tr style="background: var(--ink); color: #fff; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                <th style="padding: 12px 10px; text-align: center; width: 45px;">No</th>
+                <th style="padding: 12px 14px; text-align: left; width: 130px;">Waktu & Durasi</th>
+                <th style="padding: 12px 14px; text-align: left; width: 140px;">Fase Acara</th>
+                <th style="padding: 12px 14px; text-align: left;">Sesi / Agenda Acara</th>
+                <th style="padding: 12px 14px; text-align: left; width: 130px;">Lokasi</th>
+                <th style="padding: 12px 14px; text-align: left; width: 150px;">PIC Pelaksana</th>
+                <th style="padding: 12px 14px; text-align: left; width: 220px;">Cue Audio & Wardrobe</th>
+                <th style="padding: 12px 14px; text-align: left; width: 220px;">Instruksi SOP Lapangan</th>
+                <th style="padding: 12px 10px; text-align: center; width: 95px;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in planner_data.timeline.rundown %}
+                <tr class="rundown-row" data-phase="{{ r.phase_code }}" style="border-bottom: 1px solid var(--line); transition: background 0.15s ease;">
+                  <td style="padding: 12px 8px; text-align: center; font-weight: 700; color: var(--ink-soft); font-size: 0.82rem;">{{ r.num }}</td>
+                  <td style="padding: 12px 14px; white-space: nowrap;">
+                    <div style="font-weight: 700; color: var(--berry);">{{ r.time }}</div>
+                    <span style="font-size: 0.74rem; background: var(--paper-dim); color: var(--ink-soft); padding: 1px 6px; border-radius: 4px; display: inline-block; margin-top: 2px;">{{ r.duration }}</span>
+                  </td>
+                  <td style="padding: 12px 14px;">
+                    <span style="font-size: 0.74rem; font-weight: 700; padding: 3px 8px; border-radius: 4px; display: inline-block;
+                      {% if r.phase_code == 'F1' %}background: #E8EDF5; color: #1B1F3B;
+                      {% elif r.phase_code == 'F2' or r.phase_code == 'F3' %}background: #FDF2E9; color: #B45309;
+                      {% elif r.phase_code == 'F4' %}background: #F3E8FF; color: #6B21A8;
+                      {% elif r.phase_code == 'F5' or r.phase_code == 'F6' %}background: #FCE7F3; color: #9D174D;
+                      {% elif r.phase_code == 'F7' %}background: #FEF3C7; color: #92400E;
+                      {% else %}background: #E6F4EA; color: #137333;{% endif %}">
+                      {{ r.phase }}
+                    </span>
+                  </td>
+                  <td style="padding: 12px 14px;">
+                    <strong style="color: var(--ink); font-size: 0.92rem;">{{ r.title }}</strong>
+                  </td>
+                  <td style="padding: 12px 14px; color: var(--ink-soft); font-size: 0.84rem;">
+                    <i data-lucide="map-pin" style="width: 12px; height: 12px; display: inline-block; vertical-align: -2px; color: var(--gold-deep);"></i>
+                    {{ r.location }}
+                  </td>
+                  <td style="padding: 12px 14px;">
+                    <strong style="font-size: 0.84rem; color: var(--ink);">{{ r.pic }}</strong>
+                  </td>
+                  <td style="padding: 12px 14px; font-size: 0.8rem; color: var(--ink-soft); line-height: 1.4;">
+                    <div><i data-lucide="volume-2" style="width: 12px; height: 12px; display: inline-block; vertical-align: -1px; color: var(--berry);"></i> {{ r.audio_cue }}</div>
+                    {% if r.wardrobe and r.wardrobe != '-' %}
+                      <div style="margin-top: 3px;"><i data-lucide="sparkles" style="width: 12px; height: 12px; display: inline-block; vertical-align: -1px; color: var(--gold-deep);"></i> {{ r.wardrobe }}</div>
+                    {% endif %}
+                  </td>
+                  <td style="padding: 12px 14px; color: var(--ink-soft); font-size: 0.82rem; line-height: 1.4;">
+                    {{ r.notes }}
+                  </td>
+                  <td style="padding: 12px 8px; text-align: center;">
+                    <span style="font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+                      {% if r.status == 'Selesai' %}background: #D1E7DD; color: #0F5132;
+                      {% elif r.status == 'Dalam Proses' %}background: #FFF3CD; color: #664D03;
+                      {% else %}background: #F8D7DA; color: #842029;{% endif %}">
+                      {{ r.status }}
+                    </span>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 5: CHECKLIST LOGISTIK & ALAT -->
+  <div class="tab-pane" id="tab-logistics" style="display: none;">
+    <!-- Readiness KPI Bar -->
+    <div class="panel" style="padding: 22px 26px; margin-bottom: 24px; border-left: 6px solid var(--sage);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 12px;">
+        <div>
+          <h3 style="font-size: 1.25rem; color: var(--ink); margin-bottom: 2px;">
+            Daftar Barang yang Harus Disiapkan
+          </h3>
+          <p style="font-size: 0.85rem; color: var(--ink-soft);">
+            Centang barang yang sudah siap supaya tahu progres persiapan hari-H.
+          </p>
+        </div>
+        <div style="text-align: right;">
+          <span style="font-size: 0.82rem; font-weight: 700; color: var(--ink-soft); text-transform: uppercase;">STATUS KESIAPAN:</span>
+          <div style="font-size: 1.25rem; font-weight: 700; color: var(--sage);" id="logisticsSummaryText">
+            18 / 20 Item Siap (90%)
+          </div>
+        </div>
+      </div>
+      <!-- Progress Bar -->
+      <div style="background: var(--paper-dim); border-radius: 999px; height: 10px; overflow: hidden; width: 100%;">
+        <div id="logisticsProgressBar" style="background: var(--sage); height: 100%; width: 90%; transition: width 0.3s ease;"></div>
+      </div>
+    </div>
+
+    <!-- Checklist Table -->
+    <div class="panel" style="padding: 24px;">
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+          <thead>
+            <tr style="background: var(--ink); color: #fff; font-size: 0.82rem; text-transform: uppercase;">
+              <th style="padding: 10px 14px; text-align: center; width: 50px;">Check</th>
+              <th style="padding: 10px 14px; text-align: left;">Kategori</th>
+              <th style="padding: 10px 14px; text-align: left;">Nama Item Perlengkapan</th>
+              <th style="padding: 10px 14px; text-align: left;">PIC Pembawa</th>
+              <th style="padding: 10px 14px; text-align: center;">Jumlah</th>
+              <th style="padding: 10px 14px; text-align: left;">Lokasi Simpan</th>
+              <th style="padding: 10px 14px; text-align: center;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in planner_data.logistics %}
+              <tr style="border-bottom: 1px solid var(--line);" class="logistics-row">
+                <td style="padding: 12px 14px; text-align: center;">
+                  <input type="checkbox" class="logistics-checkbox" {% if item.status == 'Siap' %}checked{% endif %} style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--sage);">
+                </td>
+                <td style="padding: 12px 14px; font-weight: 600; color: var(--ink-soft);">{{ item.cat }}</td>
+                <td style="padding: 12px 14px;">
+                  <strong class="item-name">{{ item.name }}</strong>
+                  <div style="font-size: 0.78rem; color: var(--ink-soft);">{{ item.note }}</div>
+                </td>
+                <td style="padding: 12px 14px;">{{ item.pic }}</td>
+                <td style="padding: 12px 14px; text-align: center; font-weight: 600;">{{ item.qty }}</td>
+                <td style="padding: 12px 14px; color: var(--ink-soft); font-size: 0.82rem;">{{ item.loc }}</td>
+                <td style="padding: 12px 14px; text-align: center;">
+                  <span class="status-badge" style="display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; {% if item.status == 'Siap' %}background: var(--sage-soft); color: var(--sage);{% else %}background: var(--berry-soft); color: var(--berry);{% endif %}">
+                    {{ item.status }}
+                  </span>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
 </div>
+
+<!-- Styles for Modern Interactive Tabs & KPI Cards -->
+<style>
+  .planner-nav-tabs {
+    display: flex;
+    gap: 8px;
+    border-bottom: 2px solid var(--line);
+    margin-bottom: 24px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+  .nav-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+  }
+  .nav-tab-btn:hover {
+    color: var(--ink);
+    background: rgba(27, 31, 59, 0.03);
+    border-radius: 8px 8px 0 0;
+  }
+  .nav-tab-btn.active {
+    color: var(--berry);
+    border-bottom-color: var(--berry);
+    background: rgba(178, 58, 93, 0.04);
+    border-radius: 8px 8px 0 0;
+  }
+
+  .kpi-deck-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .kpi-stat-card {
+    background: #FFFFFF;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  }
+  .kpi-stat-card .label {
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .kpi-stat-card .val {
+    font-family: 'Fraunces', serif;
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.15;
+  }
+  .kpi-stat-card .sub {
+    font-size: 0.76rem;
+    color: var(--ink-soft);
+    margin-top: 4px;
+  }
+</style>
+
+<script>
+  // 1. Navigation Tabs Switcher
+  const tabBtns = document.querySelectorAll('.nav-tab-btn');
+  const tabPanes = document.querySelectorAll('.tab-pane');
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabBtns.forEach(b => b.classList.remove('active'));
+      tabPanes.forEach(p => p.style.display = 'none');
+
+      btn.classList.add('active');
+      const targetId = btn.dataset.target;
+      const targetPane = document.getElementById(targetId);
+      if (targetPane) {
+        targetPane.style.display = 'block';
+      }
+      window.refreshIcons();
+    });
+  });
+
+  // 2. Vendor Filtering & Sorting
+  const pills = document.querySelectorAll('#filterBar .filter-pill');
+  const cards = document.querySelectorAll('#vendorGridContainer .vendor-card');
+  const countEl = document.getElementById('resultCount');
+
+  pills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      pills.forEach(p => p.classList.remove('selected'));
+      pill.classList.add('selected');
+      const cat = pill.dataset.cat;
+
+      let visible = 0;
+      cards.forEach(card => {
+        if (cat === 'all' || card.dataset.cat === cat) {
+          card.style.display = 'flex';
+          visible++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      if (countEl) {
+        countEl.textContent = visible + ' vendor ditemukan';
+      }
+    });
+  });
+
+  const sortSelect = document.getElementById('sortSelect');
+  const gridContainer = document.getElementById('vendorGridContainer');
+
+  if (sortSelect && gridContainer) {
+    sortSelect.addEventListener('change', () => {
+      const sortVal = sortSelect.value;
+      const cardArray = Array.from(cards);
+
+      if (sortVal === 'rating') {
+        cardArray.sort((a, b) => parseFloat(b.dataset.rating) - parseFloat(a.dataset.rating));
+      } else if (sortVal === 'events') {
+        cardArray.sort((a, b) => parseInt(b.dataset.events) - parseInt(a.dataset.events));
+      }
+
+      cardArray.forEach(card => gridContainer.appendChild(card));
+    });
+  }
+
+  // 3. Interactive Catering Calculator (Live Calculations)
+  const inputPhys = document.getElementById('inputPhysInv');
+  const inputDig = document.getElementById('inputDigInv');
+  const inputBuffer = document.getElementById('inputBufferPct');
+  const labelBuffer = document.getElementById('labelBufferPct');
+  const inputBuffetPr = document.getElementById('inputBuffetPrice');
+  const inputStallPr = document.getElementById('inputStallPrice');
+
+  function formatIDR(val) {
+    return 'Rp ' + Math.round(val).toLocaleString('id-ID');
+  }
+
+  function updateCateringCalculations() {
+    if (!inputPhys || !inputDig) return;
+
+    const phys = parseFloat(inputPhys.value) || 0;
+    const dig = parseFloat(inputDig.value) || 0;
+    const bufPct = (parseFloat(inputBuffer.value) || 10) / 100;
+    const buffetPrice = parseFloat(inputBuffetPr.value) || 95000;
+    const stallPrice = parseFloat(inputStallPr.value) || 25000;
+
+    labelBuffer.textContent = Math.round(bufPct * 100) + '%';
+
+    const tamuCalc = Math.round((phys * 2.0) + (dig * 1.5));
+    const bufferPax = Math.round(tamuCalc * bufPct);
+    const totalPorsi = tamuCalc + bufferPax;
+
+    const buffetPortions = Math.round(totalPorsi * 0.60);
+    const stallPortions = Math.round(totalPorsi * 0.40 * 4);
+
+    const subtotalBuffet = buffetPortions * buffetPrice;
+    const subtotalStall = stallPortions * stallPrice;
+    const totalCost = subtotalBuffet + subtotalStall;
+    const costPerPax = totalPorsi > 0 ? Math.round(totalCost / totalPorsi) : 0;
+
+    // Update DOM
+    document.getElementById('calcTotalPorsi').textContent = totalPorsi.toLocaleString('id-ID') + ' Pax';
+    document.getElementById('calcTamuDetail').textContent = `Basis order katering (${tamuCalc.toLocaleString('id-ID')} Tamu Hadir + ${bufferPax.toLocaleString('id-ID')} Buffer Cadangan)`;
+
+    document.getElementById('calcBuffetPortions').textContent = buffetPortions.toLocaleString('id-ID') + ' Porsi';
+    document.getElementById('calcBuffetCost').textContent = formatIDR(subtotalBuffet);
+
+    document.getElementById('calcStallPortions').textContent = stallPortions.toLocaleString('id-ID') + ' Porsi';
+    document.getElementById('calcStallCost').textContent = formatIDR(subtotalStall);
+
+    document.getElementById('calcTotalFoodCost').textContent = formatIDR(totalCost);
+    document.getElementById('calcCostPerPax').textContent = formatIDR(costPerPax) + ' / Tamu';
+
+    // Update Sensitivity Table
+    const sensTbody = document.getElementById('sensitivityTableBody');
+    if (sensTbody) {
+      sensTbody.innerHTML = `
+        <tr style="border-bottom: 1px solid var(--line);">
+          <td style="padding: 10px 6px;">
+            <strong>Skenario Minimalis (Kehadiran 80%)</strong>
+            <div style="font-size: 0.75rem; color: var(--ink-soft);">Cocok jika sebagian undangan berhalangan hadir</div>
+          </td>
+          <td style="padding: 10px 6px; text-align: center; font-weight: 700;">${Math.round(totalPorsi * 0.8).toLocaleString('id-ID')} Pax</td>
+          <td style="padding: 10px 6px; text-align: right; font-weight: 700; color: var(--berry);">${formatIDR(totalCost * 0.8)}</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--line);">
+          <td style="padding: 10px 6px;">
+            <strong>Skenario Target (Kehadiran Standar 100%)</strong>
+            <div style="font-size: 0.75rem; color: var(--ink-soft);">Estimasi porsi bersih aman dengan buffer cadangan</div>
+          </td>
+          <td style="padding: 10px 6px; text-align: center; font-weight: 700;">${totalPorsi.toLocaleString('id-ID')} Pax</td>
+          <td style="padding: 10px 6px; text-align: right; font-weight: 700; color: var(--berry);">${formatIDR(totalCost)}</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--line);">
+          <td style="padding: 10px 6px;">
+            <strong>Skenario Membludak (Kehadiran Tinggi 120%)</strong>
+            <div style="font-size: 0.75rem; color: var(--ink-soft);">Kebutuhan porsi jika kehadiran tamu keluarga membludak</div>
+          </td>
+          <td style="padding: 10px 6px; text-align: center; font-weight: 700;">${Math.round(totalPorsi * 1.2).toLocaleString('id-ID')} Pax</td>
+          <td style="padding: 10px 6px; text-align: right; font-weight: 700; color: var(--berry);">${formatIDR(totalCost * 1.2)}</td>
+        </tr>
+      `;
+    }
+
+    // Update Facilities Table
+    const facTbody = document.getElementById('facilitiesTableBody');
+    if (facTbody) {
+      facTbody.innerHTML = `
+        <tr style="border-bottom: 1px solid var(--line);">
+          <td style="padding: 10px 6px;"><strong>Kebutuhan Air Mineral & Minuman</strong></td>
+          <td style="padding: 10px 6px; text-align: center; font-weight: 700; color: var(--ink);">${Math.round(totalPorsi * 1.5).toLocaleString('id-ID')} Gelas / Botol</td>
+          <td style="padding: 10px 6px; font-size: 0.78rem; color: var(--ink-soft);">Rasio 1.5 porsi minuman per tamu</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--line);">
+          <td style="padding: 10px 6px;"><strong>Kebutuhan Meja Bundar VIP (10 Pax)</strong></td>
+          <td style="padding: 10px 6px; text-align: center; font-weight: 700; color: var(--ink);">${Math.max(1, Math.round(totalPorsi * 0.15 / 10))} Meja Bundar</td>
+          <td style="padding: 10px 6px; font-size: 0.78rem; color: var(--ink-soft);">Alokasi 15% kursi VIP & keluarga inti</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--line);">
+          <td style="padding: 10px 6px;"><strong>Estimasi Kursi Duduk (Flow 70%)</strong></td>
+          <td style="padding: 10px 6px; text-align: center; font-weight: 700; color: var(--ink);">${Math.round(totalPorsi * 0.70).toLocaleString('id-ID')} Kursi Tamu</td>
+          <td style="padding: 10px 6px; font-size: 0.78rem; color: var(--ink-soft);">Standar flow ballroom standing party</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--line);">
+          <td style="padding: 10px 6px;"><strong>Kapasitas Area Parkir Tamu</strong></td>
+          <td style="padding: 10px 6px; text-align: center; font-weight: 700; color: var(--ink);">${Math.round(totalPorsi * 0.35).toLocaleString('id-ID')} Slot Mobil</td>
+          <td style="padding: 10px 6px; font-size: 0.78rem; color: var(--ink-soft);">Asumsi 1 mobil membawa 2.5–3 orang tamu</td>
+        </tr>
+      `;
+    }
+  }
+
+  [inputPhys, inputDig, inputBuffer, inputBuffetPr, inputStallPr].forEach(el => {
+    if (el) {
+      el.addEventListener('input', updateCateringCalculations);
+    }
+  });
+
+  // 4. Interactive Checklist Progress Tracker
+  const checkboxes = document.querySelectorAll('.logistics-checkbox');
+  const summaryText = document.getElementById('logisticsSummaryText');
+  const progressBar = document.getElementById('logisticsProgressBar');
+
+  function updateLogisticsProgress() {
+    const total = checkboxes.length;
+    if (total === 0) return;
+
+    let checked = 0;
+    checkboxes.forEach(cb => {
+      const row = cb.closest('.logistics-row');
+      const badge = row.querySelector('.status-badge');
+      if (cb.checked) {
+        checked++;
+        if (badge) {
+          badge.textContent = 'Siap';
+          badge.style.background = 'var(--sage-soft)';
+          badge.style.color = 'var(--sage)';
+        }
+      } else {
+        if (badge) {
+          badge.textContent = 'Belum Siap';
+          badge.style.background = 'var(--berry-soft)';
+          badge.style.color = 'var(--berry)';
+        }
+      }
+    });
+
+    const pct = Math.round((checked / total) * 100);
+    if (summaryText) {
+      summaryText.textContent = `${checked} / ${total} Item Siap (${pct}%)`;
+    }
+    if (progressBar) {
+      progressBar.style.width = pct + '%';
+    }
+  }
+
+  checkboxes.forEach(cb => {
+    cb.addEventListener('change', updateLogisticsProgress);
+  });
+
+  // 5. Rundown Phase Filter
+  window.filterRundown = function(phase, btn) {
+    const buttons = document.querySelectorAll('#rundownPhaseFilters button');
+    buttons.forEach(b => {
+      b.className = 'btn btn-sm btn-outline';
+    });
+    btn.className = 'btn btn-sm btn-berry';
+
+    const rows = document.querySelectorAll('.rundown-row');
+    rows.forEach(r => {
+      if (phase === 'all' || r.getAttribute('data-phase') === phase) {
+        r.style.display = '';
+      } else {
+        r.style.display = 'none';
+      }
+    });
+  };
+
+  window.refreshIcons();
+</script>
 {% endblock %}

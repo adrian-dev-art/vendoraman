@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import EventSavingsVault, SavingsDeposit, EventPlan
 from .forms import EventSavingsVaultForm, SavingsDepositForm
+from .templatetags.currency_tags import intdot
 
 
 @login_required
@@ -46,7 +47,7 @@ def savings_detail_view(request, vault_id):
             vault.current_amount += amount
             vault.save()
 
-            messages.success(request, f"Setoran tabungan sebesar Rp {amount:,.0f} berhasil diterima dan ditampung aman di Escrow Vault.")
+            messages.success(request, f"Setoran tabungan sebesar Rp {intdot(amount)} berhasil diterima dan ditampung aman di Escrow Vault.")
             return redirect('savings_detail', vault_id=vault.id)
     else:
         deposit_form = SavingsDepositForm()

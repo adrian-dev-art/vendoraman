@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acaraku — Temukan vendor event yang pas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1B1F3B;
+    --ink-soft:#4B4F72;
+    --paper:#FBF8F2;
+    --paper-dim:#F1ECE0;
+    --gold:#D9A441;
+    --gold-deep:#B9852B;
+    --berry:#B23A5D;
+    --berry-soft:#F3DCE2;
+    --sage:#5C7A5E;
+    --sage-soft:#E1E9DE;
+    --line:#E4DDD0;
+    --white:#FFFFFF;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(27,31,59,0.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  h1,h2,h3,.display{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    color:var(--ink);
+    margin:0;
+    line-height:1.15;
+  }
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+  :focus-visible{outline:2px solid var(--berry);outline-offset:2px;}
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    background:var(--ink);
+    color:var(--paper);
+    padding:16px 20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .brand{
+    font-family:'Fraunces',serif;
+    font-size:1.15rem;
+    font-weight:600;
+    letter-spacing:0.2px;
+  }
+  .brand span{color:var(--gold);}
+  .brand-sub{
+    font-size:0.72rem;
+    color:#B7BAD6;
+    margin-top:2px;
+  }
+
+  /* ---------- Layout ---------- */
+  .wrap{max-width:900px;margin:0 auto;padding:28px 18px 80px;}
+
+  /* ---------- Progress rail ---------- */
+  .rail{
+    display:flex;
+    gap:6px;
+    margin-bottom:28px;
+  }
+  .rail-step{
+    flex:1;
+    height:4px;
+    border-radius:2px;
+    background:var(--line);
+    position:relative;
+    overflow:hidden;
+  }
+  .rail-step.done, .rail-step.active{background:var(--gold);}
+  .rail-labels{
+    display:flex;
+    justify-content:space-between;
+    font-size:0.72rem;
+    color:var(--ink-soft);
+    margin-top:8px;
+  }
+  .rail-labels span{flex:1;text-align:center;}
+  .rail-labels span:first-child{text-align:left;}
+  .rail-labels span:last-child{text-align:right;}
+
+  /* ---------- Card / step panel ---------- */
+  .panel{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:28px 24px;
+  }
+  .step-eyebrow{
+    font-size:0.85rem;
+    color:var(--berry);
+    font-weight:600;
+    margin-bottom:6px;
+  }
+  .step-title{font-size:1.5rem;margin-bottom:6px;}
+  .step-help{color:var(--ink-soft);font-size:0.92rem;margin-bottom:22px;max-width:60ch;}
+
+  /* ---------- Choice grid (event type) ---------- */
+  .choice-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+  }
+  @media(min-width:560px){.choice-grid{grid-template-columns:repeat(3,1fr);}}
+  .choice-card{
+    border:1.5px solid var(--line);
+    border-radius:12px;
+    padding:16px 12px;
+    text-align:left;
+    background:var(--paper);
+    transition:border-color .15s ease, background .15s ease;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .choice-card svg{width:22px;height:22px;stroke:var(--ink-soft);}
+  .choice-card .label{font-weight:600;font-size:0.92rem;}
+  .choice-card:hover{border-color:var(--gold);}
+  .choice-card.selected{
+    border-color:var(--berry);
+    background:var(--berry-soft);
+  }
+  .choice-card.selected svg{stroke:var(--berry);}
+
+  /* ---------- Chips (multi-select) ---------- */
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{
+    border:1.5px solid var(--line);
+    background:var(--paper);
+    border-radius:999px;
+    padding:9px 16px;
+    font-size:0.88rem;
+    font-weight:500;
+    color:var(--ink);
+  }
+  .chip.selected{
+    background:var(--ink);
+    border-color:var(--ink);
+    color:var(--paper);
+  }
+
+  /* ---------- Form fields ---------- */
+  .field{margin-bottom:20px;}
+  .field label{
+    display:block;
+    font-weight:600;
+    font-size:0.88rem;
+    margin-bottom:8px;
+  }
+  select, input[type=number]{
+    width:100%;
+    padding:12px 14px;
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    font-family:inherit;
+    font-size:0.95rem;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .budget-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+  @media(min-width:560px){.budget-row{grid-template-columns:repeat(3,1fr);}}
+  .budget-opt{
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    padding:13px 10px;
+    text-align:center;
+    background:var(--paper);
+    font-weight:600;
+    font-size:0.86rem;
+  }
+  .budget-opt small{display:block;font-weight:400;color:var(--ink-soft);margin-top:2px;font-size:0.75rem;}
+  .budget-opt.selected{border-color:var(--gold-deep);background:#FBF0DA;}
+
+  /* ---------- Nav buttons ---------- */
+  .step-nav{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:28px;
+    gap:12px;
+  }
+  .btn{
+    border:none;
+    border-radius:10px;
+    padding:13px 22px;
+    font-weight:600;
+    font-size:0.92rem;
+  }
+  .btn-primary{background:var(--ink);color:var(--paper);}
+  .btn-primary:disabled{background:#C9C6D8;cursor:not-allowed;}
+  .btn-ghost{background:transparent;color:var(--ink-soft);}
+  .btn-berry{background:var(--berry);color:#fff;}
+
+  /* ---------- Summary (review step) ---------- */
+  .summary-list{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line);}
+  .summary-row{
+    display:flex;justify-content:space-between;gap:16px;
+    padding:14px 0;border-bottom:1px solid var(--line);
+    font-size:0.92rem;
+  }
+  .summary-row .k{color:var(--ink-soft);}
+  .summary-row .v{font-weight:600;text-align:right;}
+
+  /* ---------- Results ---------- */
+  .results-head{
+    background:var(--ink);
+    color:var(--paper);
+    border-radius:var(--radius);
+    padding:22px 22px;
+    margin-bottom:18px;
+  }
+  .results-head h2{color:var(--paper);font-size:1.3rem;}
+  .results-head .meta{
+    display:flex;flex-wrap:wrap;gap:8px 18px;
+    margin-top:12px;font-size:0.83rem;color:#C7C9E4;
+  }
+  .results-head .meta b{color:var(--gold);font-weight:600;}
+  .results-head .edit-btn{
+    margin-top:14px;background:transparent;border:1px solid #4B4F72;color:var(--paper);
+    border-radius:8px;padding:8px 14px;font-size:0.82rem;
+  }
+
+  .filter-bar{
+    display:flex;gap:8px;overflow-x:auto;padding:4px 2px 14px;
+    margin-bottom:6px;
+  }
+  .filter-bar::-webkit-scrollbar{display:none;}
+  .filter-pill{
+    flex:0 0 auto;
+    border:1.5px solid var(--line);border-radius:999px;
+    padding:8px 14px;font-size:0.82rem;font-weight:600;
+    background:var(--white);white-space:nowrap;color:var(--ink-soft);
+  }
+  .filter-pill.selected{background:var(--gold);border-color:var(--gold);color:var(--ink);}
+
+  .sort-row{
+    display:flex;justify-content:space-between;align-items:center;
+    margin:6px 0 18px;font-size:0.85rem;color:var(--ink-soft);
+  }
+  .sort-row select{width:auto;padding:8px 10px;font-size:0.83rem;}
+
+  .category-block{margin-bottom:30px;}
+  .category-title{
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:12px;
+  }
+  .cat-dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto;}
+  .category-title h3{font-size:1.08rem;}
+  .category-count{color:var(--ink-soft);font-size:0.82rem;}
+
+  .vendor-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+  @media(min-width:640px){.vendor-grid{grid-template-columns:1fr 1fr;}}
+  @media(min-width:960px){.vendor-grid{grid-template-columns:1fr 1fr 1fr;}}
+
+  .vendor-card{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-left:4px solid var(--gold);
+    border-radius:10px;
+    padding:16px;
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .vendor-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;}
+  .vendor-name{font-weight:700;font-size:0.98rem;}
+  .vendor-loc{color:var(--ink-soft);font-size:0.8rem;margin-top:2px;}
+  .match-badge{
+    background:var(--sage-soft);color:var(--sage);
+    font-size:0.72rem;font-weight:700;
+    padding:4px 9px;border-radius:999px;white-space:nowrap;
+  }
+  .vendor-price{font-weight:600;font-size:0.9rem;color:var(--ink);}
+  .vendor-price span{color:var(--ink-soft);font-weight:400;font-size:0.78rem;}
+  .vendor-tags{display:flex;flex-wrap:wrap;gap:6px;}
+  .tag{
+    font-size:0.72rem;background:var(--paper-dim);color:var(--ink-soft);
+    padding:4px 9px;border-radius:6px;
+  }
+  .vendor-desc{font-size:0.82rem;color:var(--ink-soft);line-height:1.5;}
+  .vendor-foot{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-top:4px;padding-top:10px;border-top:1px solid var(--line);
+  }
+  .rating{font-size:0.82rem;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:4px;}
+  .rating svg{width:14px;height:14px;fill:var(--gold);}
+  .contact-btn{
+    background:var(--berry);color:#fff;border:none;border-radius:8px;
+    padding:8px 14px;font-size:0.8rem;font-weight:600;
+  }
+
+  .empty-state{
+    text-align:center;padding:50px 20px;color:var(--ink-soft);
+  }
+  .empty-state h3{margin-bottom:8px;color:var(--ink);}
+
+  .footer-note{
+    text-align:center;color:var(--ink-soft);font-size:0.78rem;
+    margin-top:30px;
+  }
+
+  [hidden]{display:none !important;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="brand">Acara<span>ku</span></div>
+    <div class="brand-sub">Konsultasi cepat, vendor yang pas</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- Progress rail (wizard) -->
+  <div id="railWrap">
+    <div class="rail" id="rail"></div>
+    <div class="rail-labels">
+      <span>Jenis acara</span>
+      <span>Anggaran</span>
+      <span>Kebutuhan</span>
+      <span>Prioritas</span>
+      <span>Ringkasan</span>
+    </div>
+  </div>
+
+  <!-- ===================== STEP 1: Jenis event ===================== -->
+  <div class="panel step" id="step1">
+    <div class="step-eyebrow">Langkah 1 dari 5</div>
+    <h2 class="step-title">Acara apa yang sedang kamu rencanakan?</h2>
+    <p class="step-help">Pilih satu kategori yang paling mendekati. Ini membantu kami menyaring vendor yang biasa menangani acara sejenis.</p>
+    <div class="choice-grid" id="eventTypeGrid"></div>
+    <div class="step-nav">
+      <span></span>
+      <button class="btn btn-primary" id="toStep2" disabled>Lanjut</button>
+    </div>
+  </div>
+
+  <!-- ===================== STEP 2: Anggaran & lokasi ===================== -->
+  <div class="panel step" id="step2" hidden>
+    <div class="step-eyebrow">Langkah 2 dari 5</div>
+    <h2 class="step-title">Berapa perkiraan anggaran dan di mana lokasinya?</h2>
+    <p class="step-help">Angka ini hanya perkiraan kasar untuk seluruh acara, bukan per vendor. Kamu masih bisa menyesuaikan nanti.</p>
+
+    <div class="field">
+      <label>Estimasi total anggaran</label>
+      <div class="budget-row" id="budgetGrid"></div>
+    </div>
+
+    <div class="field">
+      <label for="guestCount">Perkiraan jumlah tamu (opsional)</label>
+      <input type="number" id="guestCount" placeholder="Contoh: 150" min="0">
+    </div>
+
+    <div class="field">
+      <label for="locationSelect">Kota lokasi acara</label>
+      <select id="locationSelect">
+        <option value="">Pilih kota</option>
+        <option>Jakarta</option>
+        <option>Bandung</option>
+        <option>Surabaya</option>
+        <option>Yogyakarta</option>
+        <option>Semarang</option>
+        <option>Bali</option>
+      </select>
+    </div>
+
+    <div class="step-nav">
+      <button class="btn btn-ghost" id="toStep1back">Kembali</button>
+      <button class="btn btn-primary" id="toStep3" disabled>Lanjut</button>
+    </div>
+  </div>
+
+  <!-- ===================== STEP 3: Kebutuhan vendor ===================== -->
+  <div class="panel step" id="step3" hidden>
+    <div class="step-eyebrow">Langkah 3 dari 5</div>
+    <h2 class="step-title">Vendor apa saja yang kamu butuhkan?</h2>
+    <p class="step-help">Pilih sebanyak yang relevan. Kami akan tampilkan rekomendasi per kategori ini di halaman hasil.</p>
+    <div class="chip-row" id="categoryChips"></div>
+    <div class="step-nav">
+      <button class="btn btn-ghost" id="toStep2back">Kembali</button>
+      <button class="btn btn-primary" id="toStep4" disabled>Lanjut</button>
+    </div>
+  </div>
+
+  <!-- ===================== STEP 4: Prioritas / highlight ===================== -->
+  <div class="panel step" id="step4" hidden>
+    <div class="step-eyebrow">Langkah 4 dari 5</div>
+    <h2 class="step-title">Apa yang paling ingin kamu tonjolkan?</h2>
+    <p class="step-help">Pilih 1–3 prioritas utama. Ini kami pakai untuk mengurutkan vendor yang paling cocok di atas.</p>
+    <div class="chip-row" id="highlightChips"></div>
+    <div class="step-nav">
+      <button class="btn btn-ghost" id="toStep3back">Kembali</button>
+      <button class="btn btn-primary" id="toStep5" disabled>Lanjut</button>
+    </div>
+  </div>
+
+  <!-- ===================== STEP 5: Ringkasan ===================== -->
+  <div class="panel step" id="step5" hidden>
+    <div class="step-eyebrow">Langkah 5 dari 5</div>
+    <h2 class="step-title">Cek dulu sebelum lihat rekomendasi</h2>
+    <p class="step-help">Pastikan data ini sudah sesuai. Kamu bisa mengubahnya nanti dari halaman hasil.</p>
+    <div class="summary-list" id="summaryList"></div>
+    <div class="step-nav">
+      <button class="btn btn-ghost" id="toStep4back">Kembali</button>
+      <button class="btn btn-berry" id="toResults">Lihat rekomendasi vendor</button>
+    </div>
+  </div>
+
+  <!-- ===================== RESULTS ===================== -->
+  <div id="resultsPage" hidden>
+    <div class="results-head">
+      <h2>Rekomendasi vendor untuk acaramu</h2>
+      <div class="meta" id="resultsMeta"></div>
+      <button class="edit-btn" id="editConsult">Ubah data konsultasi</button>
+    </div>
+
+    <div class="filter-bar" id="filterBar"></div>
+    <div class="sort-row">
+      <span id="resultCount"></span>
+      <select id="sortSelect">
+        <option value="match">Urutkan: paling cocok</option>
+        <option value="price-asc">Harga: rendah ke tinggi</option>
+        <option value="price-desc">Harga: tinggi ke rendah</option>
+        <option value="rating">Rating tertinggi</option>
+      </select>
+    </div>
+
+    <div id="resultsBody"></div>
+  </div>
+
+</div>
+
+<div class="footer-note">Data vendor pada halaman ini adalah contoh untuk keperluan demo.</div>
+
+<script>
+/* ===================== DATA ===================== */
+const EVENT_TYPES = [
+  {id:'pernikahan', label:'Pernikahan', icon:'ring'},
+  {id:'ulang_tahun', label:'Ulang tahun', icon:'cake'},
+  {id:'lamaran', label:'Lamaran', icon:'heart'},
+  {id:'korporat', label:'Acara korporat', icon:'briefcase'},
+  {id:'wisuda', label:'Wisuda', icon:'cap'},
+  {id:'gathering', label:'Gathering komunitas', icon:'users'},
+];
+
+const ICONS = {
+  ring:'<circle cx="8" cy="15" r="4"/><circle cx="16" cy="15" r="4"/><path d="M12 4v6"/>',
+  cake:'<path d="M3 21h18"/><path d="M5 21v-6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v6"/><path d="M12 13V8"/><path d="M9 8c0-1 1-1 1-2s-1-1-1-2"/><path d="M12 8c0-1 1-1 1-2s-1-1-1-2"/><path d="M15 8c0-1 1-1 1-2s-1-1-1-2"/>',
+  heart:'<path d="M12 21s-7-4.35-9.5-8.5C.7 9 2 5 5.5 5c2 0 3.5 1.2 4.5 2.8C11 6.2 12.5 5 14.5 5 18 5 19.3 9 19.5 12.5 17 16.65 12 21 12 21Z"/>',
+  briefcase:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+  cap:'<path d="M2 9l10-5 10 5-10 5-10-5Z"/><path d="M6 11v4c0 1.5 3 3 6 3s6-1.5 6-3v-4"/>',
+  users:'<circle cx="9" cy="8" r="3"/><path d="M2 20c0-3.3 3-5 7-5s7 1.7 7 5"/><circle cx="17" cy="9" r="2.5"/><path d="M16 12.5c2.7 0 5 1.3 5 4"/>',
+};
+
+const BUDGET_RANGES = [
+  {id:'b1', label:'< 10 juta', min:0, max:10},
+  {id:'b2', label:'10–30 juta', min:10, max:30},
+  {id:'b3', label:'30–75 juta', min:30, max:75},
+  {id:'b4', label:'75–150 juta', min:75, max:150},
+  {id:'b5', label:'150–300 juta', min:150, max:300},
+  {id:'b6', label:'> 300 juta', min:300, max:99999},
+];
+
+const VENDOR_CATEGORIES = [
+  {id:'venue', label:'Venue / gedung', color:'#B23A5D'},
+  {id:'catering', label:'Katering', color:'#D9A441'},
+  {id:'dekorasi', label:'Dekorasi & bunga', color:'#5C7A5E'},
+  {id:'foto', label:'Fotografi & videografi', color:'#4B5FA0'},
+  {id:'mc', label:'MC & hiburan', color:'#B9852B'},
+  {id:'eo', label:'Wedding / event organizer', color:'#7A4B8F'},
+  {id:'sound', label:'Sound system & lighting', color:'#3E7C8C'},
+  {id:'rias', label:'Rias & busana', color:'#C2597E'},
+  {id:'souvenir', label:'Undangan & souvenir', color:'#8A8340'},
+  {id:'tenda', label:'Tenda & perlengkapan', color:'#6B6B6B'},
+];
+
+const HIGHLIGHTS = [
+  {id:'mewah', label:'Mewah & elegan'},
+  {id:'unik', label:'Konsep unik / bertema'},
+  {id:'hemat', label:'Ramah anggaran'},
+  {id:'praktis', label:'Serba praktis (all-in-one)'},
+  {id:'dokumentasi', label:'Kualitas dokumentasi'},
+  {id:'pengalaman', label:'Pengalaman tamu maksimal'},
+  {id:'outdoor', label:'Outdoor / ramah alam'},
+];
+
+// price in juta rupiah (min-max), tags reference HIGHLIGHTS ids
+const VENDORS = [
+  {id:1,name:'Anargya Estate',cat:'venue',city:'Bandung',price:[45,120],rating:4.8,tags:['mewah','outdoor'],desc:'Kebun outdoor dengan kapasitas hingga 400 tamu, pemandangan perbukitan.'},
+  {id:2,name:'Griya Cempaka Hall',cat:'venue',city:'Jakarta',price:[25,70],rating:4.5,tags:['praktis'],desc:'Gedung serbaguna indoor, cocok untuk acara korporat maupun keluarga.'},
+  {id:3,name:'Balenio Rooftop',cat:'venue',city:'Surabaya',price:[18,50],rating:4.6,tags:['unik','outdoor'],desc:'Rooftop dengan pemandangan kota, populer untuk acara intim.'},
+  {id:4,name:'Rasa Nusantara Catering',cat:'catering',city:'Jakarta',price:[8,40],rating:4.7,tags:['hemat','praktis'],desc:'Paket prasmanan dan buffet dengan menu nusantara, fleksibel jumlah tamu.'},
+  {id:5,name:'Cita Rasa Elok',cat:'catering',city:'Bandung',price:[15,60],rating:4.9,tags:['mewah','dokumentasi'],desc:'Fine dining plating untuk acara formal, dekorasi meja disertakan.'},
+  {id:6,name:'Dapur Selera Ibu',cat:'catering',city:'Yogyakarta',price:[5,20],rating:4.4,tags:['hemat'],desc:'Katering rumahan dengan harga terjangkau, cocok acara kecil.'},
+  {id:7,name:'Kembang Senja Decor',cat:'dekorasi',city:'Bandung',price:[10,55],rating:4.8,tags:['mewah','unik'],desc:'Dekorasi bunga segar dengan konsep tematik custom.'},
+  {id:8,name:'Petal & Co',cat:'dekorasi',city:'Bali',price:[20,90],rating:4.9,tags:['mewah','outdoor'],desc:'Spesialis dekorasi outdoor tropis, banyak digunakan untuk destination wedding.'},
+  {id:9,name:'Dekor Hemat Ceria',cat:'dekorasi',city:'Semarang',price:[3,15],rating:4.3,tags:['hemat'],desc:'Dekorasi balon dan backdrop sederhana untuk acara ulang tahun.'},
+  {id:10,name:'Cahaya Abadi Photography',cat:'foto',city:'Jakarta',price:[8,35],rating:4.8,tags:['dokumentasi','mewah'],desc:'Tim foto & video sinematik, termasuk drone dan same-day edit.'},
+  {id:11,name:'Momentum Studio',cat:'foto',city:'Surabaya',price:[5,18],rating:4.6,tags:['dokumentasi','hemat'],desc:'Paket foto candid dengan harga bersahabat untuk acara harian.'},
+  {id:12,name:'Frame & Feels',cat:'foto',city:'Bali',price:[12,40],rating:4.9,tags:['dokumentasi','unik'],desc:'Gaya dokumentasi editorial, cocok untuk konsep foto bertema.'},
+  {id:13,name:'MC Ardian Wicaksana',cat:'mc',city:'Jakarta',price:[3,12],rating:4.7,tags:['praktis'],desc:'MC berpengalaman untuk acara formal dan korporat.'},
+  {id:14,name:'Sanggar Tari Lentera',cat:'mc',city:'Yogyakarta',price:[4,15],rating:4.5,tags:['unik'],desc:'Hiburan tari tradisional dan modern untuk mengisi acara.'},
+  {id:15,name:'Live Band Harmoni',cat:'mc',city:'Bandung',price:[6,25],rating:4.6,tags:['mewah','pengalaman'],desc:'Live music akustik hingga full band untuk resepsi.'},
+  {id:16,name:'Titimangsa Wedding Organizer',cat:'eo',city:'Jakarta',price:[20,100],rating:4.8,tags:['praktis','mewah'],desc:'Full service planning, dari konsep sampai eksekusi hari-H.'},
+  {id:17,name:'Sinergi Event Solutions',cat:'eo',city:'Surabaya',price:[15,60],rating:4.5,tags:['praktis'],desc:'Spesialis acara korporat dan seminar berskala menengah.'},
+  {id:18,name:'Bersama Rencana EO',cat:'eo',city:'Semarang',price:[8,30],rating:4.4,tags:['hemat','praktis'],desc:'Paket EO ringkas untuk acara keluarga dan komunitas.'},
+  {id:19,name:'Gema Sonic Audio',cat:'sound',city:'Jakarta',price:[5,25],rating:4.6,tags:['praktis'],desc:'Sound system dan lighting untuk indoor maupun outdoor.'},
+  {id:20,name:'Cahaya Panggung Pro',cat:'sound',city:'Bandung',price:[10,40],rating:4.7,tags:['mewah','pengalaman'],desc:'Tata panggung dan lighting artistik untuk acara besar.'},
+  {id:21,name:'Ayu Rias Pengantin',cat:'rias',city:'Yogyakarta',price:[4,20],rating:4.8,tags:['mewah'],desc:'Rias pengantin tradisional dan modern, termasuk busana.'},
+  {id:22,name:'Glow Makeup Studio',cat:'rias',city:'Jakarta',price:[3,15],rating:4.5,tags:['hemat','dokumentasi'],desc:'Makeup artist untuk acara harian dan foto pre-wedding.'},
+  {id:23,name:'Kertas & Kata',cat:'souvenir',city:'Bandung',price:[2,12],rating:4.6,tags:['unik','hemat'],desc:'Undangan custom design dan souvenir handmade.'},
+  {id:24,name:'Tenda Prima Sejahtera',cat:'tenda',city:'Semarang',price:[5,30],rating:4.4,tags:['praktis','hemat'],desc:'Sewa tenda, kursi, dan meja untuk acara outdoor maupun indoor.'},
+];
+
+/* ===================== STATE ===================== */
+const state = {
+  step: 1,
+  eventType: null,
+  budget: null,
+  guestCount: '',
+  city: '',
+  needs: new Set(),
+  highlights: new Set(),
+  activeFilterCat: 'all',
+  sort: 'match',
+};
+
+/* ===================== HELPERS ===================== */
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+const catInfo = (id) => VENDOR_CATEGORIES.find(c=>c.id===id);
+
+function fmtPrice(min,max){
+  const f = (n)=> n>=1 ? `${n}jt` : `${n*1000}rb`;
+  return `${f(min)} – ${f(max)}`;
+}
+
+/* ===================== RENDER: STEP 1 ===================== */
+function renderEventTypes(){
+  const grid = $('#eventTypeGrid');
+  grid.innerHTML = EVENT_TYPES.map(ev => `
+    <button class="choice-card ${state.eventType===ev.id?'selected':''}" data-id="${ev.id}">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[ev.icon]}</svg>
+      <span class="label">${ev.label}</span>
+    </button>
+  `).join('');
+  $$('#eventTypeGrid .choice-card').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      state.eventType = btn.dataset.id;
+      renderEventTypes();
+      $('#toStep2').disabled = false;
+    });
+  });
+}
+
+/* ===================== RENDER: STEP 2 ===================== */
+function renderBudget(){
+  const grid = $('#budgetGrid');
+  grid.innerHTML = BUDGET_RANGES.map(b=>`
+    <button class="budget-opt ${state.budget===b.id?'selected':''}" data-id="${b.id}">${b.label}</button>
+  `).join('');
+  $$('#budgetGrid .budget-opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      state.budget = btn.dataset.id;
+      renderBudget();
+      checkStep2();
+    });
+  });
+}
+function checkStep2(){
+  $('#toStep3').disabled = !(state.budget && state.city);
+}
+
+/* ===================== RENDER: STEP 3 ===================== */
+function renderCategoryChips(){
+  const row = $('#categoryChips');
+  row.innerHTML = VENDOR_CATEGORIES.map(c=>`
+    <button class="chip ${state.needs.has(c.id)?'selected':''}" data-id="${c.id}">${c.label}</button>
+  `).join('');
+  $$('#categoryChips .chip').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.dataset.id;
+      state.needs.has(id) ? state.needs.delete(id) : state.needs.add(id);
+      renderCategoryChips();
+      $('#toStep4').disabled = state.needs.size===0;
+    });
+  });
+}
+
+/* ===================== RENDER: STEP 4 ===================== */
+function renderHighlightChips(){
+  const row = $('#highlightChips');
+  row.innerHTML = HIGHLIGHTS.map(h=>`
+    <button class="chip ${state.highlights.has(h.id)?'selected':''}" data-id="${h.id}">${h.label}</button>
+  `).join('');
+  $$('#highlightChips .chip').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.dataset.id;
+      if(state.highlights.has(id)){
+        state.highlights.delete(id);
+      } else {
+        if(state.highlights.size>=3) return;
+        state.highlights.add(id);
+      }
+      renderHighlightChips();
+      $('#toStep5').disabled = state.highlights.size===0;
+    });
+  });
+}
+
+/* ===================== RENDER: STEP 5 (summary) ===================== */
+function renderSummary(){
+  const evLabel = EVENT_TYPES.find(e=>e.id===state.eventType)?.label || '-';
+  const bLabel = BUDGET_RANGES.find(b=>b.id===state.budget)?.label || '-';
+  const needsLabel = [...state.needs].map(id=>catInfo(id).label).join(', ');
+  const hLabel = [...state.highlights].map(id=>HIGHLIGHTS.find(h=>h.id===id).label).join(', ');
+  const rows = [
+    ['Jenis acara', evLabel],
+    ['Estimasi anggaran', bLabel],
+    ['Kota', state.city || '-'],
+    ['Jumlah tamu', state.guestCount ? `${state.guestCount} orang` : 'Belum ditentukan'],
+    ['Kebutuhan vendor', needsLabel],
+    ['Prioritas utama', hLabel],
+  ];
+  $('#summaryList').innerHTML = rows.map(([k,v])=>`
+    <div class="summary-row"><span class="k">${k}</span><span class="v">${v}</span></div>
+  `).join('');
+}
+
+/* ===================== WIZARD NAV ===================== */
+const steps = [1,2,3,4,5];
+function goToStep(n){
+  steps.forEach(s=> $(`#step${s}`).hidden = s!==n);
+  state.step = n;
+  renderRail();
+  if(n===5) renderSummary();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function renderRail(){
+  $('#rail').innerHTML = steps.map(s=>`<div class="rail-step ${s<state.step?'done':s===state.step?'active':''}"></div>`).join('');
+}
+
+$('#toStep2').addEventListener('click', ()=> goToStep(2));
+$('#toStep1back').addEventListener('click', ()=> goToStep(1));
+$('#toStep3').addEventListener('click', ()=> goToStep(3));
+$('#toStep2back').addEventListener('click', ()=> goToStep(2));
+$('#toStep4').addEventListener('click', ()=> goToStep(4));
+$('#toStep3back').addEventListener('click', ()=> goToStep(3));
+$('#toStep5').addEventListener('click', ()=> goToStep(5));
+$('#toStep4back').addEventListener('click', ()=> goToStep(4));
+
+$('#guestCount').addEventListener('input', (e)=>{ state.guestCount = e.target.value; });
+$('#locationSelect').addEventListener('change', (e)=>{ state.city = e.target.value; checkStep2(); });
+
+$('#toResults').addEventListener('click', ()=>{
+  $('#railWrap').hidden = true;
+  steps.forEach(s=> $(`#step${s}`).hidden = true);
+  $('#resultsPage').hidden = false;
+  state.activeFilterCat = 'all';
+  renderResults();
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+$('#editConsult').addEventListener('click', ()=>{
+  $('#resultsPage').hidden = true;
+  $('#railWrap').hidden = false;
+  goToStep(1);
+});
+
+/* ===================== MATCHING LOGIC ===================== */
+function budgetRangeOf(id){ return BUDGET_RANGES.find(b=>b.id===id); }
+
+function scoreVendor(v){
+  let score = 0;
+  const b = budgetRangeOf(state.budget);
+  if(b){
+    const overlap = v.price[0] <= b.max && v.price[1] >= b.min;
+    if(overlap) score += 3;
+  }
+  const tagMatches = v.tags.filter(t=>state.highlights.has(t)).length;
+  score += tagMatches * 2;
+  if(v.city === state.city) score += 1.5;
+  score += v.rating * 0.3;
+  return score;
+}
+
+function matchLabel(v){
+  const b = budgetRangeOf(state.budget);
+  const inBudget = b && v.price[0] <= b.max && v.price[1] >= b.min;
+  const tagMatches = v.tags.filter(t=>state.highlights.has(t)).length;
+  if(inBudget && tagMatches>0) return 'Cocok kuat';
+  if(inBudget || tagMatches>0) return 'Cocok';
+  return null;
+}
+
+/* ===================== RENDER: RESULTS ===================== */
+function renderResults(){
+  const evLabel = EVENT_TYPES.find(e=>e.id===state.eventType)?.label || '-';
+  const bLabel = BUDGET_RANGES.find(b=>b.id===state.budget)?.label || '-';
+  $('#resultsMeta').innerHTML = `
+    <span><b>${evLabel}</b></span>
+    <span>Anggaran <b>${bLabel}</b></span>
+    <span>Lokasi <b>${state.city||'-'}</b></span>
+    <span>${state.guestCount? state.guestCount+' tamu' : 'Jumlah tamu belum ditentukan'}</span>
+  `;
+
+  // filter bar: only selected needs + "Semua"
+  const selectedCats = VENDOR_CATEGORIES.filter(c=>state.needs.has(c.id));
+  $('#filterBar').innerHTML = [
+    `<button class="filter-pill ${state.activeFilterCat==='all'?'selected':''}" data-id="all">Semua kategori</button>`,
+    ...selectedCats.map(c=>`<button class="filter-pill ${state.activeFilterCat===c.id?'selected':''}" data-id="${c.id}">${c.label}</button>`)
+  ].join('');
+  $$('#filterBar .filter-pill').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      state.activeFilterCat = btn.dataset.id;
+      renderResults();
+    });
+  });
+
+  $('#sortSelect').value = state.sort;
+
+  let pool = VENDORS.filter(v => state.needs.has(v.cat));
+  if(state.activeFilterCat !== 'all') pool = pool.filter(v=>v.cat===state.activeFilterCat);
+
+  pool = pool.map(v=>({...v, _score: scoreVendor(v), _matchLabel: matchLabel(v)}));
+
+  if(state.sort==='match') pool.sort((a,b)=> b._score - a._score);
+  if(state.sort==='price-asc') pool.sort((a,b)=> a.price[0] - b.price[0]);
+  if(state.sort==='price-desc') pool.sort((a,b)=> b.price[1] - a.price[1]);
+  if(state.sort==='rating') pool.sort((a,b)=> b.rating - a.rating);
+
+  $('#resultCount').textContent = `${pool.length} vendor ditemukan`;
+
+  if(pool.length===0){
+    $('#resultsBody').innerHTML = `
+      <div class="empty-state">
+        <h3>Belum ada vendor yang cocok</h3>
+        <p>Coba ubah kategori filter atau perluas anggaran dari halaman konsultasi.</p>
+      </div>`;
+    return;
+  }
+
+  if(state.activeFilterCat !== 'all'){
+    $('#resultsBody').innerHTML = vendorGridHTML(pool);
+  } else {
+    // group by category, keep only categories that user selected & have results
+    const groups = selectedCats
+      .map(c=>({cat:c, items: pool.filter(v=>v.cat===c.id)}))
+      .filter(g=>g.items.length>0);
+    $('#resultsBody').innerHTML = groups.map(g=>`
+      <div class="category-block">
+        <div class="category-title">
+          <span class="cat-dot" style="background:${g.cat.color}"></span>
+          <h3>${g.cat.label}</h3>
+          <span class="category-count">(${g.items.length})</span>
+        </div>
+        ${vendorGridHTML(g.items)}
+      </div>
+    `).join('');
+  }
+}
+
+function vendorGridHTML(list){
+  return `<div class="vendor-grid">${list.map(v=>`
+    <div class="vendor-card" style="border-left-color:${catInfo(v.cat).color}">
+      <div class="vendor-top">
+        <div>
+          <div class="vendor-name">${v.name}</div>
+          <div class="vendor-loc">${v.city}</div>
+        </div>
+        ${v._matchLabel ? `<span class="match-badge">${v._matchLabel}</span>` : ''}
+      </div>
+      <div class="vendor-price">${fmtPrice(v.price[0], v.price[1])} <span>per paket</span></div>
+      <div class="vendor-desc">${v.desc}</div>
+      <div class="vendor-tags">${v.tags.map(t=>`<span class="tag">${HIGHLIGHTS.find(h=>h.id===t)?.label||t}</span>`).join('')}</div>
+      <div class="vendor-foot">
+        <span class="rating"><svg viewBox="0 0 20 20"><path d="M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.2L10 14.9 4.4 18l1.4-6.2L1 7.5l6.4-.6L10 1z"/></svg>${v.rating}</span>
+        <button class="contact-btn">Hubungi vendor</button>
+      </div>
+    </div>
+  `).join('')}</div>`;
+}
+
+$('#sortSelect').addEventListener('change', (e)=>{ state.sort = e.target.value; renderResults(); });
+
+/* ===================== INIT ===================== */
+renderEventTypes();
+renderBudget();
+renderCategoryChips();
+renderHighlightChips();
+renderRail();
+</script>
+</body>
+</html>

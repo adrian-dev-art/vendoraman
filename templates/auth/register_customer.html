@@ -1,41 +1,41 @@
 {% extends 'base.html' %}
 
-{% block title %}Daftar Customer - Vendorama{% endblock %}
+{% block title %}Daftar Customer - Vendoraman{% endblock %}
 
 {% block content %}
-<div class="container" style="padding: 4rem 0;">
-  <div class="card container-narrow" style="max-width: 520px; margin: 0 auto; padding: 2.5rem;">
-    <div style="text-align: center; margin-bottom: 2rem;">
-      <span class="badge badge-primary" style="margin-bottom: 0.5rem;">Registrasi Pelanggan</span>
-      <h2 style="font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em;">Buat Akun Customer</h2>
-      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem;">
-        Rencanakan event impian Anda, simpan dana di Tabungan Event, dan nikmati garansi ganti rugi 100%.
+<div class="wrap-sm">
+  <div class="panel" style="padding: 36px 30px;">
+    <div style="text-align: center; margin-bottom: 24px;">
+      <div class="step-eyebrow">Registrasi Pelanggan</div>
+      <h2 style="font-size: 1.8rem; color: var(--ink);">Buat Akun Customer</h2>
+      <p style="color: var(--ink-soft); font-size: 0.88rem; margin-top: 4px;">
+        Rencanakan event impianmu, dapatkan kurasi vendor terbaik, dan pesan langsung tanpa ribet.
       </p>
     </div>
 
     <form method="post">
       {% csrf_token %}
       {% for field in form %}
-        <div class="form-group">
-          <label class="form-label">{{ field.label }}</label>
+        <div class="field">
+          <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
           {{ field }}
           {% if field.help_text %}
-            <small style="color: var(--text-muted); font-size: 0.775rem;">{{ field.help_text }}</small>
+            <small style="color: var(--ink-soft); font-size: 0.78rem; display: block; margin-top: 4px;">{{ field.help_text }}</small>
           {% endif %}
           {% for error in field.errors %}
-            <div style="color: var(--crimson); font-size: 0.8rem; margin-top: 0.25rem;">{{ error }}</div>
+            <div style="color: var(--berry); font-size: 0.82rem; margin-top: 4px;">{{ error }}</div>
           {% endfor %}
         </div>
       {% endfor %}
 
-      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
-        <i data-lucide="user-plus"></i>
+      <button type="submit" class="btn btn-berry" style="width: 100%; padding: 13px; font-size: 0.95rem; margin-top: 10px;">
+        <i data-lucide="user-plus" style="width: 16px; height: 16px;"></i>
         <span>Daftar Sekarang</span>
       </button>
     </form>
 
-    <div style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-secondary);">
-      Sudah punya akun? <a href="{% url 'login' %}" style="font-weight: 600;">Masuk di sini</a>
+    <div style="text-align: center; margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 0.88rem; color: var(--ink-soft);">
+      Sudah punya akun? <a href="{% url 'login' %}" style="font-weight: 700; color: var(--berry);">Masuk di sini</a>
     </div>
   </div>
 </div>

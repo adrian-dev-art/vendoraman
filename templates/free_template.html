@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Template Gratis - Vendoraman{% endblock %}
+{% block meta_description %}Unduh gratis template Master Planner Vendoraman: budget otomatis, jadwal, hitung katering, dan daftar barang. Verifikasi e-mail, tanpa bayar.{% endblock %}
+{% block og_title %}Template Planner Gratis - Vendoraman{% endblock %}
+{% block og_description %}Template Master Planner gratis: budget otomatis, jadwal, hitung katering, daftar barang. Verifikasi e-mail lalu unduh.{% endblock %}
+
+{% block content %}
+<a href="{% url 'home' %}?ref=template-gratis" id="lihatAplikasiFab" aria-label="Lihat aplikasi Vendoraman"
+   style="position: fixed; left: 18px; bottom: 18px; z-index: 9998; display: inline-flex; align-items: center; gap: 10px; background: var(--ink); color: var(--paper); border: 1.5px solid var(--gold); padding: 12px 20px 12px 14px; border-radius: 999px; box-shadow: 0 10px 28px rgba(27,31,59,0.45); text-decoration: none; font-weight: 700; font-size: 0.88rem; transition: transform 0.2s ease, box-shadow 0.2s ease;"
+   onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'">
+  <span style="width: 30px; height: 30px; border-radius: 50%; background: var(--gold); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">
+    <i data-lucide="layout-dashboard" style="width: 16px; height: 16px; color: var(--ink);"></i>
+  </span>
+  <span style="display: flex; flex-direction: column; line-height: 1.25; text-align: left;">
+    <span>Lihat Aplikasi</span>
+    <span style="font-size: 0.7rem; font-weight: 500; color: #C7C9E4;">Versi lengkap &amp; interaktif</span>
+  </span>
+</a>
+<div class="wrap-narrow" style="padding: 40px 20px;">
+  <div style="text-align: center; max-width: 720px; margin: 0 auto;">
+    <span class="status-badge confirmed" style="font-size: 0.78rem; padding: 5px 16px; display: inline-flex; align-items: center; gap: 8px;">
+      <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--sage); display: inline-block;"></span>
+      PROMO TERBATAS &bull; 100% GRATIS
+    </span>
+    <h1 style="margin: 16px 0 10px; font-size: 2.6rem; line-height: 1.15;">Template Master Planner, <span style="color: var(--gold-deep);">Gratis</span></h1>
+    <p style="color: var(--ink-soft); margin-bottom: 6px; font-size: 1rem;">Contoh template perencana acara: budget otomatis berumus, jadwal &amp; rundown, hitung kebutuhan makan, daftar barang, tabungan, plus dashboard bergrafik.</p>
+    <div class="panel" style="margin: 22px auto 6px; padding: 20px 28px; max-width: 560px; border: 2px solid var(--gold); position: relative;">
+      <div style="position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--sage); color: #fff; font-size: 0.72rem; font-weight: 700; padding: 3px 14px; border-radius: 999px; white-space: nowrap;">HEMAT Rp {{ original_price|intdot }}</div>
+      <div style="display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap;">
+        <div>
+          <div style="font-size: 0.75rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Harga normal</div>
+          <div style="font-size: 1.25rem; color: var(--ink-soft);"><s>Rp {{ original_price|intdot }}</s></div>
+        </div>
+        <div style="font-size: 1.6rem; color: var(--line); font-weight: 300;">&rarr;</div>
+        <div>
+          <div style="font-size: 0.75rem; color: var(--sage); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;">Sekarang</div>
+          <div style="font-size: 2.6rem; font-weight: 700; color: var(--sage); font-family: 'Fraunces', serif; line-height: 1;">Rp 0</div>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; margin-top: 14px; font-size: 0.82rem; color: var(--ink-soft); font-weight: 600;">
+        <span style="display: inline-flex; align-items: center; gap: 6px;"><i data-lucide="check-circle-2" style="width: 15px; height: 15px; color: var(--sage);"></i> Cukup isi e-mail &amp; HP</span>
+        <span style="display: inline-flex; align-items: center; gap: 6px;"><i data-lucide="check-circle-2" style="width: 15px; height: 15px; color: var(--sage);"></i> 7 sheet + rumus otomatis</span>
+        <span style="display: inline-flex; align-items: center; gap: 6px;"><i data-lucide="check-circle-2" style="width: 15px; height: 15px; color: var(--sage);"></i> Langsung unduh .xlsx</span>
+      </div>
+      <div style="font-size: 0.8rem; color: var(--ink-soft); margin-top: 10px;">Scroll ke bawah dan baca dulu sebelum unduh</div>
+    </div>
+  </div>
+
+  <!-- 1. PROMO LANGGANAN (paling atas) -->
+  <div id="langganan" class="panel" style="margin-top: 28px; border: 2px solid var(--gold); background: var(--gold-soft); padding: 24px; scroll-margin-top: 80px;">
+    <div style="text-align: center;">
+      <span class="status-badge confirmed" style="font-size: 0.75rem; padding: 3px 12px;">PROMO LANGGANAN</span>
+      <h2 style="margin: 10px 0 6px;">Mau versi penuh + update tiap ada template baru?</h2>
+      <p style="color: var(--ink-soft); font-size: 0.9rem; max-width: 560px; margin: 0 auto 6px;">Berlangganan Vendoraman Premium: semua template kategori, file update otomatis, dan prioritas konsultasi. Beli voucher di Shopee, aktivasi langsung di aplikasi ini — tombol unduh template gratisnya ada di bawah.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 16px; text-align: left;">
+      <div style="background: #fff; border-radius: 10px; padding: 18px;">
+        <div style="font-weight: 700; margin-bottom: 8px;">Langkah 1 — Beli voucher di Shopee</div>
+        <ol style="font-size: 0.86rem; line-height: 1.9; margin: 0; padding-left: 20px; color: var(--ink-soft);">
+          <li>Beli voucher langganan di toko Shopee kami.</li>
+          <li>Kode voucher masuk ke chat Shopee kamu.</li>
+        </ol>
+        <a href="{{ SHOPEE_VOUCHER_URL }}" target="_blank" rel="noopener" class="btn btn-gold" style="width: 100%; margin-top: 12px;">
+          <i data-lucide="shopping-bag" style="width: 16px; height: 16px;"></i>
+          <span>Beli Voucher di Shopee</span>
+        </a>
+        <p style="font-size: 0.75rem; color: var(--ink-soft); margin: 8px 0 0;">Pembayaran 100% aman lewat Shopee.</p>
+      </div>
+      <div style="background: #fff; border-radius: 10px; padding: 18px;">
+        <div style="font-weight: 700; margin-bottom: 4px;">Langkah 2 — Aktivasi di sini</div>
+        <p style="font-size: 0.84rem; color: var(--ink-soft); margin-bottom: 12px;">Masukkan e-mail + kode voucher. Langganan langsung aktif di aplikasi, tidak perlu WhatsApp admin.</p>
+        {% if my_subscription %}
+          <div class="flash-message success">Langganan premium aktif sampai <strong>{{ my_subscription.expires_at|date:"d F Y" }}</strong> ({{ my_subscription.voucher.code }}).</div>
+        {% endif %}
+        <form method="post" action="{% url 'free_template' %}" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="action" value="redeem">
+          <div class="field">
+            <label class="form-label" for="{{ redeem_form.email.id_for_label }}">E-mail *</label>
+            {{ redeem_form.email }}
+            {% if redeem_form.email.errors %}<div style="color: var(--berry); font-size: 0.8rem; margin-top: 4px;">{{ redeem_form.email.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="field">
+            <label class="form-label" for="{{ redeem_form.code.id_for_label }}">Kode voucher *</label>
+            {{ redeem_form.code }}
+            {% if redeem_form.code.errors %}<div style="color: var(--berry); font-size: 0.8rem; margin-top: 4px;">{{ redeem_form.code.errors.0 }}</div>{% endif %}
+          </div>
+          <button type="submit" class="btn btn-berry" style="width: 100%;">
+            <i data-lucide="ticket" style="width: 16px; height: 16px;"></i>
+            <span>Aktivasi Voucher</span>
+          </button>
+        </form>
+      </div>
+    </div>
+    <div style="margin-top: 18px; background: #1e293b; border: 1px solid #334155; border-radius: 12px; overflow: hidden; text-align: left;">
+      <div style="display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid #334155;">
+        <span style="width: 11px; height: 11px; border-radius: 50%; background: #EF4444; display: inline-block;"></span>
+        <span style="width: 11px; height: 11px; border-radius: 50%; background: #F59E0B; display: inline-block;"></span>
+        <span style="width: 11px; height: 11px; border-radius: 50%; background: #10B981; display: inline-block;"></span>
+        <span style="font-size: 0.76rem; color: #E2E8F0; margin-left: 6px;">Tangkapan layar asli aplikasi Vendoraman</span>
+      </div>
+      <img src="{% static 'img/app-planner.png' %}" alt="Tangkapan layar halaman hasil planner Vendoraman: direktori vendor terkurasi, tombol unduh Excel dan PDF, serta tab budget, katering, jadwal, dan daftar barang" style="display: block; width: 100%; height: auto;" loading="lazy">
+    </div>
+    <div style="text-align: center; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line);">
+      <p style="font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 10px;">Mau lihat dulu aplikasi lengkapnya sebelum berlangganan?</p>
+      <a href="{% url 'home' %}?ref=template-gratis" class="btn btn-outline">
+        <i data-lucide="layout-dashboard" style="width: 16px; height: 16px;"></i>
+        <span>Lihat Aplikasi Lengkapnya</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- 2. ISI TEMPLATE -->
+  <div style="text-align: left; margin-top: 36px;">
+    <h2>Isi templatenya apa saja?</h2>
+    <p style="color: var(--ink-soft); font-size: 0.9rem;">Satu file, tujuh sheet yang saling terhubung. Ini peta isinya:</p>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 12px;">
+      <div class="panel" style="margin: 0; padding: 16px;"><div style="font-weight: 700;">1. Dashboard</div><div style="font-size: 0.85rem; color: var(--ink-soft);">Ringkasan KPI + 4 grafik: budget vs realisasi, alokasi, status persiapan, dan progress tabungan.</div></div>
+      <div class="panel" style="margin: 0; padding: 16px;"><div style="font-weight: 700;">2. Budget &amp; Bayar</div><div style="font-size: 0.85rem; color: var(--ink-soft);">Batas budget, perkiraan belanja, sisa uang, cicilan 30/40/30 per kategori.</div></div>
+      <div class="panel" style="margin: 0; padding: 16px;"><div style="font-weight: 700;">3. Direktori Vendor</div><div style="font-size: 0.85rem; color: var(--ink-soft);">Nama vendor, rating, paket, harga, kontak PIC + status tindak lanjut.</div></div>
+      <div class="panel" style="margin: 0; padding: 16px;"><div style="font-weight: 700;">4. Jadwal &amp; Rundown</div><div style="font-size: 0.85rem; color: var(--ink-soft);">Target bulanan, mingguan, harian, plus rundown jam-per-jam hari-H.</div></div>
+      <div class="panel" style="margin: 0; padding: 16px;"><div style="font-weight: 700;">5. Hitung Katering</div><div style="font-size: 0.85rem; color: var(--ink-soft);">Simulator tamu: undangan → porsi → biaya makan + 3 skenario kehadiran.</div></div>
+      <div class="panel" style="margin: 0; padding: 16px;"><div style="font-weight: 700;">6. Daftar Barang</div><div style="font-size: 0.85rem; color: var(--ink-soft);">Checklist perlengkapan + persen kesiapan otomatis.</div></div>
+      <div class="panel" style="margin: 0; padding: 16px;"><div style="font-weight: 700;">7. Tabungan</div><div style="font-size: 0.85rem; color: var(--ink-soft);">Target, terkumpul, sisa, dan riwayat setoran.</div></div>
+    </div>
+  </div>
+
+  <!-- 3. SCREENSHOT / SIMULASI TAMPILAN EXCEL -->
+  <div style="margin-top: 36px;">
+    <h2 style="text-align: left;">Intip tampilan filenya</h2>
+    <p style="color: var(--ink-soft); font-size: 0.9rem; text-align: left;">Simulasi sheet Dashboard yang akan kamu dapatkan (file aslinya bisa diklik dan diedit):</p>
+    <div style="background: #1e293b; border: 1px solid #334155; border-radius: 12px; overflow: hidden; margin-top: 12px; text-align: left;">
+      <div style="display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid #334155;">
+        <span style="width: 11px; height: 11px; border-radius: 50%; background: #EF4444; display: inline-block;"></span>
+        <span style="width: 11px; height: 11px; border-radius: 50%; background: #F59E0B; display: inline-block;"></span>
+        <span style="width: 11px; height: 11px; border-radius: 50%; background: #10B981; display: inline-block;"></span>
+        <span style="font-size: 0.78rem; color: #E2E8F0; margin-left: 6px;">Vendoraman_Template_Gratis.xlsx — Dashboard</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 14px;">
+        <div style="background: #F8FAF6; border-radius: 8px; padding: 12px; text-align: center;">
+          <div style="font-size: 0.65rem; color: #4B4F72; font-weight: 700;">SISA UANG KAMU</div>
+          <div style="font-size: 1.15rem; font-weight: 700; color: #1B1F3B;">Rp 7.500.000</div>
+        </div>
+        <div style="background: #F8FAF6; border-radius: 8px; padding: 12px; text-align: center;">
+          <div style="font-size: 0.65rem; color: #4B4F72; font-weight: 700;">BUDGET TERPAKAI</div>
+          <div style="font-size: 1.15rem; font-weight: 700; color: #1B1F3B;">95,0%</div>
+        </div>
+        <div style="background: #F8FAF6; border-radius: 8px; padding: 12px; text-align: center;">
+          <div style="font-size: 0.65rem; color: #4B4F72; font-weight: 700;">TABUNGAN TERKUMPUL</div>
+          <div style="font-size: 1.15rem; font-weight: 700; color: #1B1F3B;">25,0%</div>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 14px 14px;">
+        <div style="background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 12px;">
+          <div style="font-size: 0.7rem; color: #E2E8F0; font-weight: 700; margin-bottom: 10px;">Target vs Realisasi per Kategori</div>
+          <div style="font-size: 0.68rem; color: #94A3B8; margin-bottom: 3px;">Katering</div>
+          <div style="background: #1e293b; border-radius: 4px; height: 12px; margin-bottom: 2px;"><div style="background: #D9A441; width: 88%; height: 100%; border-radius: 4px;"></div></div>
+          <div style="font-size: 0.68rem; color: #94A3B8; margin-bottom: 3px;">Dekorasi &amp; Venue</div>
+          <div style="background: #1e293b; border-radius: 4px; height: 12px; margin-bottom: 2px;"><div style="background: #D9A441; width: 64%; height: 100%; border-radius: 4px;"></div></div>
+          <div style="font-size: 0.68rem; color: #94A3B8; margin-bottom: 3px;">Dokumentasi</div>
+          <div style="background: #1e293b; border-radius: 4px; height: 12px;"><div style="background: #D9A441; width: 41%; height: 100%; border-radius: 4px;"></div></div>
+        </div>
+        <div style="background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 12px;">
+          <div style="width: 84px; height: 84px; border-radius: 50%; flex-shrink: 0; background: conic-gradient(#D9A441 0% 40%, #B23A5D 40% 70%, #5C7A5E 70% 82%, #64748B 82% 100%); position: relative;">
+            <div style="position: absolute; inset: 20px; background: #0f172a; border-radius: 50%;"></div>
+          </div>
+          <div style="font-size: 0.7rem; color: #E2E8F0; font-weight: 700;">Alokasi Anggaran (%)<div style="font-weight: 400; color: #94A3B8; margin-top: 4px; font-size: 0.68rem;">Katering 40%<br>Dekorasi 30%<br>Dokumentasi 12%</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. CARA MENGISI -->
+  <div style="text-align: left; margin-top: 36px;">
+    <h2>Cara mengisinya gimana?</h2>
+    <div class="panel" style="padding: 20px 22px;">
+      <ol style="margin: 0; padding-left: 20px; line-height: 2; font-size: 0.92rem;">
+        <li><strong>Isi e-mail + HP</strong> di form paling bawah, lalu unduh file.</li>
+        <li>Buka di Excel / WPS / Google Sheets, klik <strong>"Enable Editing"</strong> kalau muncul peringatan.</li>
+        <li><strong>Isi hanya kolom kuning</strong> — budget maksimal, jumlah undangan, harga paket, status dropdown.</li>
+        <li><strong>Jangan ubah kolom hijau</strong> — itu rumus otomatis (total, sisa, persen, grafik).</li>
+        <li><strong>Lihat Dashboard</strong> — setiap angka yang kamu ubah langsung menggerakkan KPI &amp; grafik.</li>
+        <li><strong>Tambah setoran</strong> di sheet Tabungan (5 baris kuning kosong sudah disiapkan).</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- 5. DOWNLOAD (paling bawah — template KOSONG, wajib login) -->
+  <div id="unduh" style="text-align: center; margin-top: 36px; scroll-margin-top: 80px;">
+    <h2>Unduh template gratisnya</h2>
+    <p style="color: var(--ink-soft); font-size: 0.9rem;">Versi gratis ini <strong>kosongan</strong> — tanpa data vendor. Isi sendiri sesuai acaramu. Tanpa bayar, tanpa spam.</p>
+    <a href="{% url 'free_template_download' %}" class="btn btn-berry btn-lg" style="margin-top: 12px;">
+      <i data-lucide="download" style="width: 18px; height: 18px;"></i>
+      <span>Unduh Template Kosong (.xlsx)</span>
+    </a>
+    <p style="font-size: 0.82rem; color: var(--ink-soft); margin-top: 10px;">Mau yang sudah terisi list vendor? <a href="{% url 'paid_template' %}" style="color: var(--berry); font-weight: 700;">Lihat template premium</a> (perlu voucher).</p>
+  </div>
+</div>
+{% endblock %}

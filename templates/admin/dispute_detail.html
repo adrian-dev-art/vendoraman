@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Arbitrase Sengketa: {{ dispute.ticket_code }} - Vendorama Admin{% endblock %}
+{% block title %}Arbitrase Sengketa: {{ dispute.ticket_code }} - Vendoraman Admin{% endblock %}
 
 {% block content %}
 <div class="container" style="padding: 3.5rem 0;">
@@ -29,7 +29,7 @@
 
         <div style="text-align: right;">
           <div style="font-size: 1.6rem; font-weight: 800; color: var(--crimson);">
-            Rp {{ order.total_price|floatformat:0 }}
+            Rp {{ order.total_price|intdot }}
           </div>
           <span class="badge badge-crimson">Dana Dibekukan</span>
         </div>
@@ -91,7 +91,7 @@
               <div style="font-size: 0.8rem; color: var(--text-muted);">Persentase: {{ m.percentage }}%</div>
             </div>
             <div style="text-align: right;">
-              <div style="font-weight: 700;">Rp {{ m.amount|floatformat:0 }}</div>
+              <div style="font-weight: 700;">Rp {{ m.amount|intdot }}</div>
               <span class="badge {% if m.status == 'RELEASED' %}badge-emerald{% else %}badge-slate{% endif %}">
                 {{ m.get_status_display }}
               </span>

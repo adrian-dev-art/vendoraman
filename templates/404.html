@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Halaman tidak ditemukan (404) - Vendoraman{% endblock %}
+{% block meta_description %}Halaman yang Anda cari tidak ditemukan. Kembali ke Vendoraman dan temukan vendor event yang pas.{% endblock %}
+
+{% block content %}
+<div class="wrap-narrow" style="text-align: center; padding: 60px 20px;">
+  <div style="font-size: 4rem; font-weight: 700; color: var(--gold); font-family: 'Fraunces', serif;">404</div>
+  <h1 style="margin-bottom: 8px;">Halaman tidak ketemu</h1>
+  <p style="color: var(--ink-soft); margin-bottom: 24px;">Tautan yang Anda buka sudah pindah atau tidak pernah ada. Jangan khawatir — vendor impian Anda masih di sini.</p>
+  <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+    <a href="{% url 'home' %}" class="btn btn-berry btn-lg">
+      <i data-lucide="home" style="width: 18px; height: 18px;"></i>
+      <span>Kembali ke Beranda</span>
+    </a>
+    <a href="{% url 'planner_wizard' %}" class="btn btn-outline btn-lg">
+      <span>Mulai Konsultasi &amp; Cari Vendor</span>
+    </a>
+  </div>
+</div>
+{% endblock %}

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +21,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-hh97f^!)+ux)#=^&wuwyr&9$f$lgto+u717kl#@brey!@g_p&$'
+# Override via DJANGO_SECRET_KEY env var in production.
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-hh97f^!)+ux)#=^&wuwyr&9$f$lgto+u717kl#@brey!@g_p&$')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Set DJANGO_DEBUG=False in production.
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('1', 'true', 'yes')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    h.strip() for h in os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',') if h.strip()
+]
 
 
 # Application definition
@@ -64,6 +69,10 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.site_config',
+            ],
+            'builtins': [
+                'core.templatetags.currency_tags',
             ],
         },
     },
@@ -119,9 +128,49 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Paid Planner fee (single source of truth, overridable via env).
+PLANNER_UNLOCK_FEE = int(os.environ.get('PLANNER_UNLOCK_FEE', '150000'))
+
+# Outgoing e-mail (OTP verifikasi + notifikasi). Default: console (cetak ke
+# terminal, cocok untuk development). Produksi: set EMAIL_BACKEND ke
+# 'django.core.mail.backends.smtp.EmailBackend' + kredensial SMTP di bawah.
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() in ('1', 'true', 'yes')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'Vendoraman <noreply@vendoraman.id>')
+
+# Canonical public URL of the site (no trailing slash). Used for sitemap,
+# social preview tags and absolute links. Override in production.
+SITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000').rstrip('/')
+
+# Link toko/voucher Shopee (ganti dengan URL toko Anda).
+# Dipakai di halaman template gratis untuk promo langganan.
+SHOPEE_VOUCHER_URL = os.environ.get('SHOPEE_VOUCHER_URL', 'https://shopee.co.id/toko-anda').rstrip('/')
+
+# Optional analytics ID (e.g. GA4 "G-XXXXXXX" or Plausible domain).
+# Empty = no tracking snippet rendered.
+ANALYTICS_ID = os.environ.get('ANALYTICS_ID', '').strip()
+
+# HTTPS + cookie hardening. Enable in production behind TLS by setting
+# DJANGO_SECURE_SSL_REDIRECT=True (and DJANGO_SECURE_HSTS_SECONDS, default 1 year).
+SECURE_SSL_REDIRECT = os.environ.get('DJANGO_SECURE_SSL_REDIRECT', 'False').lower() in ('1', 'true', 'yes')
+SECURE_HSTS_SECONDS = int(os.environ.get('DJANGO_SECURE_HSTS_SECONDS', '31536000' if SECURE_SSL_REDIRECT else '0'))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = SECURE_SSL_REDIRECT
+SECURE_HSTS_PRELOAD = SECURE_SSL_REDIRECT
+SESSION_COOKIE_SECURE = SECURE_SSL_REDIRECT
+CSRF_COOKIE_SECURE = SECURE_SSL_REDIRECT
+SESSION_COOKIE_HTTPONLY = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+X_FRAME_OPTIONS = 'DENY'
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'

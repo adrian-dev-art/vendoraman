@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Template Premium - Vendoraman{% endblock %}
+{% block meta_description %}Template premium Vendoraman: list vendor per kategori (tanpa harga). Login, aktivasi voucher, pilih 1 template.{% endblock %}
+
+{% block content %}
+<div class="wrap-narrow" style="padding: 40px 20px; text-align: center;">
+  <span class="status-badge confirmed" style="font-size: 0.78rem; padding: 5px 16px;">TEMPLATE PREMIUM</span>
+  <h1 style="margin: 16px 0 10px;">Pilih 1 Template Kategorimu</h1>
+  <p style="color: var(--ink-soft); font-size: 0.92rem; max-width: 600px; margin: 0 auto;">
+    Template berbayar <strong>sudah terisi list vendor</strong> sesuai kategori — nama, kategori, kota, dan rating.
+    <strong>Tanpa harga, tanpa paket, tanpa kontak.</strong> Kamu tetap pilih sendiri &amp; chat sendiri.
+    Detail lengkap, spek, dan pencocokan budget hanya ada di aplikasi.
+  </p>
+
+  {% if existing and existing.event_category %}
+    <div class="panel" style="margin-top: 24px; padding: 24px;">
+      <div style="font-size: 0.8rem; color: var(--sage); font-weight: 700;">PILIHANMU (1 template, tidak bisa ganti sendiri)</div>
+      <h2 style="margin: 8px 0;">{{ existing.event_category.name }}</h2>
+      <a href="{% url 'paid_template_download' %}" class="btn btn-berry btn-lg" style="margin-top: 10px;">
+        <i data-lucide="download" style="width: 18px; height: 18px;"></i>
+        <span>Unduh Template {{ existing.event_category.name }} (.xlsx)</span>
+      </a>
+      <p style="font-size: 0.8rem; color: var(--ink-soft); margin-top: 10px;">Mau ganti kategori? Hubungi admin.</p>
+    </div>
+  {% else %}
+    <form method="post" action="{% url 'paid_template' %}" style="margin-top: 24px;">
+      {% csrf_token %}
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; text-align: left;">
+        {% for cat in categories %}
+          <label class="panel" style="margin: 0; padding: 18px; cursor: pointer; display: flex; gap: 12px; align-items: flex-start;">
+            <input type="radio" name="category_id" value="{{ cat.id }}" required style="margin-top: 4px; width: 18px; height: 18px; accent-color: var(--berry);">
+            <span>
+              <span style="display: block; font-weight: 700;">{{ cat.name }}</span>
+              <span style="display: block; font-size: 0.82rem; color: var(--ink-soft);">{{ cat.description|default:"List vendor terkurasi kategori ini."|truncatewords:14 }}</span>
+            </span>
+          </label>
+        {% endfor %}
+      </div>
+      <button type="submit" class="btn btn-berry btn-lg" style="margin-top: 20px;">
+        <i data-lucide="check-circle-2" style="width: 18px; height: 18px;"></i>
+        <span>Pilih Template Ini (hanya 1)</span>
+      </button>
+    </form>
+  {% endif %}
+</div>
+{% endblock %}

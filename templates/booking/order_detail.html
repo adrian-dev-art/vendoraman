@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block title %}Pesanan {{ order.order_code }} - Vendoraman{% endblock %}
+
+{% block content %}
+<div class="wrap-narrow">
+  <div class="panel">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--line);">
+      <div>
+        <div style="font-size: 0.8rem; color: var(--ink-soft); font-weight: 600; text-transform: uppercase;">Kode Pesanan</div>
+        <h1 style="font-size: 1.5rem; color: var(--ink); margin: 2px 0 0;">{{ order.order_code }}</h1>
+        <div style="font-size: 0.82rem; color: var(--ink-soft); margin-top: 2px;">
+          Dibuat pada {{ order.created_at|date:"d M Y, H:i" }} WIB
+        </div>
+      </div>
+      <div>
+        <span class="status-badge {% if order.status == 'PENDING' %}pending{% elif order.status == 'CONFIRMED' %}confirmed{% elif order.status == 'COMPLETED' %}completed{% else %}cancelled{% endif %}">
+          <i data-lucide="{% if order.status == 'PENDING' %}clock{% elif order.status == 'CONFIRMED' %}check-circle{% elif order.status == 'COMPLETED' %}award{% else %}x-circle{% endif %}" style="width: 14px; height: 14px;"></i>
+          {{ order.get_status_display }}
+        </span>
+      </div>
+    </div>
+
+    <!-- 2-column info grid -->
+    <div style="display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 24px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+        <!-- Vendor Info -->
+        <div style="background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 16px;">
+          <div style="font-size: 0.78rem; font-weight: 700; color: var(--berry); text-transform: uppercase; margin-bottom: 6px;">
+            Informasi Vendor
+          </div>
+          <div style="font-weight: 700; font-size: 1rem; color: var(--ink);">{{ order.vendor.business_name }}</div>
+          <div style="font-size: 0.85rem; color: var(--ink-soft); margin-top: 4px;">{{ order.vendor.category.name }} &bull; {{ order.vendor.city }}</div>
+          <div style="font-size: 0.85rem; color: var(--ink); margin-top: 8px;">
+            <strong>PIC:</strong> {{ order.vendor.pic_name }}<br>
+            <strong>Telp:</strong> <a href="tel:{{ order.vendor.contact_phone }}" style="color: var(--berry); font-weight: 600;">{{ order.vendor.contact_phone }}</a><br>
+            <strong>Email:</strong> {{ order.vendor.contact_email }}
+          </div>
+        </div>
+
+        <!-- Customer & Event Info -->
+        <div style="background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 16px;">
+          <div style="font-size: 0.78rem; font-weight: 700; color: var(--gold-deep); text-transform: uppercase; margin-bottom: 6px;">
+            Informasi Pemesan & Acara
+          </div>
+          <div style="font-weight: 700; font-size: 1rem; color: var(--ink);">{{ order.customer.username }}</div>
+          <div style="font-size: 0.85rem; color: var(--ink); margin-top: 4px;">
+            <strong>Tanggal Event:</strong> <span style="font-weight: 700; color: var(--berry);">{{ order.event_date|date:"l, d F Y" }}</span><br>
+            <strong>Kontak Pemesan:</strong> {{ order.customer.phone_number|default:"-" }}<br>
+            <strong>Email:</strong> {{ order.customer.email }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Package & Price Details -->
+    <div style="background: var(--white); border: 1px solid var(--line); border-radius: 10px; padding: 18px; margin-bottom: 24px;">
+      <div style="font-size: 0.82rem; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; margin-bottom: 10px;">
+        Paket Layanan Dipesan
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: baseline;">
+        <div>
+          <div style="font-weight: 700; font-size: 1.1rem; color: var(--ink);">{{ order.package.name }}</div>
+          <div style="font-size: 0.84rem; color: var(--ink-soft); margin-top: 4px;">Kapasitas: {{ order.package.pax_capacity }} pax</div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-size: 1.25rem; font-weight: 700; font-family: 'Fraunces', serif; color: var(--ink);">
+            Rp {{ order.total_price|intdot }}
+          </div>
+        </div>
+      </div>
+
+      {% if order.notes %}
+        <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 0.88rem;">
+          <strong style="color: var(--ink-soft);">Catatan Khusus:</strong>
+          <p style="color: var(--ink); margin-top: 4px;">{{ order.notes }}</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Commission Breakdown Box (for Vendor & Admin, or Transparency for Customer) -->
+    <div class="commission-box">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+        <i data-lucide="percent" style="width: 18px; height: 18px; color: var(--gold-deep);"></i>
+        <strong style="font-size: 0.92rem; color: var(--ink);">Rincian Komisi & Pendapatan Vendor</strong>
+      </div>
+      <div class="commission-row">
+        <span>Nilai Total Transaksi Paket:</span>
+        <strong>Rp {{ order.total_price|intdot }}</strong>
+      </div>
+      <div class="commission-row" style="color: var(--gold-deep);">
+        <span>Fee Komisi Platform Vendoraman ({{ order.commission_rate }}%):</span>
+        <span>- Rp {{ order.commission_amount|intdot }}</span>
+      </div>
+      <div class="commission-row total">
+        <span>Pendapatan Bersih Vendor:</span>
+        <span style="color: var(--sage); font-size: 1.1rem;">Rp {{ order.vendor_net_amount|intdot }}</span>
+      </div>
+      <div style="font-size: 0.78rem; color: var(--ink-soft); margin-top: 8px;">
+        Status Komisi: <strong>{{ order.get_commission_status_display }}</strong>
+      </div>
+    </div>
+
+    <!-- Status Action Controls -->
+    <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+      <div>
+        {% if is_vendor %}
+          <a href="{% url 'vendor_dashboard' %}" class="btn btn-ghost">
+            <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Kembali ke Portal Vendor
+          </a>
+        {% elif is_admin %}
+          <a href="{% url 'admin_dashboard' %}" class="btn btn-ghost">
+            <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Kembali ke Admin
+          </a>
+        {% else %}
+          <a href="{% url 'customer_dashboard' %}" class="btn btn-ghost">
+            <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Kembali ke Dashboard
+          </a>
+        {% endif %}
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        {% if order.status == 'PENDING' %}
+          {% if is_vendor or is_admin %}
+            <form action="{% url 'update_order_status' order.id %}" method="post" style="display: inline;">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="confirm">
+              <button type="submit" class="btn btn-primary">
+                <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i>
+                Konfirmasi Pesanan
+              </button>
+            </form>
+          {% endif %}
+          <form action="{% url 'update_order_status' order.id %}" method="post" style="display: inline;" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pesanan ini?');">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="cancel">
+            <button type="submit" class="btn btn-outline" style="color: var(--berry);">
+              <i data-lucide="x-circle" style="width: 16px; height: 16px;"></i>
+              Batalkan Pesanan
+            </button>
+          </form>
+        {% elif order.status == 'CONFIRMED' %}
+          <form action="{% url 'update_order_status' order.id %}" method="post" style="display: inline;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="complete">
+            <button type="submit" class="btn btn-berry">
+              <i data-lucide="award" style="width: 16px; height: 16px;"></i>
+              Tandai Event Selesai
+            </button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

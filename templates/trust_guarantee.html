@@ -1,78 +1,86 @@
 {% extends 'base.html' %}
 
-{% block title %}Garansi & Perlindungan Finansial - Vendorama{% endblock %}
+{% block title %}Kemitraan & Skema Komisi Transparan - Vendoraman{% endblock %}
 
 {% block content %}
-<section style="padding: 4rem 0; background: var(--bg-surface); border-bottom: 1px solid var(--border-color);">
-  <div class="container-narrow text-center" style="text-align: center;">
-    <span class="badge badge-emerald" style="margin-bottom: 1rem;">
-      <i data-lucide="shield-check"></i>
-      <span>Jaminan Keamanan & Rekening Bersama</span>
-    </span>
-    <h1 style="font-size: 2.5rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 1rem;">
-      Solusi Bisnis: Rasa Aman Total Memilih Vendor
+<section style="padding: 60px 20px; background: var(--ink); color: var(--paper); text-align: center;">
+  <div class="wrap-narrow" style="padding-top: 0; padding-bottom: 0;">
+    <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(217, 164, 65, 0.15); border: 1px solid var(--gold); border-radius: var(--radius-pill); padding: 5px 14px; margin-bottom: 18px; font-size: 0.8rem; font-weight: 700; color: var(--gold);">
+      <i data-lucide="award" style="width: 15px; height: 15px;"></i>
+      <span>Standar Kemitraan & Bisnis Terbuka</span>
+    </div>
+    <h1 style="font-size: clamp(2rem, 4vw, 2.8rem); color: var(--paper); margin-bottom: 14px;">
+      Skema Komisi Bersahabat & Kurasi Terpercaya
     </h1>
-    <p style="font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7;">
-      Bukan sekadar direktori pencarian vendor. Vendorama adalah garda terdepan penjamin integritas transaksi event Anda. Kami menampung seluruh dana di awal, mencairkannya bertahap, dan mengganti kerugian jika terjadi kelalaian.
+    <p style="font-size: 1.05rem; color: #C7C9E4; line-height: 1.6; max-width: 680px; margin: 0 auto;">
+      Vendoraman membangun ekosistem di mana customer mendapatkan vendor event terbaik tanpa biaya siluman, dan vendor berkembang dengan skema komisi berbasis kesuksesan transaksi.
     </p>
   </div>
 </section>
 
-<section style="padding: 4rem 0;">
-  <div class="container-narrow">
-    <div style="display: flex; flex-direction: column; gap: 2rem;">
+<section style="padding: 50px 20px; background: var(--paper);">
+  <div class="wrap-narrow" style="padding-top: 0; padding-bottom: 0;">
+    <div style="display: flex; flex-direction: column; gap: 20px;">
       
-      <!-- Guarantee Item 1 -->
-      <div class="card" style="display: flex; gap: 1.5rem; align-items: flex-start;">
-        <div style="width: 52px; height: 52px; border-radius: var(--radius-md); background: var(--emerald-light); color: var(--emerald); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-          <i data-lucide="user-check" style="width: 26px; height: 26px;"></i>
+      <!-- Item 1 -->
+      <div class="panel" style="display: flex; gap: 20px; align-items: flex-start; margin-bottom: 0;">
+        <div style="width: 48px; height: 48px; border-radius: 10px; background: var(--sage-soft); color: var(--sage); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <i data-lucide="user-check" style="width: 24px; height: 24px;"></i>
         </div>
         <div>
-          <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">1. Vendor Terverifikasi & Terkurasi Ketat</h3>
-          <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;">
-            Tidak sembarang vendor bisa tampil di Vendorama. Tim kami melakukan verifikasi legalitas (KTP/NIB/Akta), survei portofolio riil, dan interview kesiapan layanan. Vendor yang tidak bertanggung jawab sangat mudah kami lacak dan tindak lanjuti secara legal.
+          <h3 style="font-size: 1.2rem; color: var(--ink); margin-bottom: 6px;">1. Kurasi & Verifikasi Vendor Ketat</h3>
+          <p style="color: var(--ink-soft); font-size: 0.92rem; line-height: 1.6;">
+            Setiap vendor yang terdaftar melalui proses kurasi menyeluruh: pemeriksaan identitas PIC, audit portofolio pekerjaan nyata, dan rekam jejak kepuasan klien. Hanya vendor yang memenuhi kualifikasi yang mendapatkan lencana <em>Vetted Partner</em>.
           </p>
         </div>
       </div>
 
-      <!-- Guarantee Item 2 -->
-      <div class="card" style="display: flex; gap: 1.5rem; align-items: flex-start;">
-        <div style="width: 52px; height: 52px; border-radius: var(--radius-md); background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-          <i data-lucide="split" style="width: 26px; height: 26px;"></i>
+      <!-- Item 2 -->
+      <div class="panel" style="display: flex; gap: 20px; align-items: flex-start; margin-bottom: 0;">
+        <div style="width: 48px; height: 48px; border-radius: 10px; background: var(--gold-soft); color: var(--gold-deep); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <i data-lucide="percent" style="width: 24px; height: 24px;"></i>
         </div>
         <div>
-          <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">2. Penampungan Dana & Pencairan 3-Termin Bertahap</h3>
-          <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;">
-            Seluruh biaya event dibayarkan ke akun penampungan resmi Vendorama (Escrow Vault). Dana dicairkan ke vendor hanya berdasarkan milestone kesiapan:
+          <h3 style="font-size: 1.2rem; color: var(--ink); margin-bottom: 6px;">2. Skema Komisi 10% Berbasis Transaksi Sukses</h3>
+          <p style="color: var(--ink-soft); font-size: 0.92rem; line-height: 1.6;">
+            Vendor tidak dibebani biaya langganan bulanan yang memberatkan. Vendoraman mengambil komisi platform sebesar 10% hanya ketika vendor mendapatkan pesanan yang disepakati dan dikonfirmasi. 90% sisanya menjadi hak bersih vendor.
           </p>
-          <ul style="margin: 0.75rem 0 0 1.25rem; font-size: 0.925rem; color: var(--text-secondary);">
-            <li><strong>Termin 1 (30% DP):</strong> Dicairkan saat booking terkonfirmasi untuk persiapan bahan & reservasi jadwal.</li>
-            <li><strong>Termin 2 (40% Pelaksanaan):</strong> Dicairkan H-3 sebelum acara setelah vendor membuktikan kesiapan 100%.</li>
-            <li><strong>Termin 3 (30% Pelunasan):</strong> Dicairkan H+1 setelah customer mengonfirmasi event selesai tanpa kendala.</li>
-          </ul>
         </div>
       </div>
 
-      <!-- Guarantee Item 3 -->
-      <div class="card" style="display: flex; gap: 1.5rem; align-items: flex-start;">
-        <div style="width: 52px; height: 52px; border-radius: var(--radius-md); background: var(--crimson-light); color: var(--crimson); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-          <i data-lucide="shield-alert" style="width: 26px; height: 26px;"></i>
+      <!-- Item 3 -->
+      <div class="panel" style="display: flex; gap: 20px; align-items: flex-start; margin-bottom: 0;">
+        <div style="width: 48px; height: 48px; border-radius: 10px; background: var(--berry-soft); color: var(--berry); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <i data-lucide="shield-check" style="width: 24px; height: 24px;"></i>
         </div>
         <div>
-          <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">3. Garda Terdepan Penanganan Wanprestasi & Refund</h3>
-          <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;">
-            Jika vendor terlambat parah, membatalkan sepihak, atau tidak memenuhi spesifikasi yang disepakati:
-            Customer cukup menekan tombol <strong>Ajukan Dispute</strong>. Seluruh sisa pencairan dana langsung dibekukan. Tim Vendorama menginvestigasi dan <strong>mengembalikan dana secara finansial ke customer</strong> serta menjatuhkan penalti sanksi/suspensi kepada vendor.
+          <h3 style="font-size: 1.2rem; color: var(--ink); margin-bottom: 6px;">3. Tanpa Markup Tambahan untuk Customer</h3>
+          <p style="color: var(--ink-soft); font-size: 0.92rem; line-height: 1.6;">
+            Customer membayar harga riil sesuai paket yang ditetapkan oleh vendor. Tidak ada mark-up sepihak dari platform. Dengan Paid Planner, customer juga berhak mendapatkan nomor WhatsApp PIC resmi vendor untuk koordinasi teknis langsung.
+          </p>
+        </div>
+      </div>
+
+      <!-- Item 4 -->
+      <div class="panel" style="display: flex; gap: 20px; align-items: flex-start; margin-bottom: 0;">
+        <div style="width: 48px; height: 48px; border-radius: 10px; background: var(--paper-dim); color: var(--ink); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <i data-lucide="compass" style="width: 24px; height: 24px;"></i>
+        </div>
+        <div>
+          <h3 style="font-size: 1.2rem; color: var(--ink); margin-bottom: 6px;">4. Konsultasi Cerdas 5-Langkah</h3>
+          <p style="color: var(--ink-soft); font-size: 0.92rem; line-height: 1.6;">
+            Menggunakan alur konsultasi interaktif yang mencocokkan anggaran kasar, lokasi kota, jumlah tamu, serta prioritas utama acaramu sehingga waktu persiapan event menjadi jauh lebih efisien.
           </p>
         </div>
       </div>
 
     </div>
 
-    <div style="margin-top: 3rem; text-align: center;">
-      <a href="{% url 'planner_wizard' %}" class="btn btn-primary btn-lg">
-        <i data-lucide="sparkles"></i>
-        <span>Rencanakan Event dengan Rasa Aman</span>
+    <!-- CTA -->
+    <div style="text-align: center; margin-top: 36px;">
+      <a href="{% url 'planner_wizard' %}" class="btn btn-berry btn-lg">
+        <i data-lucide="sparkles" style="width: 18px; height: 18px;"></i>
+        <span>Mulai Konsultasi & Cari Vendor Sekarang</span>
       </a>
     </div>
   </div>
