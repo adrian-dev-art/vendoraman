@@ -19,7 +19,9 @@ def login_view(request):
             login(request, user)
             messages.success(request, f"Selamat datang kembali, {user.username}!")
             if user.is_platform_admin():
-                return redirect('admin_dashboard')
+                return redirect('admin:index')
+            elif user.is_operator():
+                return redirect('admin_download_codes')
             elif user.is_vendor_user():
                 return redirect('vendor_dashboard')
             return redirect('customer_dashboard')

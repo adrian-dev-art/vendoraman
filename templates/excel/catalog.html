@@ -42,6 +42,29 @@
     </div>
   </div>
 
+  {% if active_code %}
+    <!-- Active Shopee Code Banner -->
+    <div style="background: #ecfdf5; border: 1.5px solid #6ee7b7; border-radius: 14px; padding: 18px 22px; margin-bottom: 36px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.1);">
+      <div style="display: flex; align-items: flex-start; gap: 14px; max-width: 750px;">
+        <div style="width: 42px; height: 42px; border-radius: 10px; background: #10b981; color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;">
+          <i data-lucide="ticket" style="width: 22px; height: 22px;"></i>
+        </div>
+        <div>
+          <div style="font-size: 0.76rem; text-transform: uppercase; font-weight: 700; color: #047857; letter-spacing: 0.04em;">KODE AKSES SHOPEE TERDETEKSI</div>
+          <div style="font-size: 1.15rem; font-weight: 800; color: #065f46; font-family: monospace; letter-spacing: 0.05em;">{{ active_code }}</div>
+          <div style="font-size: 0.84rem; color: #047857; margin-top: 4px; line-height: 1.45;">
+            ⚠️ <strong>Penting:</strong> Kode Anda bebas digunakan untuk kategori apa pun di bawah, namun <strong>hanya berlaku untuk 1 kali unduh</strong>. Pastikan Anda memilih kategori yang tepat sebelum menekan tombol unduh.
+          </div>
+        </div>
+      </div>
+      <div>
+        <span style="background: #10b981; color: white; font-size: 0.8rem; font-weight: 700; padding: 6px 14px; border-radius: 20px; white-space: nowrap;">
+          ✓ Siap Dipakai (1x)
+        </span>
+      </div>
+    </div>
+  {% endif %}
+
   <!-- Category Cards Grid -->
   <div style="margin-bottom: 56px;">
     <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
@@ -91,7 +114,7 @@
 
           <!-- Bottom Action -->
           <div style="margin-top: 10px;">
-            <a href="{% url 'excel_template_category' item.category.slug %}" class="btn btn-berry" style="width: 100%; justify-content: center; padding: 12px 18px;">
+            <a href="{% url 'excel_template_category' item.category.slug %}{% if active_code %}?code={{ active_code }}{% endif %}" class="btn btn-berry" style="width: 100%; justify-content: center; padding: 12px 18px;">
               <i data-lucide="download" style="width: 16px; height: 16px;"></i>
               <span>Buka Detail &amp; Unduh (.xlsx)</span>
             </a>
@@ -192,4 +215,31 @@
   </div>
 
 </div>
+
+{% if active_code %}
+<script>
+(function() {
+  const code = "{{ active_code }}";
+  if (!code) return;
+
+  function pingTracking(delta) {
+    if (document.hidden) return;
+    fetch("{% url 'track_code_activity_api' %}", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: code, time_delta: delta, page: 'Katalog Template' }),
+      keepalive: true
+    }).catch(function() {});
+  }
+
+  // Ping every 10 seconds while tab is active
+  setInterval(function() { pingTracking(10); }, 10000);
+
+  // Ping on page unload
+  window.addEventListener('beforeunload', function() {
+    pingTracking(5);
+  });
+})();
+</script>
+{% endif %}
 {% endblock %}

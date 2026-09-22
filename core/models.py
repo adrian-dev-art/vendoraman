@@ -8,6 +8,7 @@ class CustomUser(AbstractUser):
     ROLE_CHOICES = [
         ('CUSTOMER', 'Customer'),
         ('VENDOR', 'Vendor'),
+        ('OPERATOR', 'Operator / CS Shopee'),
         ('ADMIN', 'Admin / Platform Operator'),
     ]
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='CUSTOMER')
@@ -20,8 +21,14 @@ class CustomUser(AbstractUser):
     def is_vendor_user(self):
         return self.role == 'VENDOR'
 
+    def is_operator(self):
+        return self.role == 'OPERATOR'
+
     def is_platform_admin(self):
         return self.role == 'ADMIN' or self.is_superuser
+
+    def can_manage_shopee_and_templates(self):
+        return self.role in ('OPERATOR', 'ADMIN') or self.is_superuser
 
     def is_premium(self):
         import datetime
@@ -374,12 +381,65 @@ class TemplateDownloadCode(models.Model):
     notes = models.CharField(max_length=255, blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # Tracking fields
+    first_visited_at = models.DateTimeField(null=True, blank=True, help_text="Waktu pertama kali pembeli membuka link web")
+    last_activity_at = models.DateTimeField(null=True, blank=True, help_text="Waktu aktivitas terakhir di web")
+    time_spent_seconds = models.PositiveIntegerField(default=0, help_text="Durasi berada di web dalam detik")
+    visit_count = models.PositiveIntegerField(default=0, help_text="Frekuensi pembukaan halaman web")
+    last_page_viewed = models.CharField(max_length=255, blank=True, default='', help_text="Halaman terakhir yang dilihat")
+    downloaded_category = models.ForeignKey(
+        EventCategory, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='downloaded_codes', help_text="Kategori template yang akhirnya diunduh"
+    )
+    downloaded_at = models.DateTimeField(null=True, blank=True, help_text="Waktu unduh file")
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True, default='')
+    device_type = models.CharField(max_length=50, blank=True, default='', help_text="Mobile / Desktop / Tablet")
+
     class Meta:
         ordering = ['-created_at']
 
     def __str__(self):
         cat_name = self.category.name if self.category else 'Universal (All)'
         return f"{self.code} [{cat_name}] ({self.used_count}/{self.max_uses})"
+
+    @property
+    def formatted_time_spent(self):
+        if not self.first_visited_at and self.time_spent_seconds == 0:
+            return "Belum dibuka"
+        secs = self.time_spent_seconds
+        if secs < 60:
+            return f"{secs} dtk"
+        mins = secs // 60
+        rem_secs = secs % 60
+        return f"{mins}m {rem_secs}s"
+
+    @property
+    def tracking_badge(self):
+        if self.used_count >= self.max_uses:
+            return {'label': 'Sudah Download', 'color': '#2e7d32', 'bg': 'rgba(46, 125, 50, 0.12)'}
+        if self.first_visited_at:
+            return {'label': 'Pernah Buka Web', 'color': '#b45309', 'bg': 'rgba(217, 119, 6, 0.12)'}
+        return {'label': 'Belum Dibuka', 'color': '#64748b', 'bg': 'rgba(100, 116, 139, 0.1)'}
+
+    def generate_chat_message(self, base_url='https://vendoraman.vitnite.cloud'):
+        link = f"{base_url.rstrip('/')}/templates/?code={self.code}"
+        return (
+            f"Halo Kak! Terima kasih banyak sudah order di Vendoraman Official. ✨\n\n"
+            f"Ini kode akses unik untuk unduh template Anda:\n"
+            f"🔑 KODE AKSES: {self.code}\n\n"
+            f"📥 LINK UNDUH LANGSUNG:\n{link}\n\n"
+            f"⚠️ PENTING SEBELUM MEMILIH TEMPLATE:\n"
+            f"1. Kode akses ini bersifat UNIVERSAL (dapat digunakan untuk template kategori apa pun: Pernikahan, Corporate, Ulang Tahun, Pameran, Seminar, atau Intimate Gathering).\n"
+            f"2. Kode ini HANYA BISA DIGUNAKAN 1 KALI UNDUH.\n"
+            f"3. Mohon pastikan Kakak memilih kategori template yang benar dan sesuai kebutuhan sebelum menekan tombol unduh.\n\n"
+            f"CARA PENGGUNAAN:\n"
+            f"1. Klik link di atas (atau buka menu Template Excel).\n"
+            f"2. Pilih kategori template yang ingin Kakak unduh.\n"
+            f"3. Masukkan kode akses di atas (akan terisi otomatis jika klik link).\n"
+            f"4. Klik \"Unduh Template Excel\", file .xlsx berformula lengkap akan langsung tersimpan di perangkat Kakak.\n\n"
+            f"Jika butuh bantuan atau ada pertanyaan teknis, silakan balas chat ini ya Kak. Selamat merencanakan event! 😊🙏"
+        )
 
     def is_valid_for(self, target_category):
         import datetime
@@ -409,5 +469,45 @@ class TemplateDownloadLog(models.Model):
     def __str__(self):
         cat_str = self.event_category.name if self.event_category else '-'
         return f"{self.download_code.code} -> {cat_str} at {self.downloaded_at.strftime('%Y-%m-%d %H:%M')}"
+
+
+class ExcelTemplate(models.Model):
+    """Katalog file template Excel yang dapat dikelola oleh Operator CS dan Admin."""
+    category = models.OneToOneField(
+        EventCategory,
+        on_delete=models.CASCADE,
+        related_name='excel_template',
+        help_text='Kategori event yang diasosiasikan dengan template ini'
+    )
+    title = models.CharField(max_length=200, help_text='Judul lengkap / headline template')
+    slug = models.SlugField(unique=True, help_text='Slug URL template')
+    subheadline = models.TextField(blank=True, default='', help_text='Deskripsi singkat / subheadline manfaat')
+    target_audience = models.CharField(max_length=255, blank=True, default='', help_text='Target pengguna (misal: Calon Pengantin & WO)')
+    estimated_savings = models.CharField(max_length=255, blank=True, default='', help_text='Estimasi penghematan (misal: Hemat s/d Rp 15 - 30 Juta)')
+    key_perks = models.JSONField(default=list, blank=True, help_text='Daftar checklist keunggulan (JSON array of strings)')
+    file = models.FileField(
+        upload_to='excel_templates/',
+        null=True,
+        blank=True,
+        help_text='File master .xlsx kustom (opsional; jika kosong maka otomatis digenerate oleh sistem)'
+    )
+    shopee_product_url = models.URLField(blank=True, default='', help_text='Tautan produk di Shopee (opsional)')
+    is_active = models.BooleanField(default=True, help_text='Status aktif di katalog publik')
+    downloads_count = models.PositiveIntegerField(default=0, help_text='Akumulasi total unduhan')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['category__name']
+        verbose_name = 'Excel Template'
+        verbose_name_plural = 'Excel Templates'
+
+    def __str__(self):
+        return f"{self.title} ({self.category.name})"
+
+    def get_perks_list(self):
+        if isinstance(self.key_perks, list):
+            return self.key_perks
+        return []
 
 

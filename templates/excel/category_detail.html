@@ -116,9 +116,10 @@
                 type="text"
                 id="inputCode"
                 name="code"
+                value="{{ prefill_code|default:'' }}"
                 required
                 autocomplete="off"
-                placeholder="Contoh: VND-WED-A9F2K"
+                placeholder="Contoh: VND-MSTR-A9F2K"
                 style="width: 100%; box-sizing: border-box; padding: 12px 14px 12px 40px; border-radius: 8px; border: 1.5px solid var(--border-soft); font-size: 1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; font-family: monospace; color: var(--ink);"
               >
               <i data-lucide="key" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 17px; height: 17px; color: var(--ink-soft);"></i>
@@ -307,4 +308,32 @@
   </div>
 
 </div>
+
+{% if active_code or prefill_code %}
+<script>
+(function() {
+  const code = "{{ active_code|default:prefill_code|default:'' }}";
+  if (!code) return;
+  const pageName = "Kategori: {{ category.name }}";
+
+  function pingTracking(delta) {
+    if (document.hidden) return;
+    fetch("{% url 'track_code_activity_api' %}", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: code, time_delta: delta, page: pageName }),
+      keepalive: true
+    }).catch(function() {});
+  }
+
+  // Ping every 10 seconds while tab is active
+  setInterval(function() { pingTracking(10); }, 10000);
+
+  // Ping on page unload
+  window.addEventListener('beforeunload', function() {
+    pingTracking(5);
+  });
+})();
+</script>
+{% endif %}
 {% endblock %}

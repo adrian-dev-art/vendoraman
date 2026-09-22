@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Template: {{ tmpl.title }} - Operator CS Shopee{% endblock %}
+
+{% block content %}
+<div class="wrap-narrow" style="max-width: 880px; padding-top: 24px; padding-bottom: 60px;">
+
+  <!-- Breadcrumb -->
+  <div style="margin-bottom: 16px;">
+    <a href="{% url 'operator_templates' %}" style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.86rem; color: var(--ink-soft); text-decoration: none; font-weight: 500;">
+      <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
+      <span>Kembali ke Manajemen Template</span>
+    </a>
+  </div>
+
+  <!-- Header -->
+  <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+    <div>
+      <div class="step-eyebrow" style="color: var(--gold-deep); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; font-size: 0.8rem; margin-bottom: 4px;">
+        Kategori: {{ tmpl.category.name }}
+      </div>
+      <h1 style="font-size: 1.75rem; color: var(--ink); margin: 0 0 4px 0; font-family: 'Fraunces', serif;">
+        Edit Informasi & File Template
+      </h1>
+      <p style="color: var(--ink-soft); font-size: 0.88rem; margin: 0;">
+        Sesuaikan copywriting landing page, poin checklist fitur, dan file master spreadsheet Excel (.xlsx).
+      </p>
+    </div>
+    <a href="{% url 'excel_template_category' category_slug=tmpl.category.slug %}" target="_blank" class="btn btn-outline btn-sm" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 600;">
+      <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+      <span>Lihat Halaman Publik</span>
+    </a>
+  </div>
+
+  <!-- Form Panel -->
+  <div class="panel" style="background: white; border: 1px solid var(--border); border-radius: 14px; padding: 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+    <form method="post" enctype="multipart/form-data" action="">
+      {% csrf_token %}
+
+      <!-- 1. Status Publikasi -->
+      <div style="background: #faf8f5; border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <label for="id_is_active" style="font-weight: 700; color: var(--ink); font-size: 0.92rem; display: block; margin-bottom: 2px;">
+            Status Publikasi Template
+          </label>
+          <span style="font-size: 0.8rem; color: var(--ink-soft);">
+            Jika dinonaktifkan, template tidak akan muncul di katalog publik dan pembeli tidak dapat mengunduhnya.
+          </span>
+        </div>
+        <label style="display: inline-flex; align-items: center; cursor: pointer; gap: 8px;">
+          <input type="checkbox" name="is_active" id="id_is_active" {% if tmpl.is_active %}checked{% endif %} style="width: 18px; height: 18px; cursor: pointer;">
+          <span style="font-weight: 600; font-size: 0.88rem; color: var(--ink);">Aktif</span>
+        </label>
+      </div>
+
+      <!-- 2. Judul / Headline -->
+      <div style="margin-bottom: 20px;">
+        <label for="id_title" style="display: block; font-weight: 700; font-size: 0.88rem; color: var(--ink); margin-bottom: 6px;">
+          Judul / Headline Template <span style="color: var(--berry);">*</span>
+        </label>
+        <input type="text" name="title" id="id_title" value="{{ tmpl.title }}" required class="form-input" style="width: 100%; height: 42px; font-size: 0.92rem; font-weight: 600;">
+        <div style="font-size: 0.76rem; color: var(--ink-soft); margin-top: 4px;">
+          Headline utama yang terlihat oleh calon pembeli di katalog & halaman unduh.
+        </div>
+      </div>
+
+      <!-- 3. Subheadline / Deskripsi Manfaat -->
+      <div style="margin-bottom: 20px;">
+        <label for="id_subheadline" style="display: block; font-weight: 700; font-size: 0.88rem; color: var(--ink); margin-bottom: 6px;">
+          Subheadline / Ringkasan Deskripsi
+        </label>
+        <textarea name="subheadline" id="id_subheadline" rows="3" class="form-input" style="width: 100%; font-size: 0.88rem; line-height: 1.45; padding: 10px 12px;">{{ tmpl.subheadline }}</textarea>
+        <div style="font-size: 0.76rem; color: var(--ink-soft); margin-top: 4px;">
+          Jelaskan secara ringkas bagaimana template ini mempermudah perencanaan acara mereka.
+        </div>
+      </div>
+
+      <!-- 4. Target Audiens & Estimasi Penghematan Grid -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+        <div>
+          <label for="id_target_audience" style="display: block; font-weight: 700; font-size: 0.88rem; color: var(--ink); margin-bottom: 6px;">
+            Target Pengguna
+          </label>
+          <input type="text" name="target_audience" id="id_target_audience" value="{{ tmpl.target_audience }}" placeholder="Misal: Calon Pengantin, WO & Keluarga" class="form-input" style="width: 100%; height: 40px; font-size: 0.88rem;">
+        </div>
+        <div>
+          <label for="id_estimated_savings" style="display: block; font-weight: 700; font-size: 0.88rem; color: var(--ink); margin-bottom: 6px;">
+            Estimasi Penghematan / Value
+          </label>
+          <input type="text" name="estimated_savings" id="id_estimated_savings" value="{{ tmpl.estimated_savings }}" placeholder="Misal: Hemat s/d Rp 15 - 30 Juta" class="form-input" style="width: 100%; height: 40px; font-size: 0.88rem;">
+        </div>
+      </div>
+
+      <!-- 5. Checklist Fitur Unggulan (Key Perks) -->
+      <div style="margin-bottom: 24px;">
+        <label for="id_key_perks_text" style="display: block; font-weight: 700; font-size: 0.88rem; color: var(--ink); margin-bottom: 6px;">
+          Checklist Keunggulan & Rumus Template (1 Poin Per Baris)
+        </label>
+        <textarea name="key_perks_text" id="id_key_perks_text" rows="5" class="form-input" style="width: 100%; font-size: 0.88rem; font-family: ui-monospace, monospace; line-height: 1.5; padding: 10px 12px;">{{ perks_text }}</textarea>
+        <div style="font-size: 0.76rem; color: var(--ink-soft); margin-top: 4px;">
+          Tulis setiap keunggulan fitur di baris baru. Setiap baris akan otomatis menjadi poin checklist centang hijau (✓) di landing page.
+        </div>
+      </div>
+
+      <!-- 6. File Master Spreadsheet (.xlsx) Custom -->
+      <div style="background: #fdfbf7; border: 1.5px dashed var(--gold-deep); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+          <i data-lucide="file-spreadsheet" style="width: 18px; height: 18px; color: var(--gold-deep);"></i>
+          <label style="font-weight: 700; font-size: 0.92rem; color: var(--ink); margin: 0;">
+            File Master Excel (.xlsx) Kustom
+          </label>
+        </div>
+        <p style="font-size: 0.82rem; color: var(--ink-soft); margin: 0 0 14px 0;">
+          Anda dapat mengunggah file spreadsheet Excel khusus yang sudah didesain rapi dengan warna & logo. Jika tidak diunggah, sistem otomatis men-generate file menggunakan algoritma kalkulator cerdas Vendoraman.
+        </p>
+
+        {% if tmpl.file %}
+          <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <i data-lucide="file-check" style="width: 20px; height: 20px; color: var(--sage);"></i>
+              <div>
+                <div style="font-weight: 700; font-size: 0.86rem; color: var(--ink);">
+                  {{ tmpl.file.name }}
+                </div>
+                <div style="font-size: 0.74rem; color: var(--ink-soft);">
+                  File master kustom aktif saat ini
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <a href="{{ tmpl.file.url }}" download class="btn btn-outline btn-sm" style="font-size: 0.78rem; padding: 4px 10px;">
+                <i data-lucide="download" style="width: 12px; height: 12px;"></i>
+                <span>Unduh File Ini</span>
+              </a>
+              <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #991b1b; cursor: pointer;">
+                <input type="checkbox" name="remove_file" value="true">
+                <span>Hapus (Kembali ke Auto-Generate)</span>
+              </label>
+            </div>
+          </div>
+        {% endif %}
+
+        <div>
+          <label for="id_file" style="display: block; font-size: 0.82rem; font-weight: 600; color: var(--ink); margin-bottom: 4px;">
+            {% if tmpl.file %}Ganti dengan file baru:{% else %}Unggah file master .xlsx:{% endif %}
+          </label>
+          <input type="file" name="file" id="id_file" accept=".xlsx,.xls" class="form-input" style="width: 100%; padding: 8px; font-size: 0.85rem; background: white;">
+        </div>
+      </div>
+
+      <!-- 7. Tautan Produk Shopee (Opsional) -->
+      <div style="margin-bottom: 28px;">
+        <label for="id_shopee_product_url" style="display: block; font-weight: 700; font-size: 0.88rem; color: var(--ink); margin-bottom: 6px;">
+          Tautan Halaman Produk di Shopee (Opsional)
+        </label>
+        <input type="url" name="shopee_product_url" id="id_shopee_product_url" value="{{ tmpl.shopee_product_url }}" placeholder="https://shopee.co.id/product/..." class="form-input" style="width: 100%; height: 40px; font-size: 0.88rem;">
+        <div style="font-size: 0.76rem; color: var(--ink-soft); margin-top: 4px;">
+          Tautan langsung ke listing Shopee untuk kategori ini bila ada.
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--border); padding-top: 20px;">
+        <a href="{% url 'operator_templates' %}" class="btn btn-secondary" style="padding: 10px 20px; font-size: 0.9rem;">
+          Batal
+        </a>
+        <button type="submit" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; font-size: 0.9rem; font-weight: 600;">
+          <i data-lucide="check" style="width: 16px; height: 16px;"></i>
+          <span>Simpan Perubahan</span>
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+</div>
+{% endblock %}

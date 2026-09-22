@@ -113,7 +113,7 @@ button {
 }
 
 .topbar-inner {
-  max-width: 1200px;
+  max-width: 1440px;
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -128,6 +128,7 @@ button {
   align-items: baseline;
   gap: 2px;
   color: var(--paper);
+  flex-shrink: 0;
 }
 
 .brand span {
@@ -140,25 +141,31 @@ button {
   margin-top: 1px;
   font-family: 'Inter', sans-serif;
   font-weight: 400;
+  white-space: nowrap;
 }
 
 .nav-menu {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 8px;
   list-style: none;
+  margin: 0;
+  padding: 0;
+  flex-wrap: nowrap;
 }
 
 .nav-link {
   color: #D3D6E8;
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   font-weight: 500;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 6px 10px;
   border-radius: 8px;
   transition: all 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .nav-link:hover, .nav-link.active {
@@ -169,7 +176,8 @@ button {
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 /* Mobile Nav: keep links reachable via horizontal scroll instead of hiding them */
@@ -884,6 +892,7 @@ select:focus, input:focus, textarea:focus, .form-control:focus, .form-select:foc
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.2px;
+  white-space: nowrap;
 }
 
 .status-badge.pending {

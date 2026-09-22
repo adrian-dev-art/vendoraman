@@ -1,0 +1,983 @@
+{% extends 'base.html' %}
+
+{% block title %}Manajemen Kode Unduh & Tracking Shopee - Vendoraman{% endblock %}
+
+{% block content %}
+<div class="wrap" style="max-width: 1380px; width: 95%; padding-top: 24px; padding-bottom: 60px;">
+
+  <!-- Header & Actions -->
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 28px;">
+    <div>
+      <div class="step-eyebrow" style="color: var(--gold-deep); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; font-size: 0.8rem; margin-bottom: 4px;">
+        Pusat Kendali Shopee & Unduhan
+      </div>
+      <h1 style="font-size: 1.85rem; color: var(--ink); margin: 0 0 6px 0; font-family: 'Fraunces', serif;">
+        Manajemen Kode Akses & Pelacakan Customer
+      </h1>
+      <p style="color: var(--ink-soft); font-size: 0.92rem; margin: 0; max-width: 680px;">
+        Generate kode akses 1x pakai (universal untuk template apa pun), salin format pesan chat Shopee siap kirim, dan pantau durasi interaksi customer di website.
+      </p>
+    </div>
+    <div>
+      <button type="button" class="btn btn-primary" id="btnOpenGenerateModal" style="display: inline-flex; align-items: center; gap: 8px; font-weight: 600; padding: 12px 22px; font-size: 0.95rem; box-shadow: 0 4px 14px rgba(180, 83, 9, 0.25);">
+        <i data-lucide="sparkles" style="width: 18px; height: 18px;"></i>
+        <span>+ Generate Kode Baru</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Metric Statistics Cards -->
+  <div class="stat-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 28px;">
+    <!-- Card 1: Total Kode -->
+    <div class="stat-card" style="background: white; border: 1px solid var(--border); border-radius: 12px; padding: 16px 16px; border-left: 4px solid var(--ink-soft); display: flex; flex-direction: column; justify-content: space-between; min-height: 120px;">
+      <div>
+        <div style="font-size: 0.74rem; color: var(--ink-soft); text-transform: uppercase; font-weight: 700; letter-spacing: 0.04em; white-space: nowrap;">
+          Total Kode
+        </div>
+        <div id="statTotalCodes" style="font-size: 1.85rem; font-weight: 800; color: var(--ink); margin: 6px 0 4px 0; line-height: 1;">
+          {{ total_codes }}
+        </div>
+      </div>
+      <div style="font-size: 0.76rem; color: var(--ink-soft); white-space: nowrap;">
+        Riwayat kode akses
+      </div>
+    </div>
+
+    <!-- Card 2: Belum Digunakan -->
+    <div class="stat-card" style="background: white; border: 1px solid var(--border); border-radius: 12px; padding: 16px 16px; border-left: 4px solid var(--sage); display: flex; flex-direction: column; justify-content: space-between; min-height: 120px;">
+      <div>
+        <div style="font-size: 0.74rem; color: var(--sage); text-transform: uppercase; font-weight: 700; letter-spacing: 0.04em; white-space: nowrap;">
+          Belum Digunakan
+        </div>
+        <div id="statUnusedCodes" style="font-size: 1.85rem; font-weight: 800; color: var(--sage); margin: 6px 0 4px 0; line-height: 1;">
+          {{ unused_codes }}
+        </div>
+      </div>
+      <div style="font-size: 0.76rem; color: var(--ink-soft); white-space: nowrap;">
+        Siap diunduh (0/1)
+      </div>
+    </div>
+
+    <!-- Card 3: Pernah Buka Web -->
+    <div class="stat-card" style="background: white; border: 1px solid var(--border); border-radius: 12px; padding: 16px 16px; border-left: 4px solid var(--gold-deep); display: flex; flex-direction: column; justify-content: space-between; min-height: 120px;">
+      <div>
+        <div style="font-size: 0.74rem; color: var(--gold-deep); text-transform: uppercase; font-weight: 700; letter-spacing: 0.04em; white-space: nowrap;">
+          Pernah Buka Web
+        </div>
+        <div style="font-size: 1.85rem; font-weight: 800; color: var(--gold-deep); margin: 6px 0 4px 0; line-height: 1;">
+          {{ visited_codes }}
+        </div>
+      </div>
+      <div style="font-size: 0.76rem; color: var(--ink-soft); white-space: nowrap;">
+        Link chat diklik customer
+      </div>
+    </div>
+
+    <!-- Card 4: Sudah Digunakan -->
+    <div class="stat-card" style="background: white; border: 1px solid var(--border); border-radius: 12px; padding: 16px 16px; border-left: 4px solid var(--berry); display: flex; flex-direction: column; justify-content: space-between; min-height: 120px;">
+      <div>
+        <div style="font-size: 0.74rem; color: var(--berry); text-transform: uppercase; font-weight: 700; letter-spacing: 0.04em; white-space: nowrap;">
+          Sudah Digunakan
+        </div>
+        <div style="font-size: 1.85rem; font-weight: 800; color: var(--berry); margin: 6px 0 4px 0; line-height: 1;">
+          {{ used_codes }}
+        </div>
+      </div>
+      <div style="font-size: 0.76rem; color: var(--ink-soft); white-space: nowrap;">
+        File sukses diunduh (1/1)
+      </div>
+    </div>
+
+    <!-- Card 5: Rata-rata Durasi -->
+    <div class="stat-card" style="background: white; border: 1px solid var(--border); border-radius: 12px; padding: 16px 16px; border-left: 4px solid #2563eb; display: flex; flex-direction: column; justify-content: space-between; min-height: 120px;">
+      <div>
+        <div style="font-size: 0.74rem; color: #2563eb; text-transform: uppercase; font-weight: 700; letter-spacing: 0.04em; white-space: nowrap;">
+          Rata-rata Durasi
+        </div>
+        <div style="font-size: 1.85rem; font-weight: 800; color: #1e40af; margin: 6px 0 4px 0; line-height: 1;">
+          {{ avg_time_display }}
+        </div>
+      </div>
+      <div style="font-size: 0.76rem; color: var(--ink-soft); white-space: nowrap;">
+        Waktu interaksi di web
+      </div>
+    </div>
+  </div>
+
+  <!-- Search & Filter Controls -->
+  <div style="background: white; border: 1px solid var(--border); border-radius: 12px 12px 0 0; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; border-bottom: none;">
+    <form method="get" action="" style="display: flex; align-items: center; gap: 10px; flex-grow: 1; max-width: 500px;">
+      <div style="position: relative; width: 100%;">
+        <i data-lucide="search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--ink-soft);"></i>
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Cari kode (misal VND-MSTR-...), IP, catatan..." 
+               class="form-input" style="padding-left: 36px; height: 38px; font-size: 0.88rem; width: 100%; border-radius: 8px;">
+      </div>
+      <button type="submit" class="btn btn-secondary" style="padding: 0 16px; height: 38px; font-size: 0.86rem; white-space: nowrap;">Cari</button>
+      {% if search_query or status_filter != 'all' %}
+        <a href="{% url 'admin_download_codes' %}" class="btn btn-secondary" style="padding: 0 12px; height: 38px; font-size: 0.86rem; color: var(--ink-soft);" title="Reset Filter">✕</a>
+      {% endif %}
+    </form>
+
+    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+      <span style="font-size: 0.82rem; color: var(--ink-soft); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em;">Filter:</span>
+      <a href="?status=all{% if search_query %}&q={{ search_query }}{% endif %}" 
+         class="filter-pill {% if status_filter == 'all' %}active-all{% endif %}">
+        Semua ({{ total_codes }})
+      </a>
+      <a href="?status=unused{% if search_query %}&q={{ search_query }}{% endif %}" 
+         class="filter-pill {% if status_filter == 'unused' %}active-unused{% endif %}">
+        Belum Dipakai ({{ unused_codes }})
+      </a>
+      <a href="?status=visited{% if search_query %}&q={{ search_query }}{% endif %}" 
+         class="filter-pill {% if status_filter == 'visited' %}active-visited{% endif %}">
+        Pernah Buka ({{ visited_codes }})
+      </a>
+      <a href="?status=used{% if search_query %}&q={{ search_query }}{% endif %}" 
+         class="filter-pill {% if status_filter == 'used' %}active-used{% endif %}">
+        Sudah Digunakan ({{ used_codes }})
+      </a>
+    </div>
+  </div>
+
+  <!-- Table View Panel -->
+  <div class="panel" style="background: white; border: 1px solid var(--border); border-radius: 0 0 12px 12px; overflow: hidden; margin-bottom: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.03);">
+    <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+      <table class="table code-table" style="width: 100%; min-width: 1040px; border-collapse: separate; border-spacing: 0; text-align: left;">
+        <thead>
+          <tr>
+            <th style="width: 20%;">Kode Akses</th>
+            <th style="width: 18%;">Status Kuota</th>
+            <th style="width: 22%;">Template Event</th>
+            <th style="width: 21%;">Aktivitas Pengunjung</th>
+            <th style="width: 200px; min-width: 200px; text-align: right; white-space: nowrap !important;">Aksi Shopee</th>
+          </tr>
+        </thead>
+        <tbody id="codesTableBody">
+          {% for code in page_obj %}
+            <tr id="row-{{ code.code }}" style="border-bottom: 1px solid #edf2f7; transition: background 0.15s;">
+              <!-- 1. Kode Akses -->
+              <td style="padding: 16px 20px; vertical-align: middle;">
+                <div class="code-badge-wrap">
+                  <span class="code-badge">{{ code.code }}</span>
+                  <button type="button" onclick="copyText('{{ code.code }}', this)" class="btn-icon-copy" title="Salin Kode Saja">
+                    <i data-lucide="copy" style="width: 13px; height: 13px;"></i>
+                  </button>
+                </div>
+                <div class="code-meta-row">
+                  <span class="badge-universal">Universal</span>
+                  <span class="code-date">{{ code.created_at|date:"d M Y, H:i" }}</span>
+                </div>
+                {% if code.notes and code.notes != 'Shopee Customer' %}
+                  <div class="code-note-chip">
+                    <i data-lucide="tag" style="width: 10px; height: 10px; color: var(--gold-deep);"></i>
+                    <span>{{ code.notes }}</span>
+                  </div>
+                {% endif %}
+              </td>
+
+              <!-- 2. Status Kuota -->
+              <td style="padding: 16px 20px; vertical-align: middle; white-space: nowrap;">
+                {% if code.used_count >= code.max_uses %}
+                  <span class="status-pill status-used">
+                    <span class="status-dot"></span> Sudah Digunakan ({{ code.used_count }}/{{ code.max_uses }})
+                  </span>
+                {% elif not code.is_active %}
+                  <span class="status-pill status-inactive">
+                    <span class="status-dot"></span> Nonaktif
+                  </span>
+                {% else %}
+                  <span class="status-pill status-unused">
+                    <span class="status-dot"></span> Belum Digunakan (0/{{ code.max_uses }})
+                  </span>
+                {% endif %}
+              </td>
+
+              <!-- 3. Template Event -->
+              <td style="padding: 16px 20px; vertical-align: middle;">
+                {% if code.downloaded_category %}
+                  <div class="template-card-view">
+                    <div class="template-icon-box template-icon-used">
+                      <i data-lucide="file-spreadsheet" style="width: 17px; height: 17px;"></i>
+                    </div>
+                    <div class="template-info-box">
+                      <div class="template-title-text">{{ code.downloaded_category.name }}</div>
+                      <div class="template-meta-text">
+                        <i data-lucide="check" style="width: 12px; height: 12px; stroke-width: 3;"></i>
+                        <span>Diunduh {{ code.downloaded_at|date:"d M Y, H:i" }}</span>
+                      </div>
+                    </div>
+                  </div>
+                {% elif code.used_count > 0 %}
+                  <div class="template-card-view">
+                    <div class="template-icon-box template-icon-used">
+                      <i data-lucide="file-check" style="width: 17px; height: 17px;"></i>
+                    </div>
+                    <div class="template-info-box">
+                      <div class="template-title-text">Template Excel Event</div>
+                      <div class="template-empty-subtext">Diunduh: {{ code.downloaded_at|date:"d M Y, H:i"|default:"Tercatat" }}</div>
+                    </div>
+                  </div>
+                {% else %}
+                  <div class="template-card-view">
+                    <div class="template-icon-box template-icon-empty">
+                      <i data-lucide="folder-open" style="width: 15px; height: 15px;"></i>
+                    </div>
+                    <div class="template-info-box">
+                      <div class="template-title-text" style="color: #475569;">Universal (Bebas Pilih)</div>
+                      <div class="template-empty-subtext">Belum ada template diunduh</div>
+                    </div>
+                  </div>
+                {% endif %}
+              </td>
+
+              <!-- 4. Aktivitas Pengunjung -->
+              <td style="padding: 16px 20px; vertical-align: middle;">
+                {% if code.first_visited_at %}
+                  <div class="tracking-card-view">
+                    <div class="tracking-main-row">
+                      <span class="tracking-time-badge">
+                        <i data-lucide="timer" style="width: 12px; height: 12px;"></i> {{ code.formatted_time_spent }}
+                      </span>
+                      <span class="tracking-visits">{{ code.visit_count }}x Kunjungan</span>
+                    </div>
+                    <div class="tracking-sub-row">
+                      <i data-lucide="monitor" style="width: 12px; height: 12px;"></i>
+                      <span>{{ code.device_type|default:"Desktop" }}{% if code.ip_address %} ({{ code.ip_address }}){% endif %} • {{ code.first_visited_at|date:"d M, H:i" }}</span>
+                    </div>
+                  </div>
+                {% else %}
+                  <div class="tracking-unvisited">
+                    <i data-lucide="mouse-pointer" style="width: 13px; height: 13px;"></i>
+                    <span>Belum diklik customer</span>
+                  </div>
+                {% endif %}
+              </td>
+
+              <!-- 5. Aksi Shopee -->
+              <td style="padding: 14px 18px; vertical-align: middle; text-align: right; white-space: nowrap !important; width: 210px; min-width: 210px;">
+                <div class="action-buttons-wrap">
+                  <button type="button" class="btn-shopee-chat" onclick="openMessageModal('{{ code.code }}')">
+                    <i data-lucide="message-square" style="width: 14px; height: 14px; flex-shrink: 0;"></i>
+                    <span>Salin Pesan Chat</span>
+                  </button>
+                  <button type="button" class="btn-quick-link" onclick="copyDirectLink('{{ code.code }}', this)" title="Salin Direct Link Unduh Saja">
+                    <i data-lucide="link" style="width: 14px; height: 14px; flex-shrink: 0;"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr id="emptyTableRow">
+              <td colspan="5" style="text-align: center; padding: 48px 20px; color: var(--ink-soft);">
+                <i data-lucide="ticket" style="width: 44px; height: 44px; stroke-width: 1.5; margin-bottom: 10px; color: #cbd5e1;"></i>
+                <div style="font-size: 1.05rem; font-weight: 700; color: var(--ink);">Belum ada kode akses</div>
+                <p style="font-size: 0.88rem; margin: 6px 0 18px 0;">Klik tombol "+ Generate Kode Baru" di atas untuk membuat kode akses Shopee pertama.</p>
+                <button type="button" class="btn btn-primary" onclick="document.getElementById('btnOpenGenerateModal').click();">
+                  + Generate Kode Baru
+                </button>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+      <div style="padding: 14px 20px; background: #f8fafc; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+        <span style="color: var(--ink-soft);">
+          Halaman {{ page_obj.number }} dari {{ page_obj.paginator.num_pages }} (Total {{ total_codes }} kode)
+        </span>
+        <div style="display: flex; gap: 6px;">
+          {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;">« Sebelumnya</a>
+          {% endif %}
+          {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;">Selanjutnya »</a>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- MODAL: GENERATE & SALIN PESAN SHOPEE CHAT -->
+<div id="codeModal" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px;">
+  <div style="background: white; border-radius: 16px; max-width: 620px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.25); overflow: hidden; animation: modalFadeIn 0.2s ease-out;">
+    
+    <!-- Modal Header -->
+    <div style="padding: 18px 24px; background: #0f172a; color: white; display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(234, 88, 12, 0.2); border: 1px solid rgba(234, 88, 12, 0.4); display: flex; align-items: center; justify-content: center;">
+          <i data-lucide="message-square" style="width: 18px; height: 18px; color: #fb923c;"></i>
+        </div>
+        <div>
+          <h3 id="modalTitle" style="font-size: 1.15rem; font-weight: 700; margin: 0; color: white;">Pesan Kode Akses Shopee Chat</h3>
+          <div style="font-size: 0.78rem; color: #94a3b8;">Format pesan resmi siap kirim ke customer Shopee</div>
+        </div>
+      </div>
+      <button type="button" onclick="closeModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.4rem; cursor: pointer; line-height: 1;">✕</button>
+    </div>
+
+    <!-- Modal Body -->
+    <div style="padding: 24px;">
+      
+      <!-- Generated Code Highlight -->
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-size: 0.73rem; text-transform: uppercase; color: var(--ink-soft); font-weight: 700; letter-spacing: 0.04em;">Kode Akses Unik (Universal)</div>
+          <div id="modalCodeDisplay" style="font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 800; color: #ea580c; letter-spacing: 0.05em; margin-top: 2px;">
+            Membuat kode...
+          </div>
+          <div style="font-size: 0.76rem; color: #64748b; margin-top: 2px;">
+            ✓ Berlaku untuk kategori template mana pun • 1x Pakai
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" id="btnCopyCodeOnly" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; font-weight: 600;">
+            Salin Kode
+          </button>
+          <button type="button" id="btnCopyDirectLinkModal" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; font-weight: 600;">
+            Salin Link
+          </button>
+        </div>
+      </div>
+
+      <!-- Message Textarea Preview -->
+      <div style="margin-bottom: 18px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <label style="font-size: 0.84rem; font-weight: 700; color: var(--ink);">Isi Pesan untuk Shopee Chat:</label>
+          <span style="font-size: 0.75rem; color: #16a34a; font-weight: 600;">✓ Dilengkapi panduan & link tracking</span>
+        </div>
+        <textarea id="modalMessageText" rows="9" 
+                  style="width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; font-family: monospace; font-size: 0.84rem; line-height: 1.45; background: #fafafa; color: #1e293b; resize: vertical;" readonly></textarea>
+      </div>
+
+      <!-- Notice Alert -->
+      <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 10px 14px; display: flex; gap: 10px; align-items: flex-start; margin-bottom: 20px;">
+        <i data-lucide="info" style="width: 18px; height: 18px; color: #b45309; flex-shrink: 0; margin-top: 2px;"></i>
+        <div style="font-size: 0.78rem; color: #92400e; line-height: 1.4;">
+          <strong>Cara Pakai:</strong> Klik tombol <strong>"Salin Pesan Shopee Chat"</strong> di bawah, lalu langsung buka Shopee Chat pembeli dan tekan <strong>Ctrl + V (Paste)</strong>. Pembeli tinggal klik link untuk memilih template dan sistem langsung mencatat durasinya.
+        </div>
+      </div>
+
+      <!-- Modal Action Buttons -->
+      <div style="display: flex; gap: 12px;">
+        <button type="button" id="btnCopyFullMessage" class="btn-shopee-chat" 
+                style="flex-grow: 1; padding: 14px; font-size: 1rem; font-weight: 700; justify-content: center; box-shadow: 0 4px 14px rgba(234, 88, 12, 0.35);">
+          <i data-lucide="clipboard-copy" style="width: 18px; height: 18px;"></i>
+          <span id="btnCopyTextLabel">Salin Pesan Shopee Chat</span>
+        </button>
+        <button type="button" onclick="closeModal()" class="btn btn-secondary" style="padding: 14px 20px; font-weight: 600;">
+          Tutup
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Filter pills */
+.filter-pill {
+  font-size: 0.80rem;
+  padding: 5px 12px;
+  border-radius: 20px;
+  text-decoration: none;
+  font-weight: 600;
+  background: #f1f5f9;
+  color: var(--ink-soft);
+  border: 1px solid #e2e8f0;
+  transition: all 0.15s;
+}
+.filter-pill:hover {
+  background: #e2e8f0;
+  color: var(--ink);
+}
+.filter-pill.active-all { background: var(--ink); color: white; border-color: var(--ink); }
+.filter-pill.active-unused { background: #15803d; color: white; border-color: #15803d; }
+.filter-pill.active-visited { background: #b45309; color: white; border-color: #b45309; }
+.filter-pill.active-used { background: var(--berry); color: white; border-color: var(--berry); }
+
+/* Table styling */
+.code-table th {
+  padding: 13px 20px;
+  font-size: 0.74rem;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+.code-table td {
+  padding: 16px 20px;
+  vertical-align: middle;
+  border-bottom: 1px solid #f1f5f9;
+  background: white;
+}
+.code-table tr:hover td {
+  background: #fcfbf9;
+}
+
+/* 1. Code Badge */
+.code-badge-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.code-badge {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #0f172a;
+  background: #f1f5f9;
+  padding: 4px 9px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  letter-spacing: 0.04em;
+  transition: all 0.15s;
+}
+.code-badge:hover {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+}
+.btn-icon-copy {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  transition: all 0.15s;
+}
+.btn-icon-copy:hover {
+  background: #f8fafc;
+  color: var(--ink);
+  border-color: #cbd5e1;
+}
+.code-meta-row {
+  margin-top: 5px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  white-space: nowrap;
+}
+.badge-universal {
+  font-size: 0.70rem;
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-weight: 700;
+  border: 1px solid #dbeafe;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.code-date {
+  font-size: 0.74rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+.code-note-chip {
+  font-size: 0.72rem;
+  color: #64748b;
+  margin-top: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #f8fafc;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid #f1f5f9;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 2. Status Pill */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+.status-used {
+  color: #334155;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+}
+.status-unused {
+  color: #166534;
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+}
+.status-inactive {
+  color: #991b1b;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+}
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.status-used .status-dot { background: #64748b; }
+.status-unused .status-dot { 
+  background: #22c55e;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+}
+.status-inactive .status-dot { background: #ef4444; }
+
+/* 3. Template Event */
+.template-card-view {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+.template-icon-box {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.template-icon-used {
+  background: #dcfce7;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+.template-icon-empty {
+  background: #f8fafc;
+  color: #94a3b8;
+  border: 1px dashed #cbd5e1;
+}
+.template-info-box {
+  line-height: 1.25;
+}
+.template-title-text {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.template-meta-text {
+  font-size: 0.74rem;
+  color: #16a34a;
+  font-weight: 600;
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.template-empty-subtext {
+  font-size: 0.74rem;
+  color: #94a3b8;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+/* 4. Tracking & Visitor Insight */
+.tracking-card-view {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  white-space: nowrap;
+}
+.tracking-main-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+.tracking-time-badge {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #1d4ed8;
+  background: #eff6ff;
+  padding: 2px 7px;
+  border-radius: 5px;
+  border: 1px solid #dbeafe;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.tracking-visits {
+  font-size: 0.76rem;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+.tracking-sub-row {
+  font-size: 0.74rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.tracking-unvisited {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  background: #f8fafc;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px dashed #cbd5e1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+/* 5. Action Buttons */
+.action-buttons-wrap {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  white-space: nowrap !important;
+  flex-wrap: nowrap !important;
+}
+.btn-shopee-chat {
+  padding: 8px 15px !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  color: white !important;
+  background: #ea580c !important;
+  border: 1px solid #ea580c !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 6px rgba(234, 88, 12, 0.25) !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  line-height: 1.2 !important;
+  transition: all 0.15s ease !important;
+}
+.btn-shopee-chat span {
+  white-space: nowrap !important;
+  display: inline-block !important;
+  font-weight: 700 !important;
+}
+.btn-shopee-chat:hover {
+  background: #c2410c !important;
+  border-color: #c2410c !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(234, 88, 12, 0.35) !important;
+}
+.btn-quick-link {
+  width: 36px !important;
+  height: 36px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid #cbd5e1 !important;
+  background: white !important;
+  border-radius: 8px !important;
+  color: #475569 !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
+  transition: all 0.15s !important;
+}
+.btn-quick-link:hover {
+  background: #f8fafc !important;
+  color: var(--ink) !important;
+  border-color: #94a3b8 !important;
+}
+</style>
+
+<script>
+let currentGeneratedCode = '';
+
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+function copyText(text, btnElement) {
+  navigator.clipboard.writeText(text).then(() => {
+    if (btnElement) {
+      const origHtml = btnElement.innerHTML;
+      btnElement.innerHTML = '<span style="color:#16a34a; font-weight:bold; font-size:0.75rem;">✓ Disalin</span>';
+      setTimeout(() => { btnElement.innerHTML = origHtml; }, 2000);
+    }
+  });
+}
+
+function copyDirectLink(code, btnElement) {
+  const link = `${window.location.origin}/templates/?code=${code}`;
+  navigator.clipboard.writeText(link).then(() => {
+    if (btnElement) {
+      const origHtml = btnElement.innerHTML;
+      btnElement.innerHTML = '<i data-lucide="check" style="width: 14px; height: 14px; color: #16a34a;"></i>';
+      if (window.lucide) window.lucide.createIcons();
+      setTimeout(() => { 
+        btnElement.innerHTML = origHtml; 
+        if (window.lucide) window.lucide.createIcons();
+      }, 2000);
+    }
+  });
+}
+
+function openModal() {
+  document.getElementById('codeModal').style.display = 'flex';
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function closeModal() {
+  document.getElementById('codeModal').style.display = 'none';
+}
+
+function prependCodeRowToTable(data) {
+  const tbody = document.getElementById('codesTableBody');
+  if (!tbody) return;
+
+  const emptyRow = document.getElementById('emptyTableRow');
+  if (emptyRow) {
+    emptyRow.remove();
+  }
+
+  const tr = document.createElement('tr');
+  tr.id = `row-${data.code}`;
+  tr.style.borderBottom = '1px solid #edf2f7';
+  tr.style.background = '#ecfdf5'; // flash light emerald
+  tr.style.transition = 'background 2.5s ease-out';
+  tr.onmouseover = function () { this.style.background = '#fdfbf7'; };
+  tr.onmouseout = function () { this.style.background = 'white'; };
+
+  const codeSafe = escapeHtml(data.code);
+  const notesSafe = escapeHtml(data.notes || 'Shopee Customer');
+  const maxUses = data.max_uses || 1;
+
+  tr.innerHTML = `
+    <!-- 1. Kode Akses -->
+    <td style="padding: 16px 20px; vertical-align: middle;">
+      <div class="code-badge-wrap">
+        <span class="code-badge">${codeSafe}</span>
+        <button type="button" onclick="copyText('${codeSafe}', this)" class="btn-icon-copy" title="Salin Kode Saja">
+          <i data-lucide="copy" style="width: 13px; height: 13px;"></i>
+        </button>
+      </div>
+      <div class="code-meta-row">
+        <span class="badge-universal">Universal</span>
+        <span class="code-date">Baru saja</span>
+      </div>
+      ${notesSafe && notesSafe !== 'Shopee Customer' ? `
+        <div class="code-note-chip">
+          <i data-lucide="tag" style="width: 10px; height: 10px; color: var(--gold-deep);"></i>
+          <span>${notesSafe}</span>
+        </div>
+      ` : ''}
+    </td>
+
+    <!-- 2. Status Kuota -->
+    <td style="padding: 16px 20px; vertical-align: middle; white-space: nowrap;">
+      <span class="status-pill status-unused">
+        <span class="status-dot"></span> Belum Digunakan (0/${maxUses})
+      </span>
+    </td>
+
+    <!-- 3. Template Event -->
+    <td style="padding: 16px 20px; vertical-align: middle;">
+      <div class="template-card-view">
+        <div class="template-icon-box template-icon-empty">
+          <i data-lucide="folder-open" style="width: 15px; height: 15px;"></i>
+        </div>
+        <div class="template-info-box">
+          <div class="template-title-text" style="color: #475569;">Universal (Bebas Pilih)</div>
+          <div class="template-empty-subtext">Belum ada template diunduh</div>
+        </div>
+      </div>
+    </td>
+
+    <!-- 4. Aktivitas Pengunjung -->
+    <td style="padding: 16px 20px; vertical-align: middle;">
+      <div class="tracking-unvisited">
+        <i data-lucide="mouse-pointer" style="width: 13px; height: 13px;"></i>
+        <span>Belum diklik customer</span>
+      </div>
+    </td>
+
+    <!-- 5. Aksi Shopee -->
+    <td style="padding: 14px 18px; vertical-align: middle; text-align: right; white-space: nowrap !important; width: 210px; min-width: 210px;">
+      <div class="action-buttons-wrap">
+        <button type="button" class="btn-shopee-chat" onclick="openMessageModal('${codeSafe}')">
+          <i data-lucide="message-square" style="width: 14px; height: 14px; flex-shrink: 0;"></i>
+          <span>Salin Pesan Chat</span>
+        </button>
+        <button type="button" class="btn-quick-link" onclick="copyDirectLink('${codeSafe}', this)" title="Salin Direct Link Unduh Saja">
+          <i data-lucide="link" style="width: 14px; height: 14px; flex-shrink: 0;"></i>
+        </button>
+      </div>
+    </td>
+  `;
+
+  tbody.insertBefore(tr, tbody.firstChild);
+
+  // Update counters
+  const statTotal = document.getElementById('statTotalCodes');
+  if (statTotal) {
+    statTotal.innerText = (parseInt(statTotal.innerText, 10) || 0) + 1;
+  }
+  const statUnused = document.getElementById('statUnusedCodes');
+  if (statUnused) {
+    statUnused.innerText = (parseInt(statUnused.innerText, 10) || 0) + 1;
+  }
+
+  // Re-render Lucide icons
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
+
+  // Fade background back to white after 2.5s
+  setTimeout(() => {
+    tr.style.background = 'white';
+  }, 2500);
+}
+
+// Generate New Code Handler
+document.getElementById('btnOpenGenerateModal').addEventListener('click', function () {
+  openModal();
+  document.getElementById('modalTitle').innerText = 'Membuat Kode Akses Baru...';
+  document.getElementById('modalCodeDisplay').innerText = 'Generating...';
+  document.getElementById('modalMessageText').value = 'Menghubungi server...';
+  document.getElementById('btnCopyTextLabel').innerText = 'Salin Pesan Shopee Chat';
+
+  fetch("{% url 'admin_generate_code_api' %}", {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': getCookie('csrftoken'),
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: 'notes=Shopee Customer'
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.status === 'success') {
+      currentGeneratedCode = data.code;
+      document.getElementById('modalTitle').innerText = 'Pesan Kode Akses Shopee Chat';
+      document.getElementById('modalCodeDisplay').innerText = data.code;
+      document.getElementById('modalMessageText').value = data.message;
+
+      // LANGSUNG ADD KE TABLE SECARA REAL-TIME
+      prependCodeRowToTable(data);
+    } else {
+      alert('Gagal membuat kode: ' + (data.error || 'Terjadi kesalahan'));
+      closeModal();
+    }
+  })
+  .catch(err => {
+    alert('Koneksi gagal saat membuat kode: ' + err);
+    closeModal();
+  });
+});
+
+// View Existing Code Message
+function openMessageModal(code) {
+  openModal();
+  currentGeneratedCode = code;
+  document.getElementById('modalTitle').innerText = 'Pesan Kode Akses: ' + code;
+  document.getElementById('modalCodeDisplay').innerText = code;
+  document.getElementById('btnCopyTextLabel').innerText = 'Salin Pesan Shopee Chat';
+
+  const baseUrl = window.location.origin;
+  const link = `${baseUrl}/templates/?code=${code}`;
+  
+  const text = `Halo Kak! Terima kasih banyak sudah order di Vendoraman Official. ✨\n\n` +
+    `Ini kode akses unik untuk unduh template Anda:\n` +
+    `🔑 KODE AKSES: ${code}\n\n` +
+    `📥 LINK UNDUH LANGSUNG:\n${link}\n\n` +
+    `⚠️ PENTING SEBELUM MEMILIH TEMPLATE:\n` +
+    `1. Kode akses ini bersifat UNIVERSAL (dapat digunakan untuk template kategori apa pun: Pernikahan, Corporate, Ulang Tahun, Pameran, Seminar, atau Intimate Gathering).\n` +
+    `2. Kode ini HANYA BISA DIGUNAKAN 1 KALI UNDUH.\n` +
+    `3. Mohon pastikan Kakak memilih kategori template yang benar dan sesuai kebutuhan sebelum menekan tombol unduh.\n\n` +
+    `CARA PENGGUNAAN:\n` +
+    `1. Klik link di atas (atau buka menu Template Excel).\n` +
+    `2. Pilih kategori template yang ingin Kakak unduh.\n` +
+    `3. Masukkan kode akses di atas (akan terisi otomatis jika klik link).\n` +
+    `4. Klik "Unduh Template Excel", file .xlsx berformula lengkap akan langsung tersimpan di perangkat Kakak.\n\n` +
+    `Jika butuh bantuan atau ada pertanyaan teknis, silakan balas chat ini ya Kak. Selamat merencanakan event! 😊🙏`;
+
+  document.getElementById('modalMessageText').value = text;
+}
+
+// Copy Code Only
+document.getElementById('btnCopyCodeOnly').addEventListener('click', function () {
+  if (currentGeneratedCode) {
+    copyText(currentGeneratedCode, this);
+  }
+});
+
+// Copy Direct Link in Modal
+const btnCopyDirectLinkModal = document.getElementById('btnCopyDirectLinkModal');
+if (btnCopyDirectLinkModal) {
+  btnCopyDirectLinkModal.addEventListener('click', function () {
+    if (currentGeneratedCode) {
+      const link = `${window.location.origin}/templates/?code=${currentGeneratedCode}`;
+      copyText(link, this);
+    }
+  });
+}
+
+// Copy Full Message
+document.getElementById('btnCopyFullMessage').addEventListener('click', function () {
+  const text = document.getElementById('modalMessageText').value;
+  if (!text) return;
+
+  navigator.clipboard.writeText(text).then(() => {
+    const label = document.getElementById('btnCopyTextLabel');
+    const orig = label.innerText;
+    label.innerText = '✓ Pesan Berhasil Disalin!';
+    this.style.background = '#059669';
+    setTimeout(() => {
+      label.innerText = orig;
+      this.style.background = '#16a34a';
+    }, 2500);
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: vendoraman_db
+      POSTGRES_USER: vendoraman_user
+      POSTGRES_PASSWORD: vdr_pg_pass_837190f84a7e9d
+    volumes:
+      - vendoraman_pgdata:/var/lib/postgresql/data
+    networks:
+      - vendoraman-net
+    # NOTICE: No ports published. Database is strictly isolated inside docker network with NO public IP or host exposure.
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: vendoraman-web:latest
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:8020:8000"
+    volumes:
+      - .:/app
+      - vendoraman_media:/app/media
+      - vendoraman_static:/app/staticfiles
+    depends_on:
+      - db
+    networks:
+      - vendoraman-net
+
+volumes:
+  vendoraman_pgdata:
+  vendoraman_media:
+  vendoraman_static:
+
+networks:
+  vendoraman-net:
+    driver: bridge

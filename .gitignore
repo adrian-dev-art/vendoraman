@@ -30,3 +30,5 @@ Thumbs.db
 # Cache / Tools
 .opencode/
 graphify-out/
+node_modules/
+tests_qc/node_modules/

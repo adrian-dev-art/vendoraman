@@ -7,7 +7,8 @@ from django.conf.urls.static import static
 from core.sitemaps import StaticViewSitemap
 from core.views_home import home_view, trust_guarantee_view, privacy_policy_view, terms_view, robots_txt_view, free_template_view, free_template_download_view, paid_template_view, paid_template_download_view
 from core.views_templates import (
-    excel_templates_catalog_view, excel_template_category_view, excel_template_download_action
+    excel_templates_catalog_view, excel_template_category_view, excel_template_download_action,
+    track_code_activity_api
 )
 from core.views_auth import login_view, register_customer_view, register_vendor_view, logout_view
 from core.views_planner import (
@@ -20,7 +21,11 @@ from core.views_booking import (
 )
 from core.views_dashboard import customer_dashboard_view, vendor_dashboard_view
 from core.views_admin import (
-    admin_dashboard_view, admin_verify_vendor_view
+    admin_dashboard_view, admin_verify_vendor_view,
+    admin_download_codes_view, admin_generate_code_api, admin_toggle_code_api
+)
+from core.views_operator import (
+    operator_templates_list_view, operator_template_edit_view
 )
 
 urlpatterns = [
@@ -74,6 +79,16 @@ urlpatterns = [
     path('dashboard/vendor/', vendor_dashboard_view, name='vendor_dashboard'),
     path('dashboard/admin/', admin_dashboard_view, name='admin_dashboard'),
     path('dashboard/admin/vendor/<int:vendor_id>/<str:action>/', admin_verify_vendor_view, name='admin_verify_vendor'),
+    path('dashboard/admin/codes/', admin_download_codes_view, name='admin_download_codes'),
+    path('dashboard/admin/codes/generate/', admin_generate_code_api, name='admin_generate_code_api'),
+    path('dashboard/admin/codes/<int:code_id>/toggle/', admin_toggle_code_api, name='admin_toggle_code_api'),
+
+    # Operator / CS Shopee: Excel Template Management
+    path('dashboard/operator/templates/', operator_templates_list_view, name='operator_templates'),
+    path('dashboard/operator/templates/<int:template_id>/edit/', operator_template_edit_view, name='operator_template_edit'),
+
+    # Client-side Activity Tracking API
+    path('api/track-code/', track_code_activity_api, name='track_code_activity_api'),
 
     # Django Admin
     path('admin/', admin.site.urls),

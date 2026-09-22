@@ -36,6 +36,9 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'unfold',
+    'unfold.contrib.filters',
+    'unfold.contrib.forms',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -49,6 +52,7 @@ AUTH_USER_MODEL = 'core.CustomUser'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -84,12 +88,24 @@ WSGI_APPLICATION = 'vendorama.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if os.environ.get('DB_NAME'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DB_NAME'),
+            'USER': os.environ.get('DB_USER', 'postgres'),
+            'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+            'HOST': os.environ.get('DB_HOST', 'localhost'),
+            'PORT': os.environ.get('DB_PORT', '5432'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -164,13 +180,27 @@ ANALYTICS_ID = os.environ.get('ANALYTICS_ID', '').strip()
 SECURE_SSL_REDIRECT = os.environ.get('DJANGO_SECURE_SSL_REDIRECT', 'False').lower() in ('1', 'true', 'yes')
 SECURE_HSTS_SECONDS = int(os.environ.get('DJANGO_SECURE_HSTS_SECONDS', '31536000' if SECURE_SSL_REDIRECT else '0'))
 SECURE_HSTS_INCLUDE_SUBDOMAINS = SECURE_SSL_REDIRECT
-SECURE_HSTS_PRELOAD = SECURE_SSL_REDIRECT
 SESSION_COOKIE_SECURE = SECURE_SSL_REDIRECT
 CSRF_COOKIE_SECURE = SECURE_SSL_REDIRECT
 SESSION_COOKIE_HTTPONLY = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 X_FRAME_OPTIONS = 'DENY'
+CSRF_TRUSTED_ORIGINS = [
+    o.strip() for o in os.environ.get(
+        'DJANGO_CSRF_TRUSTED_ORIGINS',
+        'https://vendoraman.vitnite.cloud,http://vendoraman.vitnite.cloud,http://127.0.0.1:8020'
+    ).split(',') if o.strip()
+]
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
@@ -180,3 +210,166 @@ LOGOUT_REDIRECT_URL = 'home'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Django Unfold Modern Admin Configuration
+from django.urls import reverse_lazy
+
+UNFOLD = {
+    "SITE_TITLE": "Vendoraman Admin",
+    "SITE_HEADER": "Vendoraman",
+    "SITE_SUBHEADER": "Pusat Kendali Platform & Data Management",
+    "SITE_URL": "/",
+    "SHOW_HISTORY": True,
+    "SHOW_VIEW_ON_SITE": True,
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": False,
+        "navigation": [
+            {
+                "title": "Dashboard & Platform",
+                "separator": True,
+                "collapsible": False,
+                "items": [
+                    {
+                        "title": "Admin Index",
+                        "icon": "dashboard",
+                        "link": reverse_lazy("admin:index"),
+                    },
+                    {
+                        "title": "Dashboard Komisi",
+                        "icon": "analytics",
+                        "link": reverse_lazy("admin_dashboard"),
+                    },
+                    {
+                        "title": "Tracking Kode Shopee",
+                        "icon": "confirmation_number",
+                        "link": reverse_lazy("admin_download_codes"),
+                    },
+                    {
+                        "title": "Katalog Template Publik",
+                        "icon": "public",
+                        "link": reverse_lazy("excel_templates_catalog"),
+                    },
+                ],
+            },
+            {
+                "title": "Transaksi & Keuangan",
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": "Pesanan Booking (Order)",
+                        "icon": "receipt_long",
+                        "link": reverse_lazy("admin:core_bookingorder_changelist"),
+                    },
+                    {
+                        "title": "Download Template Berbayar",
+                        "icon": "shopping_bag",
+                        "link": reverse_lazy("admin:core_paidtemplatedownload_changelist"),
+                    },
+                    {
+                        "title": "Kupon & Voucher Diskon",
+                        "icon": "local_offer",
+                        "link": reverse_lazy("admin:core_voucher_changelist"),
+                    },
+                    {
+                        "title": "Riwayat Redeem Voucher",
+                        "icon": "history",
+                        "link": reverse_lazy("admin:core_voucherredemption_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": "Mitra Vendor & Layanan",
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": "Profil Mitra Vendor",
+                        "icon": "storefront",
+                        "link": reverse_lazy("admin:core_vendorprofile_changelist"),
+                    },
+                    {
+                        "title": "Paket Layanan Vendor",
+                        "icon": "inventory_2",
+                        "link": reverse_lazy("admin:core_vendorpackage_changelist"),
+                    },
+                    {
+                        "title": "Kategori Event",
+                        "icon": "category",
+                        "link": reverse_lazy("admin:core_eventcategory_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": "Template Excel & Unduhan",
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": "Katalog Master Template",
+                        "icon": "table_chart",
+                        "link": reverse_lazy("admin:core_exceltemplate_changelist"),
+                    },
+                    {
+                        "title": "Kode Akses Unduh (Shopee)",
+                        "icon": "vpn_key",
+                        "link": reverse_lazy("admin:core_templatedownloadcode_changelist"),
+                    },
+                    {
+                        "title": "Log Unduhan & IP Pelanggan",
+                        "icon": "file_download",
+                        "link": reverse_lazy("admin:core_templatedownloadlog_changelist"),
+                    },
+                    {
+                        "title": "Pengaturan Template Gratis",
+                        "icon": "tune",
+                        "link": reverse_lazy("admin:core_freetemplatesettings_changelist"),
+                    },
+                    {
+                        "title": "Leads Template Gratis",
+                        "icon": "contact_page",
+                        "link": reverse_lazy("admin:core_freetemplatelead_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": "Pengguna & Akun",
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": "Data Pengguna (User)",
+                        "icon": "group",
+                        "link": reverse_lazy("admin:core_customuser_changelist"),
+                    },
+                    {
+                        "title": "Verifikasi Email OTP",
+                        "icon": "mark_email_read",
+                        "link": reverse_lazy("admin:core_emailverification_changelist"),
+                    },
+                    {
+                        "title": "Rencana Event (Planner)",
+                        "icon": "event_note",
+                        "link": reverse_lazy("admin:core_eventplan_changelist"),
+                    },
+                    {
+                        "title": "Akses Berbayar Planner",
+                        "icon": "lock_open",
+                        "link": reverse_lazy("admin:core_planneraccess_changelist"),
+                    },
+                    {
+                        "title": "Tabungan Event (Vault)",
+                        "icon": "savings",
+                        "link": reverse_lazy("admin:core_eventsavingsvault_changelist"),
+                    },
+                    {
+                        "title": "Setoran Tabungan",
+                        "icon": "payments",
+                        "link": reverse_lazy("admin:core_savingsdeposit_changelist"),
+                    },
+                ],
+            },
+        ],
+    },
+}

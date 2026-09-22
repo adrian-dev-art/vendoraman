@@ -6,7 +6,7 @@ from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.db.models import F
 
-from .models import EventCategory, VendorProfile, CustomUser, EventPlan, TemplateDownloadCode, TemplateDownloadLog
+from .models import EventCategory, VendorProfile, CustomUser, EventPlan, TemplateDownloadCode, TemplateDownloadLog, ExcelTemplate
 from .services_export import generate_planner_excel
 
 
@@ -93,6 +93,20 @@ CATEGORY_DESCRIPTIONS = {
 
 
 def _get_category_info(category):
+    tmpl = ExcelTemplate.objects.filter(category=category, is_active=True).first()
+    fallback = CATEGORY_DESCRIPTIONS.get(category.slug.lower(), {})
+    if tmpl:
+        return {
+            'headline': tmpl.title,
+            'subheadline': tmpl.subheadline or fallback.get('subheadline', ''),
+            'target_audience': tmpl.target_audience or fallback.get('target_audience', ''),
+            'estimated_savings': tmpl.estimated_savings or fallback.get('estimated_savings', ''),
+            'key_perks': tmpl.get_perks_list() or fallback.get('key_perks', []),
+            'template_obj': tmpl,
+            'has_custom_file': bool(tmpl.file),
+            'shopee_product_url': tmpl.shopee_product_url,
+        }
+
     slug = category.slug.lower()
     return CATEGORY_DESCRIPTIONS.get(slug, {
         'headline': f'Template Excel Perencanaan {category.name}',
@@ -105,12 +119,98 @@ def _get_category_info(category):
             'Timeline & Rundown Hari-H Lengkap',
             'Simulasi Kebutuhan Katering & Logistik',
             'Master Checklist Perlengkapan Acara'
-        ]
+        ],
+        'template_obj': None,
+        'has_custom_file': False,
+        'shopee_product_url': '',
     })
+
+
+import json
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.utils import timezone
+
+
+def _detect_device(user_agent):
+    ua = (user_agent or '').lower()
+    if 'mobi' in ua or 'android' in ua or 'iphone' in ua:
+        return 'Mobile'
+    if 'tablet' in ua or 'ipad' in ua:
+        return 'Tablet'
+    return 'Desktop'
+
+
+def _track_code_visit(request, page_name):
+    code_raw = (request.GET.get('code') or request.GET.get('c') or request.session.get('download_code') or '').strip()
+    if not code_raw:
+        return None
+    code_obj = TemplateDownloadCode.objects.filter(code__iexact=code_raw).first()
+    if not code_obj:
+        return None
+
+    request.session['download_code'] = code_obj.code
+
+    ip_header = request.META.get('HTTP_X_FORWARDED_FOR', '')
+    ip = ip_header.split(',')[0].strip() if ip_header else request.META.get('REMOTE_ADDR')
+    ua = request.META.get('HTTP_USER_AGENT', '')
+    device = _detect_device(ua)
+
+    now = timezone.now()
+    updates = {
+        'last_activity_at': now,
+        'last_page_viewed': page_name,
+        'visit_count': F('visit_count') + 1,
+    }
+    if not code_obj.first_visited_at:
+        updates['first_visited_at'] = now
+    if not code_obj.ip_address and ip:
+        updates['ip_address'] = ip
+    if not code_obj.user_agent and ua:
+        updates['user_agent'] = ua[:500]
+    if not code_obj.device_type and device:
+        updates['device_type'] = device
+
+    TemplateDownloadCode.objects.filter(pk=code_obj.pk).update(**updates)
+    return code_obj.code
+
+
+@csrf_exempt
+def track_code_activity_api(request):
+    """Menerima ping aktivitas dari client untuk menghitung total waktu di web."""
+    if request.method != 'POST':
+        return JsonResponse({'status': 'ignored'}, status=405)
+
+    try:
+        data = json.loads(request.body) if request.body else {}
+    except Exception:
+        data = request.POST
+
+    code_raw = (data.get('code') or request.session.get('download_code') or '').strip()
+    if not code_raw:
+        return JsonResponse({'status': 'no_code'})
+
+    time_delta = int(data.get('time_delta', 10))
+    time_delta = min(max(time_delta, 1), 60)
+    page_name = data.get('page', '')
+
+    code_obj = TemplateDownloadCode.objects.filter(code__iexact=code_raw).first()
+    if code_obj:
+        updates = {
+            'time_spent_seconds': F('time_spent_seconds') + time_delta,
+            'last_activity_at': timezone.now(),
+        }
+        if page_name:
+            updates['last_page_viewed'] = page_name[:255]
+        TemplateDownloadCode.objects.filter(pk=code_obj.pk).update(**updates)
+        return JsonResponse({'status': 'ok', 'tracked': True})
+
+    return JsonResponse({'status': 'not_found'})
 
 
 def excel_templates_catalog_view(request):
     """Katalog publik seluruh koleksi template Excel event Vendoraman."""
+    active_code = _track_code_visit(request, 'Katalog Template')
     categories = EventCategory.objects.all().order_by('name')
     categories_data = []
     for cat in categories:
@@ -122,19 +222,25 @@ def excel_templates_catalog_view(request):
 
     return render(request, 'excel/catalog.html', {
         'categories_data': categories_data,
+        'active_code': active_code,
     })
 
 
 def excel_template_category_view(request, category_slug):
     """Halaman landing page detail per kategori Excel dengan form unduh kode unik."""
     category = get_object_or_404(EventCategory, slug=category_slug)
+    active_code = _track_code_visit(request, f"Kategori: {category.name}")
     info = _get_category_info(category)
     other_categories = EventCategory.objects.exclude(id=category.id).order_by('name')
+
+    prefill_code = request.GET.get('code') or request.session.get('download_code', '')
 
     return render(request, 'excel/category_detail.html', {
         'category': category,
         'info': info,
         'other_categories': other_categories,
+        'active_code': active_code,
+        'prefill_code': prefill_code,
     })
 
 
@@ -163,8 +269,14 @@ def excel_template_download_action(request, category_slug):
         messages.error(request, error_msg)
         return redirect('excel_template_category', category_slug=category.slug)
 
-    # 1. Update quota pemakaian secara atomik
-    TemplateDownloadCode.objects.filter(pk=code_obj.pk).update(used_count=F('used_count') + 1)
+    # 1. Update quota pemakaian secara atomik dan data tracking download
+    now = timezone.now()
+    TemplateDownloadCode.objects.filter(pk=code_obj.pk).update(
+        used_count=F('used_count') + 1,
+        downloaded_at=now,
+        downloaded_category=category,
+        last_activity_at=now,
+    )
 
     # 2. Catat audit trail pengunduhan
     ip_header = request.META.get('HTTP_X_FORWARDED_FOR', '')
@@ -178,7 +290,21 @@ def excel_template_download_action(request, category_slug):
         user_agent=ua[:500] if ua else ''
     )
 
-    # 3. Generate file Excel OpenXML (.xlsx) dengan mode vendor basic
+    # 3. Handle pengunduhan file: cek apakah ada custom master file yang diunggah
+    tmpl = ExcelTemplate.objects.filter(category=category).first()
+    if tmpl:
+        ExcelTemplate.objects.filter(pk=tmpl.pk).update(downloads_count=F('downloads_count') + 1)
+        if tmpl.file:
+            tmpl.file.open('rb')
+            response = HttpResponse(
+                tmpl.file.read(),
+                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            filename = tmpl.file.name.split('/')[-1]
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return response
+
+    # Jika belum ada file kustom yang diupload, generate file Excel OpenXML (.xlsx) dinamis
     dummy_user = CustomUser(username='shopee_guest')
     dummy_plan = EventPlan(
         customer=dummy_user,

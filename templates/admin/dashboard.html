@@ -3,87 +3,158 @@
 {% block title %}Pusat Kendali Admin & Komisi - Vendoraman{% endblock %}
 
 {% block content %}
-<div class="wrap">
+<div class="wrap" style="max-width: 1420px; width: 95%; padding-top: 24px; padding-bottom: 60px;">
   
-  <div style="margin-bottom: 24px;">
-    <div class="step-eyebrow">Pusat Kendali Platform</div>
-    <h1 style="font-size: 2rem; color: var(--ink);">Panel Administrasi & Pendapatan Komisi</h1>
-    <p style="color: var(--ink-soft); font-size: 0.92rem;">
-      Pantau performa transaksi platform, realisasi komisi vendor 10%, dan verifikasi mitra vendor.
-    </p>
+  <!-- Header & Quick Actions -->
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 28px;">
+    <div>
+      <div class="step-eyebrow" style="color: var(--gold-deep); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; font-size: 0.8rem; margin-bottom: 4px;">
+        Pusat Kendali Platform
+      </div>
+      <h1 style="font-size: 1.85rem; color: var(--ink); margin: 0 0 6px 0; font-family: 'Fraunces', serif;">
+        Panel Administrasi & Pendapatan Komisi
+      </h1>
+      <p style="color: var(--ink-soft); font-size: 0.92rem; margin: 0; max-width: 720px;">
+        Pantau performa transaksi platform, realisasi komisi vendor 10%, hak bersih mitra vendor, dan verifikasi profil mitra baru.
+      </p>
+    </div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <a href="{% url 'admin_download_codes' %}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px; font-weight: 600; padding: 10px 18px; font-size: 0.9rem; box-shadow: 0 4px 12px rgba(180, 83, 9, 0.2);">
+        <i data-lucide="sparkles" style="width: 16px; height: 16px;"></i>
+        <span>Kode Unduh & Shopee</span>
+      </a>
+    </div>
   </div>
 
   <!-- Platform Metrics Grid -->
-  <div class="stat-grid">
-    <div class="stat-card" style="border-left: 4px solid var(--gold);">
-      <div class="stat-title">Pendapatan Komisi Platform</div>
-      <div class="stat-val" style="color: var(--gold-deep);">Rp {{ total_commission_revenue|intdot }}</div>
-      <div class="stat-sub">Total fee 10% dari transaksi vendor yang terealisasi</div>
+  <div class="stat-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px;">
+    <div class="stat-card" style="background: white; border: 1px solid var(--border); border-radius: 12px; padding: 20px; border-left: 4px solid var(--gold-deep); display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span style="font-size: 0.75rem; color: var(--ink-soft); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Pendapatan Komisi (10%)</span>
+          <span style="background: #fef3c7; color: #92400e; padding: 3px 7px; border-radius: 6px; font-size: 0.72rem; font-weight: 800;">FEE NET</span>
+        </div>
+        <div style="font-size: 1.85rem; font-weight: 800; color: var(--gold-deep); margin: 4px 0 6px 0; font-variant-numeric: tabular-nums; white-space: nowrap;">
+          Rp {{ total_commission_revenue|intdot }}
+        </div>
+      </div>
+      <div style="font-size: 0.78rem; color: var(--ink-soft); line-height: 1.35;">
+        Total fee 10% dari transaksi vendor terealisasi
+      </div>
     </div>
 
-    <div class="stat-card">
-      <div class="stat-title">Gross Merchandise Value (GMV)</div>
-      <div class="stat-val">Rp {{ total_gmv|intdot }}</div>
-      <div class="stat-sub">Akumulasi seluruh nilai transaksi pesanan event</div>
+    <div class="stat-card" style="background: white; border: 1px solid var(--border); border-radius: 12px; padding: 20px; border-left: 4px solid var(--berry); display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span style="font-size: 0.75rem; color: var(--ink-soft); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Gross Merchandise Value</span>
+          <span style="background: rgba(159, 18, 57, 0.08); color: var(--berry); padding: 3px 7px; border-radius: 6px; font-size: 0.72rem; font-weight: 800;">GMV</span>
+        </div>
+        <div style="font-size: 1.85rem; font-weight: 800; color: var(--ink); margin: 4px 0 6px 0; font-variant-numeric: tabular-nums; white-space: nowrap;">
+          Rp {{ total_gmv|intdot }}
+        </div>
+      </div>
+      <div style="font-size: 0.78rem; color: var(--ink-soft); line-height: 1.35;">
+        Akumulasi nilai seluruh pesanan event aktif
+      </div>
     </div>
 
-    <div class="stat-card" style="border-left: 4px solid var(--sage);">
-      <div class="stat-title">Mitra Vendor Terverifikasi</div>
-      <div class="stat-val" style="color: var(--sage);">{{ total_vetted_vendors }}</div>
-      <div class="stat-sub">Vendor aktif berstatus Vetted Partner</div>
+    <div class="stat-card" style="background: white; border: 1px solid var(--border); border-radius: 12px; padding: 20px; border-left: 4px solid var(--sage); display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span style="font-size: 0.75rem; color: var(--ink-soft); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Mitra Vendor Vetted</span>
+          <span style="background: #e6f4ea; color: #137333; padding: 3px 7px; border-radius: 6px; font-size: 0.72rem; font-weight: 800;">VERIFIED</span>
+        </div>
+        <div style="font-size: 1.85rem; font-weight: 800; color: var(--sage); margin: 4px 0 6px 0;">
+          {{ total_vetted_vendors }}
+        </div>
+      </div>
+      <div style="font-size: 0.78rem; color: var(--ink-soft); line-height: 1.35;">
+        Vendor aktif terverifikasi lencana Vetted Partner
+      </div>
+    </div>
+
+    <div class="stat-card" style="background: white; border: 1px solid var(--border); border-radius: 12px; padding: 20px; border-left: 4px solid #2563eb; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span style="font-size: 0.75rem; color: var(--ink-soft); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Total Transaksi Pesanan</span>
+          <span style="background: #eff6ff; color: #1d4ed8; padding: 3px 7px; border-radius: 6px; font-size: 0.72rem; font-weight: 800;">ACTIVE</span>
+        </div>
+        <div style="font-size: 1.85rem; font-weight: 800; color: #1e40af; margin: 4px 0 6px 0;">
+          {{ active_orders|length }}
+        </div>
+      </div>
+      <div style="font-size: 0.78rem; color: var(--ink-soft); line-height: 1.35;">
+        Pesanan berjalan dan selesai tercatat
+      </div>
     </div>
   </div>
 
   <!-- Vendor Verification Queue -->
-  <div class="panel">
-    <div class="panel-header">
+  <div class="panel" style="background: white; border: 1px solid var(--border); border-radius: 14px; margin-bottom: 32px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+    <div class="panel-header" style="padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; background: #faf8f5;">
       <div>
-        <h2 style="font-size: 1.3rem; color: var(--ink);">Antrean Verifikasi Mitra Vendor ({{ pending_vendors|length }})</h2>
-        <p style="font-size: 0.86rem; color: var(--ink-soft); margin-top: 2px;">
-          Tinjau profil usaha pendaftar baru sebelum memberikan lencana Vetted Partner.
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <h2 style="font-size: 1.15rem; color: var(--ink); margin: 0; font-weight: 700;">Antrean Verifikasi Mitra Vendor</h2>
+          <span style="background: {% if pending_vendors %}#fef3c7{% else %}#f1f5f9{% endif %}; color: {% if pending_vendors %}#92400e{% else %}#64748b{% endif %}; padding: 3px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 700;">
+            {{ pending_vendors|length }} Menunggu
+          </span>
+        </div>
+        <p style="font-size: 0.84rem; color: var(--ink-soft); margin: 3px 0 0 0;">
+          Tinjau profil usaha pendaftar baru sebelum menyematkan lencana kepercayaan Vetted Partner.
         </p>
       </div>
     </div>
 
     {% if pending_vendors %}
-      <div class="table-responsive">
-        <table class="table">
+      <div class="table-responsive" style="overflow-x: auto; width: 100%;">
+        <table class="table" style="min-width: 980px; width: 100%; border-collapse: collapse; margin: 0;">
           <thead>
-            <tr>
-              <th>Brand Vendor</th>
-              <th>Kategori & Kota</th>
-              <th>Nama PIC</th>
-              <th>Kontak</th>
-              <th>Tanggal Daftar</th>
-              <th>Tindakan Kurasi</th>
+            <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+              <th style="padding: 12px 18px; font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; white-space: nowrap;">Brand Vendor</th>
+              <th style="padding: 12px 18px; font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; white-space: nowrap;">Kategori & Kota</th>
+              <th style="padding: 12px 18px; font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; white-space: nowrap;">Nama PIC</th>
+              <th style="padding: 12px 18px; font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; white-space: nowrap;">Kontak</th>
+              <th style="padding: 12px 18px; font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; white-space: nowrap;">Tanggal Daftar</th>
+              <th style="padding: 12px 18px; font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; white-space: nowrap; text-align: right;">Tindakan Kurasi</th>
             </tr>
           </thead>
           <tbody>
             {% for v in pending_vendors %}
-              <tr>
-                <td>
-                  <div style="font-weight: 700; color: var(--ink);">{{ v.business_name }}</div>
-                  <div style="font-size: 0.8rem; color: var(--ink-soft);">{{ v.anonymized_code }}</div>
+              <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s ease;">
+                <td style="padding: 14px 18px; vertical-align: middle;">
+                  <div style="font-weight: 700; color: var(--ink); font-size: 0.92rem;">{{ v.business_name }}</div>
+                  <div style="font-size: 0.78rem; color: var(--ink-soft); font-family: ui-monospace, monospace; margin-top: 2px;">{{ v.anonymized_code }}</div>
                 </td>
-                <td>
-                  <div>{{ v.category.name|default:"Umum" }}</div>
-                  <div style="font-size: 0.8rem; color: var(--ink-soft);">{{ v.city }}</div>
+                <td style="padding: 14px 18px; vertical-align: middle;">
+                  <div style="font-weight: 500; color: var(--ink);">{{ v.category.name|default:"Umum" }}</div>
+                  <div style="font-size: 0.78rem; color: var(--ink-soft); margin-top: 2px; display: inline-flex; align-items: center; gap: 4px;">
+                    <i data-lucide="map-pin" style="width: 12px; height: 12px; opacity: 0.7;"></i>
+                    <span>{{ v.city|default:"Indonesia" }}</span>
+                  </div>
                 </td>
-                <td>{{ v.pic_name }}</td>
-                <td>
-                  <div style="font-size: 0.84rem;">{{ v.contact_phone }}</div>
-                  <div style="font-size: 0.78rem; color: var(--ink-soft);">{{ v.contact_email }}</div>
+                <td style="padding: 14px 18px; vertical-align: middle; white-space: nowrap; font-weight: 500; color: var(--ink);">
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <i data-lucide="user" style="width: 14px; height: 14px; color: var(--ink-soft); opacity: 0.7;"></i>
+                    <span>{{ v.pic_name|default:"-" }}</span>
+                  </div>
                 </td>
-                <td style="color: var(--ink-soft); font-size: 0.84rem;">
-                  {{ v.created_at|date:"d M Y" }}
+                <td style="padding: 14px 18px; vertical-align: middle; white-space: nowrap;">
+                  <div style="font-size: 0.84rem; font-weight: 500; color: var(--ink); font-family: ui-monospace, monospace;">{{ v.contact_phone|default:"-" }}</div>
+                  <div style="font-size: 0.78rem; color: var(--ink-soft); margin-top: 2px;">{{ v.contact_email|default:"-" }}</div>
                 </td>
-                <td>
-                  <div style="display: flex; gap: 8px;">
-                    <a href="{% url 'admin_verify_vendor' vendor_id=v.id action='approve' %}" class="btn btn-berry btn-sm" onclick="return confirm('Verifikasi dan setujui vendor ini?');">
+                <td style="padding: 14px 18px; vertical-align: middle; white-space: nowrap; color: #475569; font-size: 0.84rem;">
+                  <div style="display: inline-flex; align-items: center; gap: 6px;">
+                    <i data-lucide="calendar" style="width: 13px; height: 13px; color: var(--ink-soft);"></i>
+                    <span>{{ v.created_at|date:"d M Y" }}</span>
+                  </div>
+                </td>
+                <td style="padding: 14px 18px; vertical-align: middle; text-align: right; white-space: nowrap;">
+                  <div style="display: inline-flex; gap: 8px; justify-content: flex-end;">
+                    <a href="{% url 'admin_verify_vendor' vendor_id=v.id action='approve' %}" class="btn btn-berry btn-sm" style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; font-size: 0.82rem; font-weight: 600;" onclick="return confirm('Verifikasi dan setujui vendor ini?');">
                       <i data-lucide="check" style="width: 14px; height: 14px;"></i>
                       Setujui
                     </a>
-                    <a href="{% url 'admin_verify_vendor' vendor_id=v.id action='reject' %}" class="btn btn-outline btn-sm" onclick="return confirm('Tolak pendaftaran vendor ini?');">
+                    <a href="{% url 'admin_verify_vendor' vendor_id=v.id action='reject' %}" class="btn btn-outline btn-sm" style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; font-size: 0.82rem; font-weight: 600;" onclick="return confirm('Tolak pendaftaran vendor ini?');">
                       <i data-lucide="x" style="width: 14px; height: 14px;"></i>
                       Tolak
                     </a>
@@ -95,75 +166,123 @@
         </table>
       </div>
     {% else %}
-      <div style="text-align: center; padding: 28px 16px; color: var(--ink-soft);">
-        <i data-lucide="check-circle-2" style="width: 32px; height: 32px; color: var(--sage); margin-bottom: 8px;"></i>
-        <p>Semua pendaftaran vendor telah ditinjau dan diverifikasi.</p>
+      <div style="text-align: center; padding: 36px 16px; color: var(--ink-soft);">
+        <i data-lucide="check-circle-2" style="width: 38px; height: 38px; color: var(--sage); margin-bottom: 8px; stroke-width: 1.75;"></i>
+        <div style="font-weight: 600; color: var(--ink); font-size: 0.96rem;">Semua Mitra Terverifikasi</div>
+        <p style="font-size: 0.85rem; margin: 4px 0 0 0;">Tidak ada pendaftaran vendor baru yang menunggu verifikasi saat ini.</p>
       </div>
     {% endif %}
   </div>
 
   <!-- All Orders & Commission Settlement -->
-  <div class="panel">
-    <div class="panel-header">
+  <div class="panel" style="background: white; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+    <div class="panel-header" style="padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; background: #faf8f5;">
       <div>
-        <h2 style="font-size: 1.3rem; color: var(--ink);">Seluruh Transaksi Pesanan & Fee Platform ({{ active_orders|length }})</h2>
-        <p style="font-size: 0.86rem; color: var(--ink-soft); margin-top: 2px;">
-          Rincian pesanan pemesan, pembagian komisi platform 10%, dan hak bersih vendor.
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <h2 style="font-size: 1.15rem; color: var(--ink); margin: 0; font-weight: 700;">Seluruh Transaksi Pesanan & Fee Platform</h2>
+          <span style="background: #eff6ff; color: #1d4ed8; padding: 3px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 700;">
+            {{ active_orders|length }} Transaksi
+          </span>
+        </div>
+        <p style="font-size: 0.84rem; color: var(--ink-soft); margin: 3px 0 0 0;">
+          Rincian pesanan pelanggan, perhitungan komisi platform 10%, dan hak bersih penerimaan vendor.
         </p>
       </div>
     </div>
 
     {% if active_orders %}
-      <div class="table-responsive">
-        <table class="table">
+      <div class="table-responsive" style="overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch;">
+        <table class="table" style="min-width: 1120px; width: 100%; border-collapse: collapse; margin: 0;">
           <thead>
-            <tr>
-              <th>Kode Order</th>
-              <th>Pemesan</th>
-              <th>Vendor</th>
-              <th>Tanggal Event</th>
-              <th>Total Transaksi</th>
-              <th>Komisi Platform (10%)</th>
-              <th>Penerimaan Vendor</th>
-              <th>Status</th>
-              <th>Aksi</th>
+            <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+              <th style="padding: 14px 18px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; white-space: nowrap;">Kode Order</th>
+              <th style="padding: 14px 18px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; white-space: nowrap;">Pemesan</th>
+              <th style="padding: 14px 18px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; white-space: nowrap;">Vendor</th>
+              <th style="padding: 14px 18px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; white-space: nowrap;">Tanggal Event</th>
+              <th style="padding: 14px 18px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; white-space: nowrap;">Total Transaksi</th>
+              <th style="padding: 14px 18px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; white-space: nowrap;">Komisi Platform (10%)</th>
+              <th style="padding: 14px 18px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; white-space: nowrap;">Penerimaan Vendor</th>
+              <th style="padding: 14px 18px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; white-space: nowrap; text-align: center;">Status</th>
+              <th style="padding: 14px 18px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; white-space: nowrap; text-align: right;">Aksi</th>
             </tr>
           </thead>
           <tbody>
             {% for o in active_orders %}
-              <tr>
-                <td style="font-weight: 700; color: var(--berry);">
-                  {{ o.order_code }}
-                </td>
-                <td>
-                  <div style="font-weight: 600;">{{ o.customer.username }}</div>
-                  <div style="font-size: 0.78rem; color: var(--ink-soft);">{{ o.customer.phone_number }}</div>
-                </td>
-                <td>
-                  <div style="font-weight: 600;">{{ o.vendor.business_name }}</div>
-                  <div style="font-size: 0.78rem; color: var(--ink-soft);">{{ o.package.name }}</div>
-                </td>
-                <td style="color: var(--ink-soft); font-size: 0.84rem;">
-                  {{ o.event_date|date:"d M Y" }}
-                </td>
-                <td style="font-weight: 700;">
-                  Rp {{ o.total_price|intdot }}
-                </td>
-                <td style="color: var(--gold-deep); font-weight: 600;">
-                  Rp {{ o.commission_amount|intdot }}
-                </td>
-                <td style="color: var(--sage); font-weight: 700;">
-                  Rp {{ o.vendor_net_amount|intdot }}
-                </td>
-                <td>
-                  <span class="status-badge {% if o.status == 'PENDING' %}pending{% elif o.status == 'CONFIRMED' %}confirmed{% elif o.status == 'COMPLETED' %}completed{% else %}cancelled{% endif %}">
-                    {{ o.get_status_display }}
+              <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s ease;">
+                <!-- 1. Kode Order -->
+                <td style="padding: 14px 18px; vertical-align: middle; white-space: nowrap;">
+                  <span style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.85rem; font-weight: 700; color: var(--berry); background: rgba(159, 18, 57, 0.06); border: 1px solid rgba(159, 18, 57, 0.16); padding: 5px 10px; border-radius: 6px; white-space: nowrap; letter-spacing: 0.03em; display: inline-block;">
+                    {{ o.order_code }}
                   </span>
                 </td>
-                <td>
-                  <a href="{% url 'order_detail' order_id=o.id %}" class="btn btn-outline btn-sm">
+
+                <!-- 2. Pemesan -->
+                <td style="padding: 14px 18px; vertical-align: middle; white-space: nowrap;">
+                  <div style="font-weight: 600; color: var(--ink); display: flex; align-items: center; gap: 6px;">
+                    <i data-lucide="user" style="width: 14px; height: 14px; color: var(--ink-soft); opacity: 0.7;"></i>
+                    <span>{{ o.customer.username }}</span>
+                  </div>
+                  <div style="font-size: 0.78rem; color: var(--ink-soft); margin-top: 3px; font-family: ui-monospace, monospace; padding-left: 20px;">
+                    {{ o.customer.phone_number|default:"-" }}
+                  </div>
+                </td>
+
+                <!-- 3. Vendor -->
+                <td style="padding: 14px 18px; vertical-align: middle; min-width: 180px; max-width: 260px;">
+                  <div style="font-weight: 600; color: var(--ink); line-height: 1.35;">
+                    {{ o.vendor.business_name }}
+                  </div>
+                  <div style="font-size: 0.78rem; color: var(--ink-soft); margin-top: 3px; line-height: 1.25; display: inline-flex; align-items: center; gap: 4px;">
+                    <i data-lucide="package" style="width: 12px; height: 12px; opacity: 0.7;"></i>
+                    <span>{{ o.package.name|default:"Custom Service" }}</span>
+                  </div>
+                </td>
+
+                <!-- 4. Tanggal Event -->
+                <td style="padding: 14px 18px; vertical-align: middle; white-space: nowrap; color: #334155; font-size: 0.86rem; font-weight: 500;">
+                  <div style="display: inline-flex; align-items: center; gap: 6px;">
+                    <i data-lucide="calendar" style="width: 13px; height: 13px; color: var(--ink-soft);"></i>
+                    <span>{{ o.event_date|date:"d M Y" }}</span>
+                  </div>
+                </td>
+
+                <!-- 5. Total Transaksi -->
+                <td style="padding: 14px 18px; vertical-align: middle; white-space: nowrap;">
+                  <div style="font-weight: 800; color: var(--ink); font-size: 0.95rem; font-variant-numeric: tabular-nums;">
+                    Rp {{ o.total_price|intdot }}
+                  </div>
+                </td>
+
+                <!-- 6. Komisi Platform (10%) -->
+                <td style="padding: 14px 18px; vertical-align: middle; white-space: nowrap;">
+                  <div style="display: inline-flex; align-items: center; gap: 6px;">
+                    <span style="font-size: 0.72rem; background: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 4px; font-weight: 800; letter-spacing: 0.02em;">10%</span>
+                    <span style="font-weight: 700; color: #b45309; font-size: 0.92rem; font-variant-numeric: tabular-nums;">
+                      Rp {{ o.commission_amount|intdot }}
+                    </span>
+                  </div>
+                </td>
+
+                <!-- 7. Penerimaan Vendor -->
+                <td style="padding: 14px 18px; vertical-align: middle; white-space: nowrap;">
+                  <div style="font-weight: 800; color: #15803d; font-size: 0.92rem; font-variant-numeric: tabular-nums;">
+                    Rp {{ o.vendor_net_amount|intdot }}
+                  </div>
+                </td>
+
+                <!-- 8. Status -->
+                <td style="padding: 14px 18px; vertical-align: middle; text-align: center; white-space: nowrap;">
+                  <span class="status-badge {% if o.status == 'PENDING' %}pending{% elif o.status == 'CONFIRMED' %}confirmed{% elif o.status == 'COMPLETED' %}completed{% else %}cancelled{% endif %}" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; white-space: nowrap;">
+                    <span style="width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.85;"></span>
+                    <span>{{ o.get_status_display }}</span>
+                  </span>
+                </td>
+
+                <!-- 9. Aksi -->
+                <td style="padding: 14px 18px; vertical-align: middle; text-align: right; white-space: nowrap;">
+                  <a href="{% url 'order_detail' order_id=o.id %}" class="btn btn-outline btn-sm" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 13px; font-size: 0.82rem; font-weight: 600; border-radius: 6px; white-space: nowrap;">
                     <i data-lucide="eye" style="width: 14px; height: 14px;"></i>
-                    Rincian
+                    <span>Rincian</span>
                   </a>
                 </td>
               </tr>
@@ -172,8 +291,10 @@
         </table>
       </div>
     {% else %}
-      <div style="text-align: center; padding: 28px 16px; color: var(--ink-soft);">
-        <p>Belum ada transaksi pesanan yang tercatat.</p>
+      <div style="text-align: center; padding: 40px 16px; color: var(--ink-soft);">
+        <i data-lucide="inbox" style="width: 38px; height: 38px; color: var(--ink-soft); opacity: 0.5; margin-bottom: 8px;"></i>
+        <div style="font-weight: 600; color: var(--ink); font-size: 0.96rem;">Belum Ada Transaksi</div>
+        <p style="font-size: 0.85rem; margin: 4px 0 0 0;">Belum ada riwayat pesanan atau transaksi aktif yang tercatat di platform.</p>
       </div>
     {% endif %}
   </div>

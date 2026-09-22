@@ -53,7 +53,7 @@
   <!-- Top Navigation Bar -->
   <header class="topbar">
     <div class="topbar-inner">
-      <div style="display: flex; align-items: center; gap: 28px;">
+      <div style="display: flex; align-items: center; gap: 16px;">
         <a href="{% url 'home' %}" style="display: flex; flex-direction: column;">
           <div class="brand">Vendor<span>aman</span></div>
           <div class="brand-sub">Konsultasi cepat, vendor yang pas</div>
@@ -62,13 +62,13 @@
         <ul class="nav-menu">
           <li>
             <a href="{% url 'planner_wizard' %}" class="nav-link">
-              <i data-lucide="compass" style="width: 16px; height: 16px;"></i>
+              <i data-lucide="compass" style="width: 15px; height: 15px;"></i>
               <span>Cari Vendor</span>
             </a>
           </li>
           <li>
             <a href="{% url 'excel_templates_catalog' %}" class="nav-link">
-              <i data-lucide="file-spreadsheet" style="width: 16px; height: 16px;"></i>
+              <i data-lucide="file-spreadsheet" style="width: 15px; height: 15px;"></i>
               <span>Template Excel</span>
             </a>
           </li>
@@ -76,28 +76,53 @@
             {% if user.is_customer %}
               <li>
                 <a href="{% url 'customer_dashboard' %}" class="nav-link">
-                  <i data-lucide="layout-dashboard" style="width: 16px; height: 16px;"></i>
+                  <i data-lucide="layout-dashboard" style="width: 15px; height: 15px;"></i>
                   <span>Dashboard Saya</span>
                 </a>
               </li>
               <li>
                 <a href="{% url 'savings_list' %}" class="nav-link">
-                  <i data-lucide="piggy-bank" style="width: 16px; height: 16px;"></i>
+                  <i data-lucide="piggy-bank" style="width: 15px; height: 15px;"></i>
                   <span>Tabungan Event</span>
                 </a>
               </li>
             {% elif user.is_vendor_user %}
               <li>
                 <a href="{% url 'vendor_dashboard' %}" class="nav-link">
-                  <i data-lucide="store" style="width: 16px; height: 16px;"></i>
+                  <i data-lucide="store" style="width: 15px; height: 15px;"></i>
                   <span>Portal Vendor</span>
+                </a>
+              </li>
+            {% elif user.is_operator %}
+              <li>
+                <a href="{% url 'admin_download_codes' %}" class="nav-link">
+                  <i data-lucide="ticket" style="width: 15px; height: 15px;"></i>
+                  <span>Portal CS Shopee</span>
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'operator_templates' %}" class="nav-link">
+                  <i data-lucide="file-spreadsheet" style="width: 15px; height: 15px;"></i>
+                  <span>Kelola Template</span>
                 </a>
               </li>
             {% elif user.is_platform_admin %}
               <li>
-                <a href="{% url 'admin_dashboard' %}" class="nav-link">
-                  <i data-lucide="sliders" style="width: 16px; height: 16px;"></i>
-                  <span>Panel Admin & Komisi</span>
+                <a href="{% url 'admin:index' %}" class="nav-link">
+                  <i data-lucide="sliders" style="width: 15px; height: 15px;"></i>
+                  <span>Panel Admin</span>
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'admin_download_codes' %}" class="nav-link">
+                  <i data-lucide="ticket" style="width: 15px; height: 15px;"></i>
+                  <span>Kode Shopee</span>
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'operator_templates' %}" class="nav-link">
+                  <i data-lucide="file-spreadsheet" style="width: 15px; height: 15px;"></i>
+                  <span>Kelola Template</span>
                 </a>
               </li>
             {% endif %}
@@ -105,8 +130,8 @@
           {% if user.is_authenticated and user.is_vendor_user or user.is_platform_admin %}
             <li>
               <a href="{% url 'trust_guarantee' %}" class="nav-link">
-                <i data-lucide="award" style="width: 16px; height: 16px;"></i>
-                <span>Kemitraan &amp; Komisi</span>
+                <i data-lucide="award" style="width: 15px; height: 15px;"></i>
+                <span>Kemitraan</span>
               </a>
             </li>
           {% endif %}
