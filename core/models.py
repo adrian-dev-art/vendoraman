@@ -172,7 +172,7 @@ class EventSavingsVault(models.Model):
 class SavingsDeposit(models.Model):
     vault = models.ForeignKey(EventSavingsVault, on_delete=models.CASCADE, related_name='deposits')
     amount = models.DecimalField(max_digits=12, decimal_places=0)
-    payment_method = models.CharField(max_length=50, default='Virtual Account (Escrow Vault)')
+    payment_method = models.CharField(max_length=50, default='Virtual Account / Transfer')
     notes = models.CharField(max_length=255, blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -423,22 +423,13 @@ class TemplateDownloadCode(models.Model):
         return {'label': 'Belum Dibuka', 'color': '#64748b', 'bg': 'rgba(100, 116, 139, 0.1)'}
 
     def generate_chat_message(self, base_url='https://vendoraman.vitnite.cloud'):
-        link = f"{base_url.rstrip('/')}/templates/?code={self.code}"
+        clean_host = base_url.replace('https://', '').replace('http://', '').rstrip('/')
+        if '127.0.0.1' in clean_host or 'localhost' in clean_host:
+            clean_host = 'vendoraman.vitnite.cloud'
+        link = f"{clean_host}/templates/?code={self.code}"
         return (
-            f"Halo Kak! Terima kasih banyak sudah order di Vendoraman Official. ✨\n\n"
-            f"Ini kode akses unik untuk unduh template Anda:\n"
-            f"🔑 KODE AKSES: {self.code}\n\n"
-            f"📥 LINK UNDUH LANGSUNG:\n{link}\n\n"
-            f"⚠️ PENTING SEBELUM MEMILIH TEMPLATE:\n"
-            f"1. Kode akses ini bersifat UNIVERSAL (dapat digunakan untuk template kategori apa pun: Pernikahan, Corporate, Ulang Tahun, Pameran, Seminar, atau Intimate Gathering).\n"
-            f"2. Kode ini HANYA BISA DIGUNAKAN 1 KALI UNDUH.\n"
-            f"3. Mohon pastikan Kakak memilih kategori template yang benar dan sesuai kebutuhan sebelum menekan tombol unduh.\n\n"
-            f"CARA PENGGUNAAN:\n"
-            f"1. Klik link di atas (atau buka menu Template Excel).\n"
-            f"2. Pilih kategori template yang ingin Kakak unduh.\n"
-            f"3. Masukkan kode akses di atas (akan terisi otomatis jika klik link).\n"
-            f"4. Klik \"Unduh Template Excel\", file .xlsx berformula lengkap akan langsung tersimpan di perangkat Kakak.\n\n"
-            f"Jika butuh bantuan atau ada pertanyaan teknis, silakan balas chat ini ya Kak. Selamat merencanakan event! 😊🙏"
+            f"terima kasih sudah order kak berikut kode aksesnya {self.code} dan link untuk "
+            f"penukarannya di sini ya kak pilih saja sesuai product {link}"
         )
 
     def is_valid_for(self, target_category):

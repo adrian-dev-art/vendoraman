@@ -103,6 +103,38 @@
     </div>
   {% endif %}
 
+  <!-- AI PLANNER INSIGHT (Groq — lazy loaded) -->
+  <div id="aiInsightSection" style="margin-bottom: 20px; display: none;">
+    <div style="background: linear-gradient(135deg, #1B1F3B 0%, #2A3056 100%); border-radius: 14px; padding: 20px 24px; position: relative; overflow: hidden;">
+      <div style="position: absolute; top: -20px; right: -20px; width: 120px; height: 120px; border-radius: 50%; background: rgba(217, 164, 65, 0.12); pointer-events: none;"></div>
+      <div style="display: flex; align-items: flex-start; gap: 16px;">
+        <div style="flex-shrink: 0; width: 40px; height: 40px; border-radius: 10px; background: rgba(217, 164, 65, 0.2); border: 1px solid rgba(217, 164, 65, 0.4); display: flex; align-items: center; justify-content: center;">
+          <i data-lucide="sparkles" style="width: 20px; height: 20px; color: #D9A441;"></i>
+        </div>
+        <div style="flex: 1;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 0.72rem; font-weight: 700; color: #D9A441; text-transform: uppercase; letter-spacing: 0.05em;">AI Planner Insight</span>
+            <span style="font-size: 0.7rem; color: #94a3b8; font-style: italic;" id="aiInsightCacheLabel"></span>
+          </div>
+          <div id="aiInsightSkeleton" style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="height: 13px; border-radius: 6px; background: rgba(255,255,255,0.08); animation: aiPulse 1.4s ease-in-out infinite;"></div>
+            <div style="height: 13px; border-radius: 6px; background: rgba(255,255,255,0.08); animation: aiPulse 1.4s ease-in-out infinite; width: 82%;"></div>
+            <div style="height: 13px; border-radius: 6px; background: rgba(255,255,255,0.08); animation: aiPulse 1.4s ease-in-out infinite; width: 65%;"></div>
+          </div>
+          <div id="aiInsightContent" style="display: none; font-size: 0.88rem; color: #CBD5E1; line-height: 1.7; white-space: pre-line;"></div>
+          <div id="aiInsightError" style="display: none; font-size: 0.82rem; color: #94a3b8; font-style: italic;">Analisis AI tidak tersedia saat ini.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    @keyframes aiPulse {
+      0%, 100% { opacity: 0.35; }
+      50% { opacity: 0.75; }
+    }
+  </style>
+
   <!-- Master Interactive Navigation Tabs -->
   <div class="planner-nav-tabs">
     <button class="nav-tab-btn active" data-target="tab-vendors">
@@ -222,7 +254,7 @@
     </div>
   </div>
 
-  <!-- TAB 2: ANGGARAN & ESCROW -->
+  <!-- TAB 2: ANGGARAN & TERMIN BAYAR -->
   <div class="tab-pane" id="tab-budget" style="display: none;">
     <!-- 6 Executive KPI Cards -->
     <div class="kpi-deck-grid">
@@ -264,7 +296,7 @@
         Rincian Budget per Kategori
       </h3>
       <p style="font-size: 0.88rem; color: var(--ink-soft); margin-bottom: 18px;">
-        Budget dibagi per kebutuhan. Cara bayar: 30% uang muka saat booking, 40% saat persiapan (H-3), 30% pelunasan di hari-H. Uangmu ditahan aman dan baru diteruskan ke vendor kalau kamu setuju.
+        Budget dibagi per kebutuhan. Cara bayar: 30% uang muka saat booking, 40% saat persiapan (H-7/TM), 30% pelunasan di hari-H langsung ke rekening vendor resmi sesuai kontrak kerja.
       </p>
 
       <div style="overflow-x: auto;">
@@ -313,7 +345,7 @@
               <td style="padding: 14px; text-align: right;">Rp {{ planner_data.dana_terbayar|intdot }}</td>
               <td style="padding: 14px; text-align: right;">-</td>
               <td style="padding: 14px; text-align: right;">-</td>
-              <td style="padding: 14px; text-align: center; color: var(--sage);">100% Escrow</td>
+              <td style="padding: 14px; text-align: center; color: var(--sage);">Termin Terstruktur</td>
             </tr>
           </tbody>
         </table>
@@ -369,13 +401,13 @@
               <label style="display: block; font-size: 0.82rem; font-weight: 600; color: var(--ink); margin-bottom: 4px;">
                 Harga Paket Prasmanan/Pax (Rp)
               </label>
-              <input type="number" id="inputBuffetPrice" value="95000" step="5000" class="form-control" style="width: 100%; padding: 8px 12px; border: 1.5px solid var(--line); border-radius: 8px; font-weight: 700;">
+              <input type="number" id="inputBuffetPrice" value="{{ planner_data.catering.buffet_price }}" step="5000" class="form-control" style="width: 100%; padding: 8px 12px; border: 1.5px solid var(--line); border-radius: 8px; font-weight: 700;">
             </div>
             <div>
               <label style="display: block; font-size: 0.82rem; font-weight: 600; color: var(--ink); margin-bottom: 4px;">
                 Harga Rata-rata Stall/Porsi (Rp)
               </label>
-              <input type="number" id="inputStallPrice" value="25000" step="2500" class="form-control" style="width: 100%; padding: 8px 12px; border: 1.5px solid var(--line); border-radius: 8px; font-weight: 700;">
+              <input type="number" id="inputStallPrice" value="{{ planner_data.catering.stall_price }}" step="2500" class="form-control" style="width: 100%; padding: 8px 12px; border: 1.5px solid var(--line); border-radius: 8px; font-weight: 700;">
             </div>
           </div>
         </div>
@@ -617,7 +649,7 @@
             <button type="button" class="btn btn-sm btn-outline" onclick="filterRundown('F3', this)" style="padding: 4px 10px; font-size: 0.78rem;">Akad Sakral</button>
             <button type="button" class="btn btn-sm btn-outline" onclick="filterRundown('F5', this)" style="padding: 4px 10px; font-size: 0.78rem;">Kirab Resepsi</button>
             <button type="button" class="btn btn-sm btn-outline" onclick="filterRundown('F6', this)" style="padding: 4px 10px; font-size: 0.78rem;">Prasmanan & Foto</button>
-            <button type="button" class="btn btn-sm btn-outline" onclick="filterRundown('F8', this)" style="padding: 4px 10px; font-size: 0.78rem;">Teardown & Escrow</button>
+            <button type="button" class="btn btn-sm btn-outline" onclick="filterRundown('F8', this)" style="padding: 4px 10px; font-size: 0.78rem;">Teardown & Pelunasan</button>
           </div>
         </div>
 
@@ -917,8 +949,8 @@
     const phys = parseFloat(inputPhys.value) || 0;
     const dig = parseFloat(inputDig.value) || 0;
     const bufPct = (parseFloat(inputBuffer.value) || 10) / 100;
-    const buffetPrice = parseFloat(inputBuffetPr.value) || 95000;
-    const stallPrice = parseFloat(inputStallPr.value) || 25000;
+    const buffetPrice = parseFloat(inputBuffetPr ? inputBuffetPr.value : 0) || {{ planner_data.catering.buffet_price|default:85000 }};
+    const stallPrice = parseFloat(inputStallPr ? inputStallPr.value : 0) || {{ planner_data.catering.stall_price|default:25000 }};
 
     labelBuffer.textContent = Math.round(bufPct * 100) + '%';
 
@@ -1073,5 +1105,36 @@
   };
 
   window.refreshIcons();
+
+  // --- Groq AI Insight: lazy fetch on page load ---
+  (function fetchAiInsight() {
+    const section = document.getElementById('aiInsightSection');
+    const skeleton = document.getElementById('aiInsightSkeleton');
+    const content = document.getElementById('aiInsightContent');
+    const errorEl = document.getElementById('aiInsightError');
+    const cacheLabel = document.getElementById('aiInsightCacheLabel');
+    if (!section) return;
+
+    section.style.display = 'block';
+
+    fetch("{% url 'planner_ai_insight' plan_id=plan.id %}")
+      .then(res => res.json())
+      .then(data => {
+        skeleton.style.display = 'none';
+        if (data.insight) {
+          content.textContent = data.insight;
+          content.style.display = 'block';
+          if (data.cached) {
+            cacheLabel.textContent = '(dari cache)';
+          }
+        } else {
+          errorEl.style.display = 'block';
+        }
+      })
+      .catch(() => {
+        skeleton.style.display = 'none';
+        errorEl.style.display = 'block';
+      });
+  })();
 </script>
 {% endblock %}

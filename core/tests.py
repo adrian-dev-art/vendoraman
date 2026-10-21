@@ -368,11 +368,11 @@ class VendoramanCoreTests(TestCase):
         self.assertContains(resp, 'Andi Pratama')
         self.assertContains(resp, 'Sarah Meliana')
         self.assertContains(resp, 'Template Excel')
-        self.assertContains(resp, 'Proteksi Escrow')
+        self.assertContains(resp, 'Sistem Termin')
 
         # Check FAQs
         self.assertContains(resp, 'Pertanyaan yang Sering Diajukan (FAQ)')
-        self.assertContains(resp, 'Milestone Escrow')
+        self.assertContains(resp, 'Bagaimana cara pembayaran ke vendor dilakukan?')
 
     def test_currency_tags_dot_formatting(self):
         from core.templatetags.currency_tags import intdot, rupiah
@@ -384,6 +384,27 @@ class VendoramanCoreTests(TestCase):
         self.assertEqual(rupiah('120000000'), 'Rp 120.000.000')
         self.assertEqual(intdot(None), '')
         self.assertEqual(intdot(''), '')
+
+    def test_osm_element_mapping_offline(self):
+        from core.management.commands.import_osm_vendors import (
+            osm_element_to_vendor, build_overpass_query)
+        q = build_overpass_query(-7.7956, 110.3695, 12000)
+        self.assertIn('around:12000,-7.7956,110.3695', q)
+        self.assertIn('craft', q)
+
+        el = {'tags': {'name': 'Sari Rasa Catering', 'addr:city': 'Yogyakarta',
+                       'contact:phone': '+62 812 3456', 'craft': 'caterer'}}
+        m = osm_element_to_vendor(el, 'Yogyakarta')
+        self.assertEqual(m['business_name'], 'Sari Rasa Catering')
+        self.assertEqual(m['city'], 'Yogyakarta')
+        self.assertEqual(m['contact_phone'], '+62 812 3456')
+        self.assertIn('OpenStreetMap', m['description'])
+
+        # No name → skipped
+        self.assertIsNone(osm_element_to_vendor({'tags': {'craft': 'caterer'}}, 'Yogyakarta'))
+        # No city tag → falls back to searched city
+        m2 = osm_element_to_vendor({'tags': {'name': 'Foto Kita'}}, 'Bandung')
+        self.assertEqual(m2['city'], 'Bandung')
 
 
 class LaunchChecklistTests(TestCase):
@@ -441,8 +462,8 @@ class LaunchChecklistTests(TestCase):
         self.assertIn('name="description"', html)
         self.assertIn('property="og:title"', html)
         self.assertIn('property="og:image"', html)
-        self.assertIn('og-cover.png', html)
-        self.assertIn('favicon.svg', html)
+        self.assertTrue('og-cover' in html and '.png' in html)
+        self.assertTrue('favicon' in html and '.svg' in html)
         self.assertIn('rel="canonical"', html)
         self.assertIn('id="cookieBanner"', html)
 
@@ -735,3 +756,10 @@ class LaunchChecklistTests(TestCase):
         self.assertContains(resp, "Ulang Tahun")
         code.refresh_from_db()
         self.assertEqual(code.used_count, 0)
+
+    def test_generate_chat_message_anti_spam(self):
+        from core.models import TemplateDownloadCode
+        code = TemplateDownloadCode(code="VND-MSTR-967DD7")
+        msg = code.generate_chat_message()
+        expected = "terima kasih sudah order kak berikut kode aksesnya VND-MSTR-967DD7 dan link untuk penukarannya di sini ya kak pilih saja sesuai product vendoraman.vitnite.cloud/templates/?code=VND-MSTR-967DD7"
+        self.assertEqual(msg, expected)

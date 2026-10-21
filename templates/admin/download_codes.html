@@ -348,10 +348,10 @@
       <div style="margin-bottom: 18px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
           <label style="font-size: 0.84rem; font-weight: 700; color: var(--ink);">Isi Pesan untuk Shopee Chat:</label>
-          <span style="font-size: 0.75rem; color: #16a34a; font-weight: 600;">✓ Dilengkapi panduan & link tracking</span>
+          <span style="font-size: 0.75rem; color: #16a34a; font-weight: 600;">✓ Format Ringkas Anti-Spam Shopee</span>
         </div>
-        <textarea id="modalMessageText" rows="9" 
-                  style="width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; font-family: monospace; font-size: 0.84rem; line-height: 1.45; background: #fafafa; color: #1e293b; resize: vertical;" readonly></textarea>
+        <textarea id="modalMessageText" rows="4" 
+                  style="width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; font-family: inherit; font-size: 0.88rem; line-height: 1.5; background: #fafafa; color: #1e293b; resize: vertical;" readonly></textarea>
       </div>
 
       <!-- Notice Alert -->
@@ -924,23 +924,13 @@ function openMessageModal(code) {
   document.getElementById('modalCodeDisplay').innerText = code;
   document.getElementById('btnCopyTextLabel').innerText = 'Salin Pesan Shopee Chat';
 
-  const baseUrl = window.location.origin;
-  const link = `${baseUrl}/templates/?code=${code}`;
+  let host = window.location.host;
+  if (host.includes('127.0.0.1') || host.includes('localhost')) {
+    host = 'vendoraman.vitnite.cloud';
+  }
+  const link = `${host}/templates/?code=${code}`;
   
-  const text = `Halo Kak! Terima kasih banyak sudah order di Vendoraman Official. ✨\n\n` +
-    `Ini kode akses unik untuk unduh template Anda:\n` +
-    `🔑 KODE AKSES: ${code}\n\n` +
-    `📥 LINK UNDUH LANGSUNG:\n${link}\n\n` +
-    `⚠️ PENTING SEBELUM MEMILIH TEMPLATE:\n` +
-    `1. Kode akses ini bersifat UNIVERSAL (dapat digunakan untuk template kategori apa pun: Pernikahan, Corporate, Ulang Tahun, Pameran, Seminar, atau Intimate Gathering).\n` +
-    `2. Kode ini HANYA BISA DIGUNAKAN 1 KALI UNDUH.\n` +
-    `3. Mohon pastikan Kakak memilih kategori template yang benar dan sesuai kebutuhan sebelum menekan tombol unduh.\n\n` +
-    `CARA PENGGUNAAN:\n` +
-    `1. Klik link di atas (atau buka menu Template Excel).\n` +
-    `2. Pilih kategori template yang ingin Kakak unduh.\n` +
-    `3. Masukkan kode akses di atas (akan terisi otomatis jika klik link).\n` +
-    `4. Klik "Unduh Template Excel", file .xlsx berformula lengkap akan langsung tersimpan di perangkat Kakak.\n\n` +
-    `Jika butuh bantuan atau ada pertanyaan teknis, silakan balas chat ini ya Kak. Selamat merencanakan event! 😊🙏`;
+  const text = `terima kasih sudah order kak berikut kode aksesnya ${code} dan link untuk penukarannya di sini ya kak pilih saja sesuai product ${link}`;
 
   document.getElementById('modalMessageText').value = text;
 }

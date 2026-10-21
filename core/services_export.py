@@ -31,16 +31,31 @@ def get_planner_master_data(plan):
     pax = plan.estimated_pax or 500
     pagu = float(plan.budget_max or 100000000)
 
-    # Catering default simulator
-    phys_inv = round(pax * 0.4)
-    dig_inv = round(pax * 0.2)
-    tamu_calc = round((phys_inv * 2.0) + (dig_inv * 1.5))
+    # --- Catering simulator ---
+    # Default: undangan fisik = 50% pax, digital = 30% pax.
+    # tamu_calc di-ANCHOR ke pax (data onboarding user) agar semua angka konsisten.
+    phys_inv = round(pax * 0.50)   # 50% pax sebagai undangan fisik
+    dig_inv  = round(pax * 0.30)   # 30% pax sebagai undangan digital
+    tamu_calc = pax                 # anchor ke data onboarding (bukan hasil formula)
     buffer_pax = round(tamu_calc * 0.10)
     total_porsi = tamu_calc + buffer_pax
     buffet_portions = round(total_porsi * 0.60)
     stall_portions = round(total_porsi * 0.40 * 4)
-    buffet_price = 95000
-    stall_price = 25000
+
+    # Biaya katering realistis disesuaikan dengan plafon budget katering (40% pagu)
+    # Wedding standar: Buffet Rp 55.000 - Rp 110.000, Stall Rp 18.000 - Rp 35.000
+    target_catering_budget = pagu * 0.40
+    # Hitung unit price proporsional agar total_food_cost sesuai pagu katering
+    # Formula komposisi porsi: 0.60*buffet + 1.60*stall
+    # Rasio harga pasar: 1 buffet ~ 3.5x stall
+    if total_porsi > 0 and target_catering_budget > 0:
+        base_unit = target_catering_budget / (buffet_portions * 3.5 + stall_portions)
+        stall_price = max(18000, min(45000, round(base_unit / 1000) * 1000))
+        buffet_price = max(55000, min(140000, round((stall_price * 3.5) / 1000) * 1000))
+    else:
+        buffet_price = 85000
+        stall_price = 25000
+
     subtotal_buffet = buffet_portions * buffet_price
     subtotal_stall = stall_portions * stall_price
     total_food_cost = subtotal_buffet + subtotal_stall
@@ -87,7 +102,7 @@ def get_planner_master_data(plan):
 
     monthly_targets = [
         {'code': 'H-6', 'period': '6 Bulan Sebelum', 'title': 'Penyusunan Anggaran & Eksplorasi Vendor', 'pic': 'Customer & Pasangan', 'status': 'Selesai', 'desc': 'Penyusunan pagu anggaran awal, estimasi jumlah pax, dan eksplorasi kurasi vendor di Vendoraman.'},
-        {'code': 'H-5', 'period': '5 Bulan Sebelum', 'title': 'Kunci Venue & Booking Katering via Escrow', 'pic': 'Customer & Vendor Lead', 'status': 'Selesai', 'desc': 'Kunci tanggal venue utama & booking vendor katering dengan pembayaran DP 30% terlindungi escrow.'},
+        {'code': 'H-5', 'period': '5 Bulan Sebelum', 'title': 'Kunci Venue & Booking Vendor Utama', 'pic': 'Customer & Vendor Lead', 'status': 'Selesai', 'desc': 'Kunci tanggal venue utama & booking vendor katering/dekorasi dengan pembayaran DP 30% langsung ke vendor.'},
         {'code': 'H-4', 'period': '4 Bulan Sebelum', 'title': 'Booking Dekorasi & Tim Dokumentasi', 'pic': 'Customer & WO', 'status': 'Dalam Proses', 'desc': 'Penentuan tema palet warna pelaminan, backdrop photobooth, dan kontrak tim fotografer/videografer.'},
         {'code': 'H-3', 'period': '3 Bulan Sebelum', 'title': 'Fitting Busana Pengantin & Kurasi Musik', 'pic': 'WO & Penata Busana', 'status': 'Belum Mulai', 'desc': 'Sesi fitting busana pengantin pertama, kurasi playlist musik akustik, dan konfirmasi MC formal.'},
         {'code': 'H-2', 'period': '2 Bulan Sebelum', 'title': 'Cetak Undangan & Rilis Undangan Digital', 'pic': 'Panitia Keluarga & WO', 'status': 'Belum Mulai', 'desc': 'Distribusi e-invitation broadcast, cetak undangan fisik VIP, pesanan souvenir, dan pembentukan panitia.'},
@@ -104,7 +119,7 @@ def get_planner_master_data(plan):
         {'code': 'H-7', 'period': '7 Hari Sebelum', 'title': 'Readiness Check Komprehensif Seluruh Vendor', 'pic': 'Ketua WO & Vendor Leads', 'status': 'Belum Mulai', 'desc': 'Konfirmasi ulang jam loading barang, kedatangan personil, dan contact list PIC lapangan.'},
         {'code': 'H-6', 'period': '6 Hari Sebelum', 'title': 'Pengecekan Fisik Souvenir, Buku Tamu & Angpao', 'pic': 'Panitia Logistik Keluarga', 'status': 'Belum Mulai', 'desc': 'Pengecekan fisik souvenir bersih, amplop tip vendor, pena emas, dan gembok kotak angpao.'},
         {'code': 'H-5', 'period': '5 Hari Sebelum', 'title': 'Konfirmasi Transportasi & Tamu VIP', 'pic': 'Seksi Transportasi', 'status': 'Belum Mulai', 'desc': 'Jadwal penjemputan tamu VIP dari bandara/hotel dan mobil pengantin.'},
-        {'code': 'H-4', 'period': '4 Hari Sebelum', 'title': 'Verifikasi Persiapan & Milestone Mid-Term 40%', 'pic': 'Platform Escrow & Customer', 'status': 'Belum Mulai', 'desc': 'Pengecekan bukti foto/video persiapan vendor dan persetujuan pencairan milestone kedua (40%).'},
+        {'code': 'H-4', 'period': '4 Hari Sebelum', 'title': 'Verifikasi Persiapan & Pembayaran Mid-Term 40%', 'pic': 'Customer & Panitia', 'status': 'Belum Mulai', 'desc': 'Pengecekan bukti foto/video persiapan vendor dan pembayaran termin kedua (40%) sesuai kontrak.'},
         {'code': 'H-3', 'period': '3 Hari Sebelum', 'title': 'Finalisasi Urutan Kirab & Meja VIP', 'pic': 'WO & Keluarga', 'status': 'Belum Mulai', 'desc': 'Cetak daftar nama keluarga inti untuk prosesi foto dan penomoran meja VIP khusus.'},
         {'code': 'H-2', 'period': '2 Hari Sebelum', 'title': 'Gladi Resik Venue & Testing Audio Wireless', 'pic': 'MC, WO & Vendor Audio', 'status': 'Belum Mulai', 'desc': 'Gladi kotor di venue, uji sound system panggung, mic wireless, dan tata lampu.'},
         {'code': 'H-1', 'period': '1 Hari Sebelum', 'title': 'Loading Dekorasi, Check-in Kamar & Briefing', 'pic': 'WO & Teknisi Lapangan', 'status': 'Belum Mulai', 'desc': 'Loading in dekorasi pelaminan, check-in kamar keluarga venue, dan briefing malam panitia.'},
@@ -148,8 +163,8 @@ def get_planner_master_data(plan):
         {'num': 22, 'phase_code': 'F7', 'phase': 'Games & Penutupan', 'time': '13.15 - 13.35', 'duration': '20 Mnt', 'title': 'Special Song Pengantin, Lempar Hand Bouquet & Doorprize', 'location': 'Area Tengah Ballroom', 'pic': 'MC, Tim Audio & WO', 'audio_cue': 'Lagu Drum Roll Ketegangan -> Lagu Histeris Gembira', 'wardrobe': 'Hand Bouquet Cadangan Khusus Lempar', 'status': 'Belum Mulai', 'notes': 'Momen seru lempar buket bunga untuk sahabat lajang, pemenang menerima voucher belanja / hadiah emas dari pengantin.'},
         {'num': 23, 'phase_code': 'F7', 'phase': 'Games & Penutupan', 'time': '13.35 - 14.00', 'duration': '25 Mnt', 'title': 'Closing Statement MC & Foto Bersama Seluruh Panitia / Kru WO', 'location': 'Panggung Pelaminan & FOH', 'pic': 'MC, Keluarga & Seluruh Kru WO', 'audio_cue': 'Lagu Victory Celebration Megah', 'wardrobe': 'Seluruh Panitia Berkumpul di Pelaminan', 'status': 'Belum Mulai', 'notes': 'MC mengumumkan acara telah selesai resmi, dilanjutkan foto kenangan keluarga besar bersama seluruh kru wedding organizer.'},
 
-        # Fase 8: Teardown, Serah Terima & Rekonsiliasi Escrow
-        {'num': 24, 'phase_code': 'F8', 'phase': 'Teardown & Rekonsiliasi', 'time': '14.00 - 16.30', 'duration': '150 Mnt', 'title': 'Pengamanan Kotak Angpao, Loading Out & Sign-Off Escrow', 'location': 'Ruang VIP & Loading Dock Venue', 'pic': 'Bendahara Keluarga, WO & Seluruh Vendor', 'audio_cue': '-', 'wardrobe': 'Seragam Kerja Loading Out', 'status': 'Belum Mulai', 'notes': 'Kotak angpao diamankan ke safety bag bersegel. Loading out barang vendor, sign-off BAST venue, dan rekomendasi pencairan termin 30% Escrow.'},
+        # Fase 8: Teardown, Serah Terima & Rekonsiliasi Pelunasan
+        {'num': 24, 'phase_code': 'F8', 'phase': 'Teardown & Pelunasan', 'time': '14.00 - 16.30', 'duration': '150 Mnt', 'title': 'Pengamanan Kotak Angpao, Loading Out & Pelunasan Vendor', 'location': 'Ruang VIP & Loading Dock Venue', 'pic': 'Bendahara Keluarga, WO & Seluruh Vendor', 'audio_cue': '-', 'wardrobe': 'Seragam Kerja Loading Out', 'status': 'Belum Mulai', 'notes': 'Kotak angpao diamankan ke safety bag bersegel. Loading out barang vendor, sign-off BAST venue, dan pelunasan termin 30% ke masing-masing vendor.'},
     ]
 
     if not is_wedding:
@@ -158,7 +173,7 @@ def get_planner_master_data(plan):
         cat_label = (plan.event_category.name if plan.event_category else 'Acara')
         monthly_targets = [
             {'code': 'H-6', 'period': '6 Bulan Sebelum', 'title': 'Tentukan budget & lihat vendor', 'pic': 'Kamu & tim', 'status': 'Selesai', 'desc': f'Tentukan budget maksimal, perkiraan tamu, dan lihat vendor untuk {cat_label}.'},
-            {'code': 'H-5', 'period': '5 Bulan Sebelum', 'title': 'Kunci gedung & pesan konsumsi', 'pic': 'Kamu & vendor', 'status': 'Selesai', 'desc': 'Kunci tanggal gedung & pesan konsumsi (bayar uang muka 30% yang ditahan aman).'},
+            {'code': 'H-5', 'period': '5 Bulan Sebelum', 'title': 'Kunci gedung & pesan konsumsi', 'pic': 'Kamu & vendor', 'status': 'Selesai', 'desc': 'Kunci tanggal gedung & pesan konsumsi (bayar uang muka 30% langsung ke vendor sesuai SPK).'},
             {'code': 'H-4', 'period': '4 Bulan Sebelum', 'title': 'Pesan dekorasi & dokumentasi', 'pic': 'Kamu & EO', 'status': 'Dalam Proses', 'desc': 'Tentukan tema, dekorasi panggung, dan tim foto/video.'},
             {'code': 'H-3', 'period': '3 Bulan Sebelum', 'title': 'Siapkan pengisi acara & MC', 'pic': 'EO & MC', 'status': 'Belum Mulai', 'desc': 'Pilih MC, pengisi acara/hiburan, dan susun daftar tamu.'},
             {'code': 'H-2', 'period': '2 Bulan Sebelum', 'title': 'Sebar undangan & bentuk panitia', 'pic': 'Panitia & EO', 'status': 'Belum Mulai', 'desc': 'Kirim undangan fisik + online, pesan souvenir, bentuk panitia.'},
@@ -223,19 +238,98 @@ def get_planner_master_data(plan):
         {'cat': 'Teknis & Multimedia', 'name': 'Handy Talky (HT) & Earpiece Panitia', 'pic': 'Seksi Keamanan & WO', 'qty': '8 Unit Terisi Penuh', 'status': 'Dalam Proses', 'loc': 'Sekretariat Panitia', 'note': 'Frekuensi disamakan'},
     ]
 
-    realisasi_total = round(pagu * 0.93)
-    variance = round(pagu - realisasi_total)
+    # --- Dynamic Budget Allocation Based on selected_services ---
+    # Bobot referensi standar wedding industri jika semua dipilih:
+    # Katering (38%), Dekorasi & Venue (28%), Dokumentasi (12%), Sound & MC (10%), Rias/Busana (7%), Cadangan (5%)
+    SERVICES_BASE_WEIGHTS = {
+        'catering': {'name': 'Catering & Jamuan Tamu', 'weight': 38, 'kw': ['catering', 'katering', 'gourmet', 'culinary'], 'fb': 'Rasa Nusantara Gourmet Catering'},
+        'venue': {'name': 'Sewa Venue & Gedung', 'weight': 20, 'kw': ['venue', 'estate', 'hall', 'ballroom', 'hotel'], 'fb': 'Grand Ballroom & Convention'},
+        'dekorasi': {'name': 'Dekorasi & Pelaminan', 'weight': 18, 'kw': ['decor', 'dekorasi', 'floral', 'kembang', 'design'], 'fb': 'Kembang Senja Decor & Styling'},
+        'foto': {'name': 'Dokumentasi (Foto & Cinematic)', 'weight': 12, 'kw': ['photo', 'foto', 'visual', 'cinema', 'cahaya', 'studio'], 'fb': 'Cahaya Abadi Photography & Cinematic'},
+        'sound': {'name': 'Sound System & Lighting', 'weight': 8, 'kw': ['sound', 'audio', 'lighting', 'genset'], 'fb': 'SoundVibe Pro Audio & Lighting'},
+        'mc': {'name': 'MC & Musik / Hiburan', 'weight': 7, 'kw': ['mc', 'music', 'band', 'akustik', 'harmoni'], 'fb': 'Live Band Harmoni Acoustic & Sound'},
+        'rias': {'name': 'Tata Rias & Busana Pengantin', 'weight': 8, 'kw': ['rias', 'mua', 'wardrobe', 'kebaya', 'makeup'], 'fb': 'Griya Rias & Wardrobe Eksklusif'},
+        'eo': {'name': 'Wedding Organizer & Crew', 'weight': 8, 'kw': ['organizer', 'wo', 'planner'], 'fb': 'Kencana Wedding Organizer'},
+        'souvenir': {'name': 'Undangan & Souvenir Tamu', 'weight': 5, 'kw': ['souvenir', 'undangan', 'craft', 'gift'], 'fb': 'Royal Wedding Souvenir & Card'},
+        'tenda': {'name': 'Tenda & Perlengkapan Tambahan', 'weight': 6, 'kw': ['tenda', 'kursi', 'alat', 'cooling'], 'fb': 'Mitra Tenda & Equipment'},
+    }
+
+    user_services = plan.selected_services or ['catering', 'dekorasi', 'venue', 'foto']
+    
+    # Normalisasi services (menggabungkan 'venue' dan 'dekorasi' jika keduanya dipilih agar tidak double)
+    active_keys = [s for s in user_services if s in SERVICES_BASE_WEIGHTS]
+    if not active_keys:
+        active_keys = ['catering', 'dekorasi', 'foto', 'sound']
+
+    # Total bobot aktif untuk skala ke 95% (5% wajib untuk dana cadangan tak terduga)
+    total_active_raw_weight = sum(SERVICES_BASE_WEIGHTS[k]['weight'] for k in active_keys)
+    target_alloc_pool = 95.0
+
+    # Query vendor terverifikasi
+    try:
+        from .models import VendorProfile
+        from django.db.models import Q
+        _cat = plan.event_category
+        _base_qs = VendorProfile.objects.filter(verification_status='APPROVED', is_vetted=True)
+        if _cat:
+            _base_qs = _base_qs.filter(category=_cat)
+
+        def _get_vname(keywords, fallback):
+            q_filter = Q()
+            for kw in keywords:
+                q_filter |= Q(business_name__icontains=kw) | Q(description__icontains=kw)
+            match = _base_qs.filter(q_filter).first()
+            return match.business_name if match else fallback
+    except Exception:
+        def _get_vname(keywords, fallback):
+            return fallback
+
+    financial_breakdown = []
+    realisasi_total = 0
+    plan_cadangan = round(pagu * 0.05)
+
+    remaining_pct = target_alloc_pool
+    for idx, key in enumerate(active_keys):
+        meta = SERVICES_BASE_WEIGHTS[key]
+        if idx == len(active_keys) - 1:
+            item_pct = round(remaining_pct)
+        else:
+            item_pct = round((meta['weight'] / total_active_raw_weight) * target_alloc_pool)
+            remaining_pct -= item_pct
+
+        item_plan = round(pagu * (item_pct / 100.0))
+        item_vendor = _get_vname(meta['kw'], meta['fb'])
+        realisasi_total += item_plan
+
+        financial_breakdown.append({
+            'name': meta['name'],
+            'pct': item_pct,
+            'plan': item_plan,
+            'actual': item_plan,
+            'vendor': item_vendor,
+            'status': 'Estimasi Budget',
+            'dp': round(item_plan * 0.30),
+            'mid': round(item_plan * 0.40),
+            'fin': round(item_plan * 0.30),
+            'paid': 0,
+            'debt': item_plan
+        })
+
+    # Tambahkan Dana Cadangan Tak Terduga (5%)
+    financial_breakdown.append({
+        'name': 'Dana Cadangan Tak Terduga (5%)',
+        'pct': 5,
+        'plan': plan_cadangan,
+        'actual': 0,
+        'vendor': 'Alokasi Cadangan Mandiri',
+        'status': 'Belum Terpakai',
+        'dp': 0, 'mid': 0, 'fin': 0, 'paid': 0, 'debt': 0
+    })
+
+    variance = round(pagu - realisasi_total - plan_cadangan)
     serapan_pct = round((realisasi_total / pagu) * 100, 1) if pagu else 0
     dana_terbayar = round(realisasi_total * 0.30)
     sisa_kewajiban = realisasi_total - dana_terbayar
-
-    financial_breakdown = [
-        {'name': 'Catering & Jamuan Tamu', 'pct': 40, 'plan': round(pagu * 0.40), 'actual': total_food_cost, 'vendor': 'Nusantara Royal Catering', 'status': 'DP 30% Terbayar', 'dp': round(total_food_cost*0.3), 'mid': round(total_food_cost*0.4), 'fin': round(total_food_cost*0.3), 'paid': round(total_food_cost*0.3), 'debt': round(total_food_cost*0.7)},
-        {'name': 'Dekorasi, Pelaminan & Venue', 'pct': 30, 'plan': round(pagu * 0.30), 'actual': round(pagu * 0.30), 'vendor': 'Kencana Art Decoration', 'status': 'Menunggu Konfirmasi', 'dp': round(pagu*0.30*0.3), 'mid': round(pagu*0.30*0.4), 'fin': round(pagu*0.30*0.3), 'paid': 0, 'debt': round(pagu*0.30)},
-        {'name': 'Dokumentasi (Foto & Video)', 'pct': 12, 'plan': round(pagu * 0.12), 'actual': round(pagu * 0.12), 'vendor': 'Lumina Visuals Studio', 'status': 'Quotation Diterima', 'dp': round(pagu*0.12*0.3), 'mid': round(pagu*0.12*0.4), 'fin': round(pagu*0.12*0.3), 'paid': 0, 'debt': round(pagu*0.12)},
-        {'name': 'Sound System, Lighting & MC', 'pct': 13, 'plan': round(pagu * 0.13), 'actual': round(pagu * 0.13), 'vendor': 'SoundVibe Pro Audio', 'status': 'Rekomendasi', 'dp': round(pagu*0.13*0.3), 'mid': round(pagu*0.13*0.4), 'fin': round(pagu*0.13*0.3), 'paid': 0, 'debt': round(pagu*0.13)},
-        {'name': 'Dana Cadangan Tak Terduga (5%)', 'pct': 5, 'plan': round(pagu * 0.05), 'actual': 0, 'vendor': 'Alokasi Cadangan Mandiri', 'status': 'Belum Bayar', 'dp': 0, 'mid': 0, 'fin': 0, 'paid': 0, 'debt': 0},
-    ]
 
     return {
         'days_left': max(days_left, 0),
@@ -244,7 +338,7 @@ def get_planner_master_data(plan):
         'realisasi_total': realisasi_total,
         'variance': variance,
         'serapan_pct': serapan_pct,
-        'cost_per_pax': round(realisasi_total / total_porsi) if total_porsi else 0,
+        'cost_per_pax': round(realisasi_total / pax) if pax else 0,
         'dana_terbayar': dana_terbayar,
         'sisa_kewajiban': sisa_kewajiban,
         'financial_breakdown': financial_breakdown,
@@ -284,7 +378,7 @@ def generate_planner_excel(plan, vendors, budget_allocations, vendor_mode='full'
     """
     """
     Generates a world-class, fully formula-driven master event workbook with 5 distinct tabs:
-    1. Budget & Bayar (Executive KPI cards, live formulas, automated variance, escrow cashflow & debt tracking)
+    1. Budget & Bayar (Executive KPI cards, live formulas, automated variance, cashflow & payment tracking)
     2. Direktori Vendor & PIC (Unmasked contacts, WhatsApp links, cost-per-pax formulas & status dropdowns)
     3. Jadwal & Rundown (Live TODAY() countdown, readiness counters, Bulanan, Mingguan, Harian & Hari-H Rundown)
     4. Hitung Katering (Interactive guest attendance simulator, buffet vs stall ratios, logistics & sensitivity analysis)
@@ -429,7 +523,7 @@ def generate_planner_excel(plan, vendors, budget_allocations, vendor_mode='full'
     ws1["I5"].fill = kpi_card_fill
     ws1["I5"].alignment = Alignment(horizontal="center", vertical="center")
 
-    # Card 6: Total Dana Terbayar Escrow
+    # Card 6: Total Dana Terbayar Vendor
     ws1.merge_cells("K4:L4")
     ws1["K4"] = "SUDAH DIBAYAR"
     ws1["K4"].font = font_kpi_label
@@ -464,9 +558,9 @@ def generate_planner_excel(plan, vendors, budget_allocations, vendor_mode='full'
     # Event Metadata (Rows 8-10). B9 is a real date value (Dashboard + countdown use it),
     # and Anggaran Max mirrors the KPI card (=A5) so edits flow everywhere.
     meta_info = [
-        ("Kategori Acara", plan.event_category.name if plan.event_category else "Event", "Kota / Lokasi", plan.city, "Status Kurasi", "Vetted Partners Only", "Proteksi", "Garansi Finansial 100%"),
-        ("Tanggal Acara", plan.event_date, "Estimasi Tamu", f"{plan.estimated_pax} Pax", "Skema Pembayaran", "Platform Escrow Bertahap", "Metode", "Virtual Account & QRIS"),
-        ("Anggaran Min", f"Rp {intdot(plan.budget_min)}", "Anggaran Max", "=A5", "Sistem Escrow", "Tiga Tahap (30-40-30)", "Layanan", "Dedicated Event Planner"),
+        ("Kategori Acara", plan.event_category.name if plan.event_category else "Event", "Kota / Lokasi", plan.city, "Status Kurasi", "Vetted Partners Only", "Proteksi", "Kurasi Vendor & Kontrak"),
+        ("Tanggal Acara", plan.event_date, "Estimasi Tamu", f"{plan.estimated_pax} Pax", "Skema Pembayaran", "Termin Langsung ke Vendor", "Metode", "Transfer Bank & QRIS"),
+        ("Anggaran Min", f"Rp {intdot(plan.budget_min)}", "Anggaran Max", "=A5", "Skema Termin", "Tiga Tahap (30-40-30)", "Layanan", "Dedicated Event Planner"),
     ]
     for r_idx, row_data in enumerate(meta_info, start=8):
         for c_pair in range(4):
@@ -498,15 +592,35 @@ def generate_planner_excel(plan, vendors, budget_allocations, vendor_mode='full'
         cell.border = thin_border
     ws1.row_dimensions[header_row1].height = 28
 
+    planner_master = get_planner_master_data(plan)
     total_max = float(plan.budget_max)
     _vlabel = "—" if vendor_mode in ('basic', 'none') else None
-    rows_data1 = [
-        (1, "Catering & Jamuan Tamu", 0.40, "='Hitung Katering'!B34", _vlabel or "Nusantara Royal Catering", "DP 30% Terbayar"),
-        (2, "Dekorasi, Pelaminan & Venue", 0.30, total_max * 0.30, _vlabel or "Kencana Art Decoration", "Menunggu Konfirmasi"),
-        (3, "Dokumentasi (Foto & Cinematic Video)", 0.12, total_max * 0.12, _vlabel or "Lumina Visuals Studio", "Quotation Diterima"),
-        (4, "Sound System, Lighting, MC & Hiburan", 0.13, total_max * 0.13, _vlabel or "SoundVibe Pro Audio", "Rekomendasi"),
-        (5, "Dana Cadangan Tak Terduga (Contingency)", 0.05, 0, "Alokasi Cadangan Mandiri", "Belum Bayar"),
-    ]
+
+    # Derive budget rows dynamically from planner_master financial_breakdown
+    rows_data1 = []
+    for idx, item in enumerate(planner_master['financial_breakdown'], start=1):
+        is_cadangan = (item['pct'] == 5 and 'Cadangan' in item['name'])
+        is_catering = ('Catering' in item['name'] or 'Katering' in item['name'])
+        
+        # Realisasi formula / value:
+        if is_catering:
+            real_val = "='Hitung Katering'!B34"
+        elif is_cadangan:
+            real_val = 0
+        else:
+            real_val = item['plan']
+
+        vendor_name = _vlabel or item['vendor']
+        status_pay = "DP 30% Terbayar" if not is_cadangan else "Belum Bayar"
+
+        rows_data1.append((
+            idx,
+            item['name'],
+            item['pct'] / 100.0,
+            real_val,
+            vendor_name,
+            status_pay
+        ))
 
     curr_row = 15
     for item in rows_data1:
@@ -557,7 +671,7 @@ def generate_planner_excel(plan, vendors, budget_allocations, vendor_mode='full'
         c_pay = ws1.cell(row=curr_row, column=12, value=item[5])
         c_pay.alignment = Alignment(horizontal="center")
         
-        # Col 13: Dana Terbayar Otomatis (Live Escrow Outflow formula)
+        # Col 13: Dana Terbayar Otomatis (Live Payment Outflow formula)
         c_paid = ws1.cell(row=curr_row, column=13, value=f'=IF(L{curr_row}="Lunas",F{curr_row},IF(L{curr_row}="Mid-Term 40% Terbayar",I{curr_row}+J{curr_row},IF(L{curr_row}="DP 30% Terbayar",I{curr_row},0)))')
         c_paid.number_format = '#,##0'
         c_paid.font = font_bold
@@ -574,18 +688,29 @@ def generate_planner_excel(plan, vendors, budget_allocations, vendor_mode='full'
     # Total Summary Row (Row 20)
     ws1.cell(row=curr_row, column=1, value="").alignment = Alignment(horizontal="center")
     ws1.cell(row=curr_row, column=2, value="TOTAL KESELURUHAN").font = font_bold
-    ws1.cell(row=curr_row, column=3, value="=SUM(C15:C19)").number_format = '0.0%'
-    ws1.cell(row=curr_row, column=4, value="=SUM(D15:D19)").number_format = '#,##0'
-    ws1.cell(row=curr_row, column=5, value="5 Divisi Master")
-    ws1.cell(row=curr_row, column=6, value="=SUM(F15:F19)").number_format = '#,##0'
-    ws1.cell(row=curr_row, column=7, value="=SUM(G15:G19)").number_format = '#,##0'
-    ws1.cell(row=curr_row, column=8, value='=IF(G20>0,"TOTAL SURPLUS",IF(G20<0,"TOTAL DEFISIT","SEIMBANG"))').alignment = Alignment(horizontal="center")
-    ws1.cell(row=curr_row, column=9, value="=SUM(I15:I19)").number_format = '#,##0'
-    ws1.cell(row=curr_row, column=10, value="=SUM(J15:J19)").number_format = '#,##0'
-    ws1.cell(row=curr_row, column=11, value="=SUM(K15:K19)").number_format = '#,##0'
-    ws1.cell(row=curr_row, column=12, value="Rekap Escrow").alignment = Alignment(horizontal="center")
-    ws1.cell(row=curr_row, column=13, value="=SUM(M15:M19)").number_format = '#,##0'
-    ws1.cell(row=curr_row, column=14, value="=SUM(N15:N19)").number_format = '#,##0'
+    end_budget_row = curr_row - 1
+    num_items = len(rows_data1)
+
+    # Update Card 2: Total Realisasi
+    ws1["C5"] = f"=SUM(F15:F{end_budget_row})"
+    # Update Card 6: Total Dana Terbayar Vendor
+    ws1["K5"] = f"=SUM(M15:M{end_budget_row})"
+
+    # Total Summary Row
+    ws1.cell(row=curr_row, column=1, value="").alignment = Alignment(horizontal="center")
+    ws1.cell(row=curr_row, column=2, value="TOTAL KESELURUHAN").font = font_bold
+    ws1.cell(row=curr_row, column=3, value=f"=SUM(C15:C{end_budget_row})").number_format = '0.0%'
+    ws1.cell(row=curr_row, column=4, value=f"=SUM(D15:D{end_budget_row})").number_format = '#,##0'
+    ws1.cell(row=curr_row, column=5, value=f"{num_items} Divisi Layanan")
+    ws1.cell(row=curr_row, column=6, value=f"=SUM(F15:F{end_budget_row})").number_format = '#,##0'
+    ws1.cell(row=curr_row, column=7, value=f"=SUM(G15:G{end_budget_row})").number_format = '#,##0'
+    ws1.cell(row=curr_row, column=8, value=f'=IF(G{curr_row}>0,"TOTAL SURPLUS",IF(G{curr_row}<0,"TOTAL DEFISIT","SEIMBANG"))').alignment = Alignment(horizontal="center")
+    ws1.cell(row=curr_row, column=9, value=f"=SUM(I15:I{end_budget_row})").number_format = '#,##0'
+    ws1.cell(row=curr_row, column=10, value=f"=SUM(J15:J{end_budget_row})").number_format = '#,##0'
+    ws1.cell(row=curr_row, column=11, value=f"=SUM(K15:K{end_budget_row})").number_format = '#,##0'
+    ws1.cell(row=curr_row, column=12, value="Rekap Pembayaran").alignment = Alignment(horizontal="center")
+    ws1.cell(row=curr_row, column=13, value=f"=SUM(M15:M{end_budget_row})").number_format = '#,##0'
+    ws1.cell(row=curr_row, column=14, value=f"=SUM(N15:N{end_budget_row})").number_format = '#,##0'
 
     for c in range(1, 15):
         cell = ws1.cell(row=curr_row, column=c)
@@ -596,18 +721,18 @@ def generate_planner_excel(plan, vendors, budget_allocations, vendor_mode='full'
     # Data Validation Dropdown for Status Pembayaran
     dv_pay = DataValidation(type="list", formula1='"Belum Bayar,DP 30% Terbayar,Mid-Term 40% Terbayar,Lunas"', allow_blank=True)
     ws1.add_data_validation(dv_pay)
-    dv_pay.add("L15:L19")
+    dv_pay.add(f"L15:L{end_budget_row}")
 
     # Conditional formatting for Selisih (Col G) & Status Pembayaran (Col L)
-    ws1.conditional_formatting.add("G15:G20", CellIsRule(operator="greaterThan", formula=["0"], fill=accent_green, font=cf_green_font))
-    ws1.conditional_formatting.add("G15:G20", CellIsRule(operator="lessThan", formula=["0"], fill=accent_red, font=cf_red_font))
-    ws1.conditional_formatting.add("L15:L19", CellIsRule(operator="equal", formula=['"Lunas"'], fill=accent_green, font=cf_green_font))
-    ws1.conditional_formatting.add("L15:L19", CellIsRule(operator="equal", formula=['"DP 30% Terbayar"'], fill=accent_yellow, font=cf_yellow_font))
-    ws1.conditional_formatting.add("L15:L19", CellIsRule(operator="equal", formula=['"Mid-Term 40% Terbayar"'], fill=accent_yellow, font=cf_yellow_font))
+    ws1.conditional_formatting.add(f"G15:G{curr_row}", CellIsRule(operator="greaterThan", formula=["0"], fill=accent_green, font=cf_green_font))
+    ws1.conditional_formatting.add(f"G15:G{curr_row}", CellIsRule(operator="lessThan", formula=["0"], fill=accent_red, font=cf_red_font))
+    ws1.conditional_formatting.add(f"L15:L{end_budget_row}", CellIsRule(operator="equal", formula=['"Lunas"'], fill=accent_green, font=cf_green_font))
+    ws1.conditional_formatting.add(f"L15:L{end_budget_row}", CellIsRule(operator="equal", formula=['"DP 30% Terbayar"'], fill=accent_yellow, font=cf_yellow_font))
+    ws1.conditional_formatting.add(f"L15:L{end_budget_row}", CellIsRule(operator="equal", formula=['"Mid-Term 40% Terbayar"'], fill=accent_yellow, font=cf_yellow_font))
 
     # Notes & Guidance below
     note_row = curr_row + 2
-    ws1.cell(row=note_row, column=2, value="* Panduan Finansial: Kolom berlatar kuning (Realisasi Kontrak) dapat Anda sesuaikan. Biaya katering terhubung otomatis ke Tab 'Hitung Katering'. Selisih, status efisiensi, dan dana terbayar escrow terupdate otomatis.").font = font_sub
+    ws1.cell(row=note_row, column=2, value="* Panduan Finansial: Kolom berlatar kuning (Realisasi Kontrak) dapat Anda sesuaikan. Biaya katering terhubung otomatis ke Tab 'Hitung Katering'. Selisih, status efisiensi, dan dana terbayar terupdate otomatis.").font = font_sub
     ws1.freeze_panes = 'A15'
 
     # -------------------------------------------------------------
@@ -1060,10 +1185,14 @@ def generate_planner_excel(plan, vendors, budget_allocations, vendor_mode='full'
 
     ws4.cell(row=4, column=1, value="1. PARAMETER PERHITUNGAN TAMU (SIMULATOR KEHADIRAN):").font = font_bold
 
+    _catering_info = planner_master.get('catering', {})
+    buffet_price = _catering_info.get('buffet_price', 85000)
+    stall_price = _catering_info.get('stall_price', 25000)
+
     calc_inputs = [
-        ("Jumlah Undangan Fisik (Lembar)", round(plan.estimated_pax * 0.4), "Ubah sesuai jumlah cetak fisik"),
+        ("Jumlah Undangan Fisik (Lembar)", round(plan.estimated_pax * 0.50), "Ubah sesuai jumlah cetak fisik"),
         ("Estimasi Tamu per Undangan Fisik", 2.0, "Standar rata-rata kehadiran: 2 orang per undangan"),
-        ("Jumlah Undangan Digital / Broadcast", round(plan.estimated_pax * 0.2), "Ubah sesuai daftar broadcast digital"),
+        ("Jumlah Undangan Digital / Broadcast", round(plan.estimated_pax * 0.30), "Ubah sesuai daftar broadcast digital"),
         ("Estimasi Kehadiran per Undangan Digital", 1.5, "Standar rata-rata kehadiran e-invitation: 1.5 orang"),
         ("Subtotal Estimasi Tamu Undangan (Pax)", "=(B5*B6)+(B7*B8)", "Kalkulasi otomatis proyeksi tamu hadir"),
         ("Buffer Panitia, Kru Vendor & Keluarga (%)", 0.10, "Standar aman WO: 10% dari tamu hadir"),
@@ -1174,8 +1303,8 @@ def generate_planner_excel(plan, vendors, budget_allocations, vendor_mode='full'
     c_row += 1
 
     sim_data = [
-        ("Estimasi Harga Paket Prasmanan per Pax", 95000, "Rp / Pax", "Ubah sesuai penawaran vendor katering"),
-        ("Estimasi Harga Rata-rata Stall per Porsi", 25000, "Rp / Porsi", "Ubah sesuai variasi gubukan"),
+        ("Estimasi Harga Paket Prasmanan per Pax", buffet_price, "Rp / Pax", "Ubah sesuai penawaran vendor katering"),
+        ("Estimasi Harga Rata-rata Stall per Porsi", stall_price, "Rp / Porsi", "Ubah sesuai variasi gubukan"),
         ("Subtotal Biaya Prasmanan (Buffet)", "=C16*B30", "Rp", "Porsi Buffet x Harga per Pax"),
         ("Subtotal Biaya Food Stalls (Gubukan)", "=C17*B31", "Rp", "Porsi Stall x Harga per Porsi"),
         ("TOTAL BIAYA MAKAN", "=SUM(B32:B33)", "Rp", "Total proyeksi belanja katering"),
@@ -1886,7 +2015,7 @@ class NumberedCanvas(canvas.Canvas):
         
         # Bottom footer
         self.line(40, 45, 802, 45)
-        self.drawString(40, 32, "Protected by Vendoraman Escrow & Financial Guarantee")
+        self.drawString(40, 32, "Vendoraman Curated Platform & Wedding Planner")
         self.drawRightString(802, 32, f"Slide {self._pageNumber} of {page_count}")
         self.restoreState()
 
@@ -1995,7 +2124,7 @@ def generate_planner_pdf_deck(plan, vendors, budget_allocations):
     ]))
     story.append(t_cover)
     story.append(Spacer(1, 40))
-    story.append(Paragraph("TERVERIFIKASI PLATFORM &bull; GARANSI KEUANGAN ESCROW &bull; DILINDUNGI PENUH", ParagraphStyle('CoverBadge', fontName='Helvetica-Bold', fontSize=10, textColor=colors.HexColor('#5C7A5E'), alignment=1)))
+    story.append(Paragraph("TERVERIFIKASI PLATFORM &bull; VENDOR RESMI TERKURASI &bull; TRANSAKSI TRANSPARAN", ParagraphStyle('CoverBadge', fontName='Helvetica-Bold', fontSize=10, textColor=colors.HexColor('#5C7A5E'), alignment=1)))
     story.append(PageBreak())
 
     # -------------------------------------------------------------
@@ -2034,7 +2163,7 @@ def generate_planner_pdf_deck(plan, vendors, budget_allocations):
         Paragraph("<b>TOTAL PAGU ANGGARAN</b>", body_bold),
         Paragraph("<b>100%</b>", body_bold),
         Paragraph(f"<b>Rp {intdot(total_budget)}</b>", body_bold),
-        Paragraph("<b>100% Dana Diamankan dengan Skema Escrow</b>", ParagraphStyle('Gre', fontName='Helvetica-Bold', fontSize=9, textColor=colors.HexColor('#059669'))),
+        Paragraph("<b>100% Sesuai Rekomendasi Pagu Anggaran</b>", ParagraphStyle('Gre', fontName='Helvetica-Bold', fontSize=9, textColor=colors.HexColor('#059669'))),
     ])
 
     t_budget = Table(budget_table_data, colWidths=[220, 80, 160, 280])
@@ -2048,7 +2177,7 @@ def generate_planner_pdf_deck(plan, vendors, budget_allocations):
     ]))
     story.append(t_budget)
     story.append(Spacer(1, 20))
-    story.append(Paragraph("<b>Keamanan Transaksi:</b> Dana Anda tidak ditransfer langsung ke vendor, melainkan disimpan dalam platform escrow dan dicairkan bertahap (DP 30%, Mid-Term 40%, Pelunasan 30% H+1 selesai acara).", ParagraphStyle('FootNote', fontName='Helvetica-Oblique', fontSize=9, textColor=colors.HexColor('#4B4F72'))))
+    story.append(Paragraph("<b>Panduan Pembayaran Vendor:</b> Disarankan menggunakan skema termin bertahap langsung ke vendor (DP 30% saat booking/kontrak, Mid-Term 40% saat H-7/TM, dan Pelunasan 30% setelah acara selesai).", ParagraphStyle('FootNote', fontName='Helvetica-Oblique', fontSize=9, textColor=colors.HexColor('#4B4F72'))))
     story.append(PageBreak())
 
     # -------------------------------------------------------------
@@ -2128,7 +2257,7 @@ def generate_planner_pdf_deck(plan, vendors, budget_allocations):
             Paragraph(
                 "&bull; <b>H-7:</b> Readiness check seluruh vendor<br/>"
                 "&bull; <b>H-4:</b> Pengecekan bukti siap vendor<br/>"
-                "&bull; <b>H-3:</b> Pencairan Mid-Term Escrow 40%<br/>"
+                "&bull; <b>H-3:</b> Pembayaran Mid-Term 40% sesuai kontrak vendor<br/>"
                 "&bull; <b>H-2:</b> Gladi resik & test sound system<br/>"
                 "&bull; <b>H-1:</b> Loading dekorasi & briefing malam<br/>"
                 "&bull; <b>Hari-H:</b> Eksekusi rundown per jam",
@@ -2223,8 +2352,8 @@ def generate_planner_pdf_deck(plan, vendors, budget_allocations):
 
     roadmap_data = [
         [
-            Paragraph("<b>Tahap 1: Booking & DP Escrow</b>", body_bold),
-            Paragraph("Pilih paket vendor resmi, transfer DP 30% ke Platform Escrow Vendoraman. Tanggal acara Anda terkunci resmi.", body_style)
+            Paragraph("<b>Tahap 1: Booking & DP Vendor (30%)</b>", body_bold),
+            Paragraph("Pilih paket vendor resmi di platform, bayar DP 30% langsung ke rekening resmi vendor sesuai SPK/kontrak.", body_style)
         ],
         [
             Paragraph("<b>Tahap 2: Technical Meeting</b>", body_bold),
@@ -2232,11 +2361,11 @@ def generate_planner_pdf_deck(plan, vendors, budget_allocations):
         ],
         [
             Paragraph("<b>Tahap 3: H-3 Readiness Check & Mid-Term</b>", body_bold),
-            Paragraph("Vendor mengonfirmasi kesiapan deliverables. Platform mencairkan milestone ke-2 (40%) untuk persiapan akhir.", body_style)
+            Paragraph("Vendor mengonfirmasi kesiapan deliverables. Lakukan pembayaran termin ke-2 (40%) langsung ke vendor untuk persiapan akhir.", body_style)
         ],
         [
-            Paragraph("<b>Tahap 4: Hari-H & Konfirmasi Selesai</b>", body_bold),
-            Paragraph("Acara berjalan lancar sesuai rundown. Setelah Anda puas dan konfirmasi di platform, dana sisa 30% dicairkan ke vendor.", body_style)
+            Paragraph("<b>Tahap 4: Hari-H & Pelunasan Vendor</b>", body_bold),
+            Paragraph("Acara berjalan lancar sesuai rundown. Lakukan pelunasan sisa 30% langsung kepada vendor setelah serah terima pekerjaan.", body_style)
         ]
     ]
     t_road = Table(roadmap_data, colWidths=[220, 520])

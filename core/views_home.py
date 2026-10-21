@@ -62,8 +62,8 @@ def home_view(request):
             'verified': True,
             'avatar_initials': 'AS',
             'color': 'var(--berry)',
-            'title': 'Template Excel & Proteksi Escrow Penyelamat Acara Kami!',
-            'quote': 'Awalnya pusing mengatur puluhan vendor dan takut ditipu DP. Dengan Vendoraman, semua pembayaran aman dalam 3 milestone escrow. Ditambah lagi, Master Planner Excel-nya menghitung porsi katering dan timeline harian secara otomatis. Kami berhasil hemat Rp 24 juta dari alokasi awal!'
+            'title': 'Template Excel & Sistem Termin Penyelamat Acara Kami!',
+            'quote': 'Awalnya pusing mengatur puluhan vendor dan takut ditipu DP. Dengan Vendoraman, semua rekomendasi transparan dan alokasi termin pembayaran jelas (30%-40%-30%). Ditambah lagi, Master Planner Excel-nya menghitung porsi katering dan timeline harian secara otomatis. Kami berhasil hemat Rp 24 juta dari alokasi awal!'
         },
         {
             'name': 'Dian Kusuma, S.Sos',
@@ -104,7 +104,7 @@ def home_view(request):
     faqs = [
         {
             'q': 'Apa itu Vendoraman dan apa bedanya dengan direktori vendor biasa?',
-            'a': 'Vendoraman bukan sekadar direktori daftar kontak biasa. Kami adalah curated marketplace dengan kurasi mutu ketat, sistem pembayaran bergaransi Milestone Escrow, dan alat perencanaan interaktif (Web Dashboard, Excel otomatis 5-sheet, dan Presentation Deck PDF 16:9). Anda mendapatkan harga murni dari vendor tanpa mark-up sepihak, serta garansi 100% uang kembali jika terjadi wanprestasi.'
+            'a': 'Vendoraman bukan sekadar direktori daftar kontak biasa. Kami adalah curated marketplace dengan kurasi mutu ketat, panduan termin pembayaran vendor yang transparan, dan alat perencanaan interaktif (Web Dashboard, Excel otomatis 5-sheet, dan Presentation Deck PDF 16:9). Anda mendapatkan harga murni dari vendor tanpa mark-up sepihak.'
         },
         {
             'q': 'Berapa jumlah vendor yang terdaftar dan kategori apa saja yang tersedia?',
@@ -112,15 +112,15 @@ def home_view(request):
         },
         {
             'q': 'Kota mana saja yang saat ini bisa di-cover oleh Vendoraman?',
-            'a': 'Kami melayani 6 wilayah metropolitan utama: Jakarta (Jabodetabek), Bandung, Surabaya, Yogyakarta & Solo, Semarang, dan Bali. Setiap kota didukung oleh vendor lokal berlisensi dan perlindungan dana Escrow 100% aktif.'
+            'a': 'Kami melayani 6 wilayah metropolitan utama: Jakarta (Jabodetabek), Bandung, Surabaya, Yogyakarta & Solo, Semarang, dan Bali. Setiap kota didukung oleh vendor lokal berlisensi dan terkurasi resmi.'
         },
         {
             'q': 'Berapa rentang harga paket vendor yang tersedia di platform?',
             'a': f'Harga paket vendor sangat fleksibel mulai dari Rp {intdot(min_global_price)} untuk paket seminar atau intimate event, hingga Rp {intdot(max_global_price)} untuk paket pernikahan akbar dan corporate festival skala ribuan tamu. Seluruh rincian fasilitas dan itemized specifications tertulis transparan.'
         },
         {
-            'q': 'Bagaimana sistem Milestone Escrow melindungi dana saya?',
-            'a': 'Dana Anda tidak langsung ditransfer ke vendor saat pemesanan. Uang disimpan di rekening penampung resmi Vendoraman dan dicairkan bertahap dalam 3 termin: DP 30% untuk mengunci tanggal, 40% pada H-3 setelah konfirmasi kesiapan barang/jasa, dan 30% pelunasan setelah acara selesai sukses dengan persetujuan Anda.'
+            'q': 'Bagaimana cara pembayaran ke vendor dilakukan?',
+            'a': 'Pembayaran dilakukan secara langsung antara Anda dan vendor terpilih dengan panduan skema termin bertahap (standar industri: DP 30% untuk mengunci tanggal, 40% pada H-7 saat TM/kesiapan logistik, dan pelunasan 30% setelah acara sukses diselenggarakan). Vendoraman menyediakan template SPK, invoice tracking, dan rincian alokasi anggaran otomatis tanpa menampung dana Anda.'
         },
         {
             'q': 'Berapa orang yang sudah memakai dan membeli Master Planner Template?',

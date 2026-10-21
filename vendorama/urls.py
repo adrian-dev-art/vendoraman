@@ -13,7 +13,8 @@ from core.views_templates import (
 from core.views_auth import login_view, register_customer_view, register_vendor_view, logout_view
 from core.views_planner import (
     planner_wizard_view, planner_results_view, unlock_planner_view, vendor_detail_view,
-    export_planner_excel_view, export_planner_pdf_view, planner_deck_view
+    export_planner_excel_view, export_planner_pdf_view, planner_deck_view,
+    planner_ai_insight_view
 )
 from core.views_savings import savings_list_view, savings_detail_view
 from core.views_booking import (
@@ -61,6 +62,7 @@ urlpatterns = [
     path('planner/<int:plan_id>/export/excel/', export_planner_excel_view, name='export_planner_excel'),
     path('planner/<int:plan_id>/export/pdf/', export_planner_pdf_view, name='export_planner_pdf'),
     path('planner/<int:plan_id>/deck/', planner_deck_view, name='planner_deck'),
+    path('planner/<int:plan_id>/ai-insight/', planner_ai_insight_view, name='planner_ai_insight'),
 
     # Event Savings Vault
     path('savings/', savings_list_view, name='savings_list'),

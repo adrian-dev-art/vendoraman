@@ -41,13 +41,13 @@ def savings_detail_view(request, vault_id):
             SavingsDeposit.objects.create(
                 vault=vault,
                 amount=amount,
-                payment_method='Virtual Account Escrow',
+                payment_method='Virtual Account / Transfer Bank',
                 notes=notes or 'Setoran Tabungan Fleksibel'
             )
             vault.current_amount += amount
             vault.save()
 
-            messages.success(request, f"Setoran tabungan sebesar Rp {intdot(amount)} berhasil diterima dan ditampung aman di Escrow Vault.")
+            messages.success(request, f"Setoran tabungan sebesar Rp {intdot(amount)} berhasil dicatat ke dalam Tabungan Acara.")
             return redirect('savings_detail', vault_id=vault.id)
     else:
         deposit_form = SavingsDepositForm()

@@ -1,5 +1,6 @@
 import datetime
 from django.conf import settings
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -127,12 +128,10 @@ def _get_plan_vendors_and_budget(plan):
 
     vendors_list = list(vendors_qs)
 
-    total_budget = float(plan.budget_max)
+    from .services_export import get_planner_master_data
+    p_data = get_planner_master_data(plan)
     budget_allocations = {
-        'Catering': round(total_budget * 0.40),
-        'Dekorasi & Venue': round(total_budget * 0.30),
-        'Dokumentasi (Foto/Video)': round(total_budget * 0.15),
-        'Sound, Lighting & MC': round(total_budget * 0.15),
+        item['name']: item['plan'] for item in p_data['financial_breakdown']
     }
     return vendors_list, budget_allocations
 
@@ -276,4 +275,23 @@ def planner_deck_view(request, plan_id):
         'budget_allocations': budget_allocations,
         'planner_data': planner_data,
         'is_unlocked': True,
+    })
+
+
+@login_required
+def planner_ai_insight_view(request, plan_id):
+    """AJAX GET endpoint — returns Groq-generated AI insight for a plan as JSON."""
+    plan, err = _get_accessible_plan(request, plan_id)
+    if err:
+        return JsonResponse({'error': 'Akses ditolak.'}, status=403)
+
+    from .services_groq import get_ai_planner_insight
+    result = get_ai_planner_insight(plan)
+
+    if result.get('error') and not result.get('insight'):
+        return JsonResponse({'error': result['error']}, status=200)  # 200 — UI handles gracefully
+
+    return JsonResponse({
+        'insight': result['insight'],
+        'cached': result.get('cached', False),
     })
